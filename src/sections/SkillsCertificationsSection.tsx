@@ -73,6 +73,9 @@ export function SkillsCertificationsSection() {
                       <img 
                         src={cert.image_url} 
                         alt={cert.title} 
+                        loading="lazy"
+                        width="800"
+                        height="600"
                         className="w-full h-full object-cover object-center"
                       />
                     </div>

@@ -1,5 +1,5 @@
 import { useRef } from 'react';
-import { motion, useAnimationFrame, useMotionValue } from 'motion/react';
+import { motion, useAnimationFrame, useMotionValue, useInView } from 'motion/react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 export function RoundCarousel() {
@@ -10,8 +10,11 @@ export function RoundCarousel() {
   const isInteracting = useRef(false);
   const currentVelocity = useRef(15); // degrees per second
   const autoSpinVelocity = 15;
+  const containerRef = useRef<HTMLDivElement>(null);
+  const inView = useInView(containerRef);
 
   useAnimationFrame((t, delta) => {
+    if (!inView) return;
     if (!isInteracting.current && cards.length > 0) {
       // Smoothly damp current velocity towards autoSpinVelocity
       currentVelocity.current += (autoSpinVelocity - currentVelocity.current) * (delta / 1000) * 2;
@@ -41,6 +44,7 @@ export function RoundCarousel() {
 
   return (
     <div 
+      ref={containerRef}
       className="relative w-full flex justify-center items-center perspective-[1200px] py-20 sm:py-28"
       onMouseEnter={() => { isInteracting.current = true; }}
       onMouseLeave={() => { isInteracting.current = false; }}

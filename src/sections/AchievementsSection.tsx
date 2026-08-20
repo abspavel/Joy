@@ -1,7 +1,8 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useInView } from 'motion/react';
+import { useInView, AnimatePresence, motion } from 'motion/react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { FadeIn } from '../components/FadeIn';
+import { Skeleton } from '../components/Skeleton';
 
 const FALLBACK_STATS = [
   { id: '1', value: '250+', label: 'Projects Completed' },
@@ -76,26 +77,42 @@ export function AchievementsSection() {
     : 'md:grid-cols-4';
 
   return (
-    <section className="bg-[#0C0C0C] px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24 border-none relative z-10">
-      <div className={`max-w-5xl mx-auto grid grid-cols-2 ${gridColsClasses} gap-6 sm:gap-8 md:gap-10`}>
-        {stats.map((stat, i) => {
-          // Determine if we need a left border for desktop (not the first item in a row)
-          const colsCount = count < 4 ? count : 4;
-          const needsDivider = (i % colsCount) !== 0;
+    <section className="bg-[#0C0C0C] px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24 border-none relative z-10 min-h-[200px]">
+      <div className={`max-w-5xl mx-auto grid grid-cols-2 ${gridColsClasses} gap-6 sm:gap-8 md:gap-10 relative`}>
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              key="skeleton"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="col-span-full flex w-full justify-center gap-6 md:gap-10"
+            >
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="flex-1 flex flex-col items-center gap-4">
+                  <Skeleton className="w-24 h-16 sm:h-20" />
+                  <Skeleton className="w-32 h-4" />
+                </div>
+              ))}
+            </motion.div>
+          ) : (
+            stats.map((stat, i) => {
+              const colsCount = count < 4 ? count : 4;
+              const needsDivider = (i % colsCount) !== 0;
 
-          return (
-            <FadeIn key={stat.id} delay={i * 0.15} y={30} className="w-full">
-              <div className={`flex flex-col items-center justify-center gap-2 text-center relative w-full h-full ${needsDivider ? 'md:border-l md:border-[#D7E2EA]/15' : ''}`}>
-                <h3 className="hero-heading font-black tracking-tight leading-none text-[clamp(2.5rem,7vw,4.5rem)]">
-                  <AnimatedNumber value={stat.value} />
-                </h3>
-                <p className="text-[#D7E2EA] font-light uppercase tracking-wide text-xs sm:text-sm md:text-base opacity-70">
-                  {stat.label}
-                </p>
-              </div>
-            </FadeIn>
-          );
-        })}
+              return (
+                <FadeIn key={stat.id} delay={i * 0.15} y={30} className="w-full">
+                  <div className={`flex flex-col items-center justify-center gap-2 text-center relative w-full h-full ${needsDivider ? 'md:border-l md:border-[#D7E2EA]/15' : ''}`}>
+                    <h3 className="hero-heading font-black tracking-tight leading-none text-[clamp(2.5rem,7vw,4.5rem)]">
+                      <AnimatedNumber value={stat.value} />
+                    </h3>
+                    <p className="text-[#D7E2EA] font-light uppercase tracking-wide text-xs sm:text-sm md:text-base opacity-70">
+                      {stat.label}
+                    </p>
+                  </div>
+                </FadeIn>
+              );
+            })
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

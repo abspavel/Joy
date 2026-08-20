@@ -32,9 +32,19 @@ export function usePortfolioData(tableName: string) {
             query = query.order('order_index', { ascending: true });
           }
 
-          pendingRequests[tableName] = query.then(({ data: result, error: fetchError }) => {
+          const fetchPromise = query.then(({ data: result, error: fetchError }) => {
             if (fetchError) throw fetchError;
             return result || [];
+          });
+
+          // 10 second timeout for supabase request
+          const timeoutPromise = new Promise<any[]>((_, reject) => {
+            setTimeout(() => reject(new Error('Supabase request timeout')), 10000);
+          });
+
+          pendingRequests[tableName] = Promise.race([fetchPromise, timeoutPromise]).catch(err => {
+            console.error(`Error fetching ${tableName}:`, err);
+            return []; // Graceful fallback
           });
         }
 

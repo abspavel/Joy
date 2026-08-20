@@ -1,8 +1,9 @@
 import { useRef, useState, useEffect } from 'react';
-import { motion, useAnimationFrame, useMotionValue, useInView } from 'motion/react';
+import { motion, useAnimationFrame, useMotionValue, useInView, AnimatePresence } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { Star, User } from 'lucide-react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { Skeleton } from '../components/Skeleton';
 
 function TestimonialCard({ item }: { item: any }) {
   return (
@@ -102,7 +103,7 @@ export function TestimonialsSection() {
       </FadeIn>
 
       <div 
-        className="w-full relative"
+        className="w-full relative min-h-[300px]"
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         onTouchStart={() => setIsHovered(true)}
@@ -112,14 +113,44 @@ export function TestimonialsSection() {
           WebkitMaskImage: 'linear-gradient(to right, transparent, black 10%, black 90%, transparent)'
         }}
       >
-        <motion.div 
-          className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch will-change-transform shrink-0 cursor-grab active:cursor-grabbing px-[10vw]"
-          style={{ x: baseX }}
-        >
-          {displayItems.map((item, i) => (
-            <TestimonialCard key={`testimonial-${item.id}-${i}`} item={item} />
-          ))}
-        </motion.div>
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div 
+              key="skeleton"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch px-[10vw]"
+            >
+              {[1, 2, 3, 4].map(i => (
+                <div key={i} className="flex flex-col justify-between w-[280px] sm:w-[340px] md:w-[380px] shrink-0 bg-[#141414] border border-[#D7E2EA]/15 rounded-2xl p-6 sm:p-8 h-[280px] sm:h-[320px]">
+                  <div className="space-y-4">
+                    <Skeleton className="w-24 h-4" />
+                    <Skeleton className="w-full h-4" />
+                    <Skeleton className="w-5/6 h-4" />
+                    <Skeleton className="w-4/6 h-4" />
+                  </div>
+                  <div className="flex items-center gap-4 mt-6 pt-4 border-t border-[#D7E2EA]/10 shrink-0">
+                    <Skeleton className="w-10 h-10 sm:w-12 sm:h-12 rounded-full" />
+                    <div className="space-y-2">
+                      <Skeleton className="w-24 h-3" />
+                      <Skeleton className="w-16 h-2" />
+                    </div>
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          ) : (
+            <motion.div 
+              key="content"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+              className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch will-change-transform shrink-0 cursor-grab active:cursor-grabbing px-[10vw]"
+              style={{ x: baseX }}
+            >
+              {displayItems.map((item, i) => (
+                <TestimonialCard key={`testimonial-${item.id}-${i}`} item={item} />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );

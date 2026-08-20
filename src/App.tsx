@@ -1,21 +1,41 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import React, { useEffect } from 'react';
+import React, { useEffect, Suspense } from 'react';
 import Lenis from 'lenis';
 
 import { HeroSection } from './sections/HeroSection';
-import { MarqueeSection } from './sections/MarqueeSection';
-import { AchievementsSection } from './sections/AchievementsSection';
-import { ImageCircleSection } from './sections/ImageCircleSection';
 import { AboutSection } from './sections/AboutSection';
-import { SkillsCertificationsSection } from './sections/SkillsCertificationsSection';
 import { ServicesSection } from './sections/ServicesSection';
-import { ProjectsSection } from './sections/ProjectsSection';
-import { TestimonialsSection } from './sections/TestimonialsSection';
 import { FooterSection } from './sections/FooterSection';
 
-import { AdminRouter } from './admin/AdminRouter';
-import { ContactPage } from './pages/ContactPage';
-import { ServiceDetailPage } from './pages/ServiceDetailPage';
+// Lazy loaded sections
+const MarqueeSection = React.lazy(() => import('./sections/MarqueeSection').then(m => ({ default: m.MarqueeSection })));
+const AchievementsSection = React.lazy(() => import('./sections/AchievementsSection').then(m => ({ default: m.AchievementsSection })));
+const ImageCircleSection = React.lazy(() => import('./sections/ImageCircleSection').then(m => ({ default: m.ImageCircleSection })));
+const SkillsCertificationsSection = React.lazy(() => import('./sections/SkillsCertificationsSection').then(m => ({ default: m.SkillsCertificationsSection })));
+const ProjectsSection = React.lazy(() => import('./sections/ProjectsSection').then(m => ({ default: m.ProjectsSection })));
+const TestimonialsSection = React.lazy(() => import('./sections/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
+
+// Lazy loaded pages/routes
+const AdminRouter = React.lazy(() => import('./admin/AdminRouter').then(m => ({ default: m.AdminRouter })));
+const ContactPage = React.lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const ServiceDetailPage = React.lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
+
+function SectionSkeleton() {
+  return (
+    <div className="w-full h-[50vh] bg-[#0C0C0C] flex flex-col items-center justify-center gap-8 py-20">
+      <div className="w-48 h-12 bg-[#D7E2EA]/10 rounded-xl animate-pulse" />
+      <div className="w-full max-w-4xl h-64 bg-[#D7E2EA]/5 rounded-3xl animate-pulse" />
+    </div>
+  );
+}
+
+function PageSkeleton() {
+  return (
+    <div className="w-full h-screen bg-[#0C0C0C] flex items-center justify-center">
+      <div className="w-8 h-8 rounded-full border-2 border-[#D7E2EA]/20 border-t-[#D7E2EA] animate-spin"></div>
+    </div>
+  );
+}
 
 function ScrollToTop() {
   const { pathname } = useLocation();
@@ -45,14 +65,17 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
       // but native is often better. We'll stick to Lenis defaults for touch.
     });
 
+    let rafId: number;
+
     function raf(time: number) {
       lenis.raf(time);
-      requestAnimationFrame(raf);
+      rafId = requestAnimationFrame(raf);
     }
 
-    requestAnimationFrame(raf);
+    rafId = requestAnimationFrame(raf);
 
     return () => {
+      cancelAnimationFrame(rafId);
       lenis.destroy();
     };
   }, []);
@@ -65,15 +88,17 @@ function PublicSite() {
     <SmoothScroll>
       <main className="main-wrapper flex flex-col min-h-[100dvh] selection:bg-[#BBCCD7] selection:text-[#0C0C0C]">
         <HeroSection />
-        <MarqueeSection />
-        <AchievementsSection />
-        <ImageCircleSection />
-        <AboutSection />
-        <SkillsCertificationsSection />
-        <ServicesSection />
-        <ProjectsSection />
-        <TestimonialsSection />
-        <FooterSection />
+        <Suspense fallback={<SectionSkeleton />}>
+          <MarqueeSection />
+          <AchievementsSection />
+          <ImageCircleSection />
+          <AboutSection />
+          <SkillsCertificationsSection />
+          <ServicesSection />
+          <ProjectsSection />
+          <TestimonialsSection />
+          <FooterSection />
+        </Suspense>
       </main>
     </SmoothScroll>
   );
@@ -83,12 +108,14 @@ export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
-      <Routes>
-        <Route path="/admin/*" element={<AdminRouter />} />
-        <Route path="/contact" element={<ContactPage />} />
-        <Route path="/services/:slug" element={<ServiceDetailPage />} />
-        <Route path="*" element={<PublicSite />} />
-      </Routes>
+      <Suspense fallback={<PageSkeleton />}>
+        <Routes>
+          <Route path="/admin/*" element={<AdminRouter />} />
+          <Route path="/contact" element={<ContactPage />} />
+          <Route path="/services/:slug" element={<ServiceDetailPage />} />
+          <Route path="*" element={<PublicSite />} />
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

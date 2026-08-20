@@ -107,7 +107,8 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
         className="w-full h-full will-change-transform"
       >
         <motion.div
-          animate={{ y: [0, -10, 0], rotateY: [-4, 4, -4] }}
+          whileInView={{ y: [0, -10, 0], rotateY: [-4, 4, -4] }}
+          viewport={{ once: false, amount: 0.1 }}
           transition={{
             y: { duration: 4, repeat: Infinity, ease: "easeInOut" },
             rotateY: { duration: 6, repeat: Infinity, ease: "easeInOut" }
@@ -119,6 +120,8 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
             alt="Joy - 3D Creator"
             loading="eager"
             fetchPriority="high"
+            width="800"
+            height="1000"
             className="w-full h-auto object-contain pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.4)]"
             style={{
               imageRendering: 'high-quality',

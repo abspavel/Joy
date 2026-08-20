@@ -1,33 +1,60 @@
 import React, { useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, AnimatePresence } from 'motion/react';
 import { LiveProjectButton } from '../components/LiveProjectButton';
 import { usePortfolioData } from '../hooks/usePortfolioData';
+import { Skeleton } from '../components/Skeleton';
 
 export function ProjectsSection() {
   const { data, loading } = usePortfolioData('projects');
   const projects = data || [];
 
   return (
-    <section id="projects" className="bg-[#0C0C0C] rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 relative pt-20 sm:pt-24 md:pt-32 pb-40">
+    <section id="projects" className="bg-[#0C0C0C] rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 relative pt-20 sm:pt-24 md:pt-32 pb-40 min-h-[500px]">
       <h2 className="hero-heading font-black uppercase text-center text-[clamp(3rem,12vw,160px)] mb-16 sm:mb-20 md:mb-28 leading-none">
         Project
       </h2>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col">
-        {!loading && projects.length === 0 ? (
-          <div className="text-[#D7E2EA]/50 text-center py-20 font-medium tracking-wide">
-            No projects yet.
-          </div>
-        ) : (
-          projects.map((project, i) => (
-            <ProjectCard 
-              key={project.id || project.project_number} 
-              project={project} 
-              index={i} 
-              totalCards={projects.length} 
-            />
-          ))
-        )}
+        <AnimatePresence mode="wait">
+          {loading ? (
+            <motion.div
+              key="skeleton"
+              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
+              className="w-full flex flex-col gap-10"
+            >
+              {[1, 2].map(i => (
+                <div key={i} className="w-full rounded-[40px] sm:rounded-[50px] md:rounded-[60px] border-2 border-[#D7E2EA]/10 bg-[#141414] p-4 sm:p-6 md:p-8 flex flex-col gap-6 md:gap-8 h-[60vh] min-h-[400px]">
+                  <div className="flex justify-between items-center">
+                    <Skeleton className="w-40 h-16" />
+                    <Skeleton className="w-16 h-16 rounded-full" />
+                  </div>
+                  <div className="flex flex-col md:flex-row gap-4 sm:gap-6 flex-1">
+                    <div className="w-full md:w-[40%] flex flex-col gap-4">
+                      <Skeleton className="w-full h-32 rounded-3xl" />
+                      <Skeleton className="w-full flex-1 rounded-3xl" />
+                    </div>
+                    <Skeleton className="w-full md:w-[60%] h-[300px] md:h-auto rounded-3xl" />
+                  </div>
+                </div>
+              ))}
+            </motion.div>
+          ) : projects.length === 0 ? (
+            <motion.div key="empty" className="text-[#D7E2EA]/50 text-center py-20 font-medium tracking-wide">
+              No projects yet.
+            </motion.div>
+          ) : (
+            <motion.div key="content">
+              {projects.map((project, i) => (
+                <ProjectCard 
+                  key={project.id || project.project_number} 
+                  project={project} 
+                  index={i} 
+                  totalCards={projects.length} 
+                />
+              ))}
+            </motion.div>
+          )}
+        </AnimatePresence>
       </div>
     </section>
   );
