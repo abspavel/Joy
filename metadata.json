@@ -1,0 +1,6 @@
+{
+  "name": "Joy -- 3D Creator",
+  "description": "Portfolio landing page for Pavel Ahmed Joy, a 3D Creator.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

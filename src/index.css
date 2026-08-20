@@ -1,0 +1,37 @@
+@import "tailwindcss";
+
+html, body {
+  background-color: #0C0C0C;
+  font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+  color: #D7E2EA;
+  
+  /* Mobile Optimizations */
+  overflow-x: hidden;
+  width: 100vw;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  -webkit-tap-highlight-color: transparent;
+  /* Prevent pull-to-refresh bounce on mobile for smoother app-like feel */
+  overscroll-behavior-y: none;
+}
+
+#root, .main-wrapper {
+  background-color: #0C0C0C;
+  min-height: 100vh;
+  /* Support for iOS notches/safe areas */
+  padding-left: env(safe-area-inset-left);
+  padding-right: env(safe-area-inset-right);
+}
+
+.hero-heading {
+  background: linear-gradient(180deg, #646973 0%, #BBCCD7 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  font-weight: 900;
+  letter-spacing: -0.05em;
+  line-height: 0.85;
+  text-transform: uppercase;
+}
