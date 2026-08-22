@@ -177,15 +177,6 @@ export function FooterSection() {
           <span className="text-[var(--text-primary)] opacity-80 text-xs sm:text-sm font-medium">
             Built with ❤️ by Joy
           </span>
-          <span className="text-[var(--text-primary)] opacity-60 text-xs sm:text-sm hidden sm:block">
-            •
-          </span>
-          <a 
-            href="/admin" 
-            className="text-[var(--text-primary)] opacity-60 hover:opacity-100 transition-opacity duration-200 text-xs uppercase tracking-wide"
-          >
-            Admin
-          </a>
         </div>
 
         <Magnet padding={30} strength={3}>
