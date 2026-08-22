@@ -1,9 +1,7 @@
 import { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring, useInView } from 'motion/react';
 
 const gifs = [
-  "https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif",
-  "https://motionsites.ai/assets/hero-codenest-preview-Cgppc2qV.gif",
   "https://motionsites.ai/assets/hero-vex-ventures-preview-BczMFIiw.gif",
   "https://motionsites.ai/assets/hero-stellar-ai-v2-preview-DjvxjG3C.gif",
   "https://motionsites.ai/assets/hero-asme-preview-B_nGDnTP.gif",
@@ -25,28 +23,37 @@ const gifs = [
   "https://motionsites.ai/assets/hero-celestia-preview-0yO3jXO8.gif"
 ];
 
-const row1Original = gifs.slice(0, 11);
-const row2Original = gifs.slice(11);
+const row1Original = gifs.slice(0, 10);
+const row2Original = gifs.slice(10);
 
 function MarqueeImage({ src, index }: { src: string; index: number }) {
-  const [loaded, setLoaded] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+  // Unmount completely when scrolled out of a generous margin
+  const inView = useInView(ref, { margin: "600px" });
   
   return (
-    <img 
-      src={src}
-      alt="Portfolio preview"
-      width="420"
-      height="270"
-      loading={index < 4 ? "eager" : "lazy"}
-      onLoad={() => setLoaded(true)}
-      style={{ aspectRatio: '420/270' }}
-      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
-    />
+    <div 
+      ref={ref} 
+      className="w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl shrink-0 bg-[var(--text-primary)]/5 flex items-center justify-center overflow-hidden"
+    >
+      {inView && (
+        <img 
+          src={src}
+          alt="Portfolio preview"
+          width="420"
+          height="270"
+          loading={index < 3 ? "eager" : "lazy"}
+          style={{ aspectRatio: '420/270' }}
+          className="w-full h-full object-cover object-center animate-in fade-in duration-500"
+        />
+      )}
+    </div>
   );
 }
 
 export function MarqueeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
+  const sectionInView = useInView(sectionRef, { margin: "200px" });
   const { scrollY } = useScroll();
   
   const [layoutMeasurements, setLayoutMeasurements] = useState({ 
@@ -64,7 +71,6 @@ export function MarqueeSection() {
       if (sectionRef.current) {
         const screenW = window.innerWidth;
         
-        // Calculate tile width + gap per breakpoint
         let tileW = 160, gap = 8;
         if (screenW >= 768) {
           tileW = 420; gap = 12;
@@ -75,8 +81,6 @@ export function MarqueeSection() {
         const r1SetWidth = (tileW + gap) * row1Original.length;
         const r2SetWidth = (tileW + gap) * row2Original.length;
 
-        // Dynamically calculate repeats so track width is >= 3x screen width
-        // Add 2 extra sets for safe modulo buffering
         const requiredTrackWidth = screenW * 3;
         const rep1 = Math.max(3, Math.ceil(requiredTrackWidth / r1SetWidth) + 2);
         const rep2 = Math.max(3, Math.ceil(requiredTrackWidth / r2SetWidth) + 2);
@@ -92,7 +96,6 @@ export function MarqueeSection() {
       }
     };
     
-    // Throttle resize events for performance
     const handleResize = () => {
       cancelAnimationFrame(animationFrameId);
       animationFrameId = requestAnimationFrame(updateMeasurements);
@@ -100,13 +103,16 @@ export function MarqueeSection() {
 
     updateMeasurements();
     window.addEventListener('resize', handleResize, { passive: true });
+    
     return () => {
       window.removeEventListener('resize', handleResize);
       cancelAnimationFrame(animationFrameId);
     };
   }, []);
 
+  // Compute offset conditionally to save CPU when not in view
   const rawScrollOffset = useTransform(scrollY, (y) => {
+    if (!sectionInView) return 0; // Pause tracking when off screen
     return (y - layoutMeasurements.top + layoutMeasurements.windowHeight) * 0.3;
   });
 
@@ -117,17 +123,16 @@ export function MarqueeSection() {
   });
 
   const row1Transform = useTransform(smoothScrollOffset, (offset) => {
+    if (!sectionInView) return "0px";
     const { row1SetWidth } = layoutMeasurements;
-    // Ensure safe positive modulo for seamless reset
     const modOffset = ((offset % row1SetWidth) + row1SetWidth) % row1SetWidth;
-    // Row 1 moves right -> shift starting position left by 1 full set
     return `${modOffset - row1SetWidth}px`;
   });
 
   const row2Transform = useTransform(smoothScrollOffset, (offset) => {
+    if (!sectionInView) return "0px";
     const { row2SetWidth } = layoutMeasurements;
     const modOffset = ((offset % row2SetWidth) + row2SetWidth) % row2SetWidth;
-    // Row 2 moves left -> starts at 0, shifts negative up to 1 full set
     return `${-modOffset}px`;
   });
 
@@ -151,7 +156,6 @@ export function MarqueeSection() {
           <MarqueeImage key={`row1-${i}`} src={src} index={i} />
         ))}
       </motion.div>
-
       <motion.div 
         className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
         style={{ x: row2Transform }}

@@ -1,6 +1,7 @@
+import React from 'react';
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'motion/react';
+import { motion, useScroll, useTransform, useMotionValue, useSpring, useInView } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { Navbar } from '../components/Navbar';
 import { Magnet } from '../components/Magnet';
@@ -65,6 +66,8 @@ function AnimatedHeroTitle({ text1 = "Hi, i'm ", text2 = "joy" }: { text1?: stri
 }
 
 function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUrl?: string }) {
+  const ref = React.useRef<HTMLDivElement>(null);
+  const isInView = useInView(ref, { margin: "100px" });
   const { scrollY } = useScroll();
   
   // Parallax + fade as user scrolls out of the hero section
@@ -88,7 +91,7 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
     const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
 
     const handleMouseMove = (e: MouseEvent) => {
-      if (!mq.matches) return;
+      if (!mq.matches || !isInView) return;
       mX.set((e.clientX / window.innerWidth) * 2 - 1);
       mY.set((e.clientY / window.innerHeight) * 2 - 1);
     };
@@ -97,12 +100,12 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
     return () => {
       window.removeEventListener('mousemove', handleMouseMove);
     };
-  }, [mX, mY]);
+  }, [mX, mY, isInView]);
 
   return (
     <motion.div 
       style={{ y: pY, scale: pScale, opacity: pOp, perspective: 1000 }} 
-      className="w-full pointer-events-none will-change-transform"
+      ref={ref} className="w-full pointer-events-none will-change-transform"
     >
       <motion.div 
         style={{ rotateX: rX, rotateY: rY, transformStyle: 'preserve-3d' }} 
@@ -178,10 +181,10 @@ export function HeroSection() {
       {/* Hero Heading */}
       <div className="flex-1 flex flex-col justify-center overflow-hidden z-20 relative pt-10 pointer-events-none">
         <FadeIn delay={0.1} y={0} className="absolute top-[10%] left-[4%] z-20 pointer-events-none hidden sm:block">
-          <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/moon_icon.11395d36.png" width="160" height="160" style={{ aspectRatio: '1/1' }} className="w-[100px] md:w-[160px] opacity-80" alt="Moon" loading="eager" fetchPriority="high" />
+          <img src="/moon_icon.webp" width="160" height="160" style={{ aspectRatio: '1/1' }} className="w-[100px] md:w-[160px] opacity-80" alt="Moon" loading="lazy" fetchPriority="low" />
         </FadeIn>
         <FadeIn delay={0.15} y={0} className="absolute top-[8%] right-[4%] z-20 pointer-events-none hidden sm:block">
-          <img src="https://shrug-person-78902957.figma.site/_components/v2/ebb2b8f25d8e24d5f0a5ca8af4c950de81aa2fd7/lego_icon-1.703bb594.png" width="150" height="150" style={{ aspectRatio: '1/1' }} className="w-[90px] md:w-[150px] opacity-80" alt="Lego" loading="eager" fetchPriority="high" />
+          <img src="/lego_icon.webp" width="150" height="150" style={{ aspectRatio: '1/1' }} className="w-[90px] md:w-[150px] opacity-80" alt="Lego" loading="lazy" fetchPriority="low" />
         </FadeIn>
         
         <div className="w-full relative z-10">
