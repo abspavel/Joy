@@ -27,7 +27,7 @@ export function SkillsCertificationsSection() {
   // We'll hide the whole section if both are empty after initial load check, but it's safe to just return section and empty if so.
 
   return (
-    <section id="skills-certifications" className="bg-[#0C0C0C] py-20 sm:py-28 md:py-32 px-5 sm:px-8 md:px-10 relative z-10 border-none">
+    <section id="skills-certifications" className="bg-[var(--bg-primary)] py-20 sm:py-28 md:py-32 px-5 sm:px-8 md:px-10 relative z-10 border-none">
       <div className="max-w-7xl mx-auto flex flex-col items-center">
         
         <FadeIn delay={0} y={40} className="w-full">
@@ -39,14 +39,14 @@ export function SkillsCertificationsSection() {
         {skills.length > 0 && (
           <div className="w-full max-w-4xl flex flex-col items-center">
             <FadeIn delay={0.1}>
-              <h3 className="text-[#D7E2EA] font-medium uppercase tracking-wide text-center text-sm sm:text-base md:text-lg mb-8 sm:mb-10 opacity-80">
+              <h3 className="text-[var(--text-primary)] font-medium uppercase tracking-wide text-center text-sm sm:text-base md:text-lg mb-8 sm:mb-10 opacity-80">
                 Skills
               </h3>
             </FadeIn>
             <div className="flex flex-wrap justify-center gap-3 sm:gap-4">
               {skills.map((skill, i) => (
                 <FadeIn key={skill.id} delay={i * 0.05} y={20}>
-                  <div className="rounded-full border border-[#D7E2EA]/25 px-5 py-2 sm:px-6 sm:py-2.5 text-[#D7E2EA] text-sm sm:text-base font-medium hover:bg-[#D7E2EA]/10 hover:border-[#D7E2EA]/50 transition-all duration-200 cursor-default">
+                  <div className="rounded-full border border-[var(--text-primary)]/25 px-5 py-2 sm:px-6 sm:py-2.5 text-[var(--text-primary)] text-sm sm:text-base font-medium hover:bg-[var(--text-primary)]/10 hover:border-[var(--text-primary)]/50 transition-all duration-200 cursor-default">
                     {skill.name}
                   </div>
                 </FadeIn>
@@ -58,7 +58,7 @@ export function SkillsCertificationsSection() {
         {certs.length > 0 && (
           <div className={`w-full max-w-4xl flex flex-col items-center ${skills.length > 0 ? 'mt-16 sm:mt-20 md:mt-24' : ''}`}>
             <FadeIn delay={0.2}>
-              <h3 className="text-[#D7E2EA] font-medium uppercase tracking-wide text-center text-sm sm:text-base md:text-lg mb-8 sm:mb-10 opacity-80">
+              <h3 className="text-[var(--text-primary)] font-medium uppercase tracking-wide text-center text-sm sm:text-base md:text-lg mb-8 sm:mb-10 opacity-80">
                 Certifications
               </h3>
             </FadeIn>
@@ -66,7 +66,7 @@ export function SkillsCertificationsSection() {
               {certs.map((cert, i) => (
                 <FadeIn key={cert.id} delay={i * 0.1} y={30} className="h-full">
                   <div 
-                    className="flex flex-col h-full rounded-2xl border border-[#D7E2EA]/15 overflow-hidden hover:-translate-y-1 transition-transform duration-300 cursor-pointer bg-[#111111]"
+                    className="flex flex-col h-full rounded-2xl border border-[var(--text-primary)]/15 overflow-hidden hover:-translate-y-1 transition-transform duration-300 cursor-pointer bg-[var(--bg-tertiary)]"
                     onClick={() => setSelectedCert(cert.image_url)}
                   >
                     <div className="w-full aspect-[4/3] bg-black/50 overflow-hidden">
@@ -80,14 +80,14 @@ export function SkillsCertificationsSection() {
                       />
                     </div>
                     <div className="p-5 flex flex-col gap-1">
-                      <h4 className="text-[#D7E2EA] font-medium uppercase text-base sm:text-lg leading-tight">
+                      <h4 className="text-[var(--text-primary)] font-medium uppercase text-base sm:text-lg leading-tight">
                         {cert.title}
                       </h4>
-                      <p className="text-[#D7E2EA] opacity-70 text-sm">
+                      <p className="text-[var(--text-primary)] opacity-70 text-sm">
                         {cert.issuer}
                       </p>
                       {cert.issue_date && (
-                        <p className="text-[#D7E2EA] opacity-50 text-xs mt-1">
+                        <p className="text-[var(--text-primary)] opacity-50 text-xs mt-1">
                           {new Date(cert.issue_date).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
                         </p>
                       )}
@@ -113,7 +113,7 @@ export function SkillsCertificationsSection() {
             onClick={() => setSelectedCert(null)}
           >
             <button 
-              className="absolute top-6 right-6 text-[#D7E2EA] hover:text-white transition-colors z-[101] bg-black/50 p-2 rounded-full"
+              className="absolute top-6 right-6 text-[var(--text-primary)] hover:text-white transition-colors z-[101] bg-black/50 p-2 rounded-full"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedCert(null);

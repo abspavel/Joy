@@ -11,6 +11,7 @@ import { MessagesAdmin } from './components/MessagesAdmin';
 import { AchievementsAdmin } from './components/AchievementsAdmin';
 import { SkillsAdmin } from './components/SkillsAdmin';
 import { CertificationsAdmin } from './components/CertificationsAdmin';
+import { OptimizeImagesAdmin } from './components/OptimizeImagesAdmin';
 
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState('Hero');
@@ -19,7 +20,7 @@ export function Dashboard() {
     await supabase.auth.signOut();
   };
 
-  const tabs = ['Hero', 'About', 'Achievements', 'Skills', 'Certifications', 'Circle Photos', 'Carousel', 'Projects', 'Services', 'Testimonials', 'Messages'];
+  const tabs = ['Hero', 'About', 'Achievements', 'Skills', 'Certifications', 'Circle Photos', 'Carousel', 'Projects', 'Services', 'Testimonials', 'Messages', 'Optimize Images'];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -55,6 +56,7 @@ export function Dashboard() {
           {activeTab === 'Carousel' && <CarouselPhotosAdmin />}
           {activeTab === 'Testimonials' && <TestimonialsAdmin />}
           {activeTab === 'Messages' && <MessagesAdmin />}
+          {activeTab === 'Optimize Images' && <OptimizeImagesAdmin />}
         </main>
       </div>
     </div>

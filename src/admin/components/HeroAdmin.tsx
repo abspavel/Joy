@@ -39,7 +39,7 @@ export function HeroAdmin() {
       const fileExt = compressedFile.name.split('.').pop();
       const fileName = `${Math.random()}.${fileExt}`;
       const filePath = `hero/${fileName}`;
-      const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(filePath, compressedFile);
+      const { error: uploadError } = await supabase.storage.from('portfolio-media').upload(filePath, compressedFile, { cacheControl: '31536000' });
       
       if (!uploadError) {
         const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(filePath);
@@ -87,7 +87,7 @@ export function HeroAdmin() {
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Portrait Image</label>
-        {data.portrait_image_url && <img src={data.portrait_image_url} className="h-48 mb-4 bg-[#0C0C0C] object-contain rounded border border-gray-200" />}
+        {data.portrait_image_url && <img src={data.portrait_image_url} className="h-48 mb-4 bg-[var(--bg-primary)] object-contain rounded border border-gray-200" />}
         <label className={`inline-flex items-center gap-2 bg-indigo-600 text-white px-4 py-2 rounded-md cursor-pointer text-sm ${uploadingImage ? 'opacity-70 pointer-events-none' : ''}`}>
           {uploadingImage ? <><Loader2 className="w-4 h-4 animate-spin" /> Uploading...</> : 'Upload Portrait'}
           <input type="file" accept="image/*" className="hidden" onChange={uploadImage} disabled={uploadingImage} />

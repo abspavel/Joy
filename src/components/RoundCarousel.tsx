@@ -72,10 +72,10 @@ export function RoundCarousel() {
             >
               {/* Front Face */}
               <div 
-                className="absolute inset-0 rounded-2xl overflow-hidden bg-[#181818] border border-[rgba(215,226,234,0.1)] flex items-center justify-center text-gray-600" 
+                className="absolute inset-0 rounded-2xl overflow-hidden bg-[var(--bg-secondary)] border border-[rgba(215,226,234,0.1)] flex items-center justify-center text-gray-600" 
                 style={{ backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
               >
-                <img src={card.image_url} alt={card.caption || `Photo ${i + 1}`} loading="lazy" className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
+                <img src={card.image_url} alt={card.caption || `Photo ${i + 1}`} loading="lazy" width="800" height="800" style={{ aspectRatio: '1/1' }} className="w-full h-full object-cover" onError={(e) => { e.currentTarget.style.display = 'none'; }} />
                 <span className="absolute text-xs opacity-50 text-center px-2">{card.caption || 'IMG'}</span>
               </div>
               
@@ -84,7 +84,7 @@ export function RoundCarousel() {
                 className="absolute inset-0 rounded-2xl overflow-hidden bg-gradient-to-br from-[#18011F] to-[#7621B0] border border-[rgba(215,226,234,0.15)] flex items-center justify-center"
                 style={{ transform: "rotateY(180deg)", backfaceVisibility: 'hidden', WebkitBackfaceVisibility: 'hidden' }}
               >
-                <span className="text-[#D7E2EA] font-medium uppercase tracking-widest text-xs sm:text-sm">{card.caption || `Joy ${i + 1}`}</span>
+                <span className="text-[var(--text-primary)] font-medium uppercase tracking-widest text-xs sm:text-sm">{card.caption || `Joy ${i + 1}`}</span>
               </div>
             </motion.div>
           );

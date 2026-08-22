@@ -1,12 +1,19 @@
-import { useState } from 'react';
+import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { FadeIn } from '../components/FadeIn';
 import { FooterSection } from '../sections/FooterSection';
+import { Navbar } from '../components/Navbar';
 import { Magnet } from '../components/Magnet';
 import { Mail, Phone, MapPin, Github, Linkedin, Instagram, Twitter, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
+import { useSEO } from '../hooks/useSEO';
 
 export function ContactPage() {
+  useSEO({
+    title: 'Contact | Joy -- 3D Creator',
+    description: 'Get in touch with Joy, a passionate 3D creator and web developer.',
+  });
+
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
@@ -40,28 +47,9 @@ export function ContactPage() {
   };
 
   return (
-    <main className="bg-[#0C0C0C] min-h-screen flex flex-col font-sans selection:bg-[#BBCCD7] selection:text-[#0C0C0C]">
+    <main className="bg-[var(--bg-primary)] min-h-screen flex flex-col font-sans selection:bg-[var(--text-highlight)] selection:text-[var(--bg-primary)]">
       {/* Navbar Reused */}
-      <FadeIn delay={0} y={-20} as="nav" className="flex justify-between items-center px-6 md:px-10 pt-6 md:pt-8 relative z-40">
-        <Link to="/" className="text-xl md:text-2xl font-bold tracking-tighter text-[#D7E2EA]">JOY</Link>
-        <div className="flex gap-4 sm:gap-8 md:gap-12 items-center">
-          {['About', 'Projects'].map((item) => (
-            <a
-              key={item}
-              href={`/#${item.toLowerCase()}`}
-              className="text-[#D7E2EA] font-medium uppercase tracking-wider text-xs sm:text-sm md:text-lg lg:text-[1.2rem] hover:opacity-70 transition-opacity duration-200"
-            >
-              {item}
-            </a>
-          ))}
-          <Link
-            to="/contact"
-            className="text-[#D7E2EA] font-bold uppercase tracking-wider text-xs sm:text-sm md:text-lg lg:text-[1.2rem] hover:opacity-70 transition-opacity duration-200"
-          >
-            CONTACT
-          </Link>
-        </div>
-      </FadeIn>
+      <Navbar />
 
       <div className="flex-1 max-w-7xl w-full mx-auto px-6 md:px-10 pt-16 md:pt-24 pb-20">
         <FadeIn delay={0.1} y={30}>
@@ -70,7 +58,7 @@ export function ContactPage() {
           </h1>
         </FadeIn>
         <FadeIn delay={0.2} y={20}>
-          <p className="text-[#D7E2EA] font-light text-lg md:text-2xl max-w-2xl mb-16 md:mb-24">
+          <p className="text-[var(--text-primary)] font-light text-lg md:text-2xl max-w-2xl mb-16 md:mb-24">
             Have a project in mind? I'd love to hear about it.
           </p>
         </FadeIn>
@@ -79,20 +67,20 @@ export function ContactPage() {
           {/* Contact Info */}
           <div className="space-y-10">
             <FadeIn delay={0.3} y={20} className="space-y-6">
-              <a href="mailto:abspavel126@gmail.com" className="flex items-center gap-4 text-[#D7E2EA] hover:opacity-70 transition-opacity group">
-                <div className="w-12 h-12 rounded-full border border-[#D7E2EA]/20 flex items-center justify-center group-hover:border-[#D7E2EA]/50 transition-colors">
+              <a href="mailto:abspavel126@gmail.com" className="flex items-center gap-4 text-[var(--text-primary)] hover:opacity-70 transition-opacity group">
+                <div className="w-12 h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center group-hover:border-[var(--text-primary)]/50 transition-colors">
                   <Mail className="w-5 h-5" />
                 </div>
                 <div className="text-lg md:text-xl font-light tracking-wide">abspavel126@gmail.com</div>
               </a>
-              <a href="tel:+8801835985730" className="flex items-center gap-4 text-[#D7E2EA] hover:opacity-70 transition-opacity group">
-                <div className="w-12 h-12 rounded-full border border-[#D7E2EA]/20 flex items-center justify-center group-hover:border-[#D7E2EA]/50 transition-colors">
+              <a href="tel:+8801835985730" className="flex items-center gap-4 text-[var(--text-primary)] hover:opacity-70 transition-opacity group">
+                <div className="w-12 h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center group-hover:border-[var(--text-primary)]/50 transition-colors">
                   <Phone className="w-5 h-5" />
                 </div>
                 <div className="text-lg md:text-xl font-light tracking-wide">+880 1835 985730</div>
               </a>
-              <div className="flex items-center gap-4 text-[#D7E2EA]">
-                <div className="w-12 h-12 rounded-full border border-[#D7E2EA]/20 flex items-center justify-center">
+              <div className="flex items-center gap-4 text-[var(--text-primary)]">
+                <div className="w-12 h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center">
                   <MapPin className="w-5 h-5" />
                 </div>
                 <div className="text-lg md:text-xl font-light tracking-wide">Dhaka, Bangladesh</div>
@@ -100,24 +88,24 @@ export function ContactPage() {
             </FadeIn>
 
             <FadeIn delay={0.4} y={20}>
-              <div className="pt-8 border-t border-[#D7E2EA]/10 flex gap-4">
+              <div className="pt-8 border-t border-[var(--text-primary)]/10 flex gap-4">
                 <Magnet padding={40} strength={1}>
-                  <a href="#" className="w-12 h-12 rounded-full bg-[#141414] border border-[#D7E2EA]/10 flex items-center justify-center text-[#D7E2EA] hover:bg-[#D7E2EA] hover:text-[#0C0C0C] transition-colors">
+                  <a href="#" className="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--text-primary)]/10 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors">
                     <Github className="w-5 h-5" />
                   </a>
                 </Magnet>
                 <Magnet padding={40} strength={1}>
-                  <a href="#" className="w-12 h-12 rounded-full bg-[#141414] border border-[#D7E2EA]/10 flex items-center justify-center text-[#D7E2EA] hover:bg-[#D7E2EA] hover:text-[#0C0C0C] transition-colors">
+                  <a href="#" className="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--text-primary)]/10 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors">
                     <Linkedin className="w-5 h-5" />
                   </a>
                 </Magnet>
                 <Magnet padding={40} strength={1}>
-                  <a href="#" className="w-12 h-12 rounded-full bg-[#141414] border border-[#D7E2EA]/10 flex items-center justify-center text-[#D7E2EA] hover:bg-[#D7E2EA] hover:text-[#0C0C0C] transition-colors">
+                  <a href="#" className="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--text-primary)]/10 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors">
                     <Instagram className="w-5 h-5" />
                   </a>
                 </Magnet>
                 <Magnet padding={40} strength={1}>
-                  <a href="#" className="w-12 h-12 rounded-full bg-[#141414] border border-[#D7E2EA]/10 flex items-center justify-center text-[#D7E2EA] hover:bg-[#D7E2EA] hover:text-[#0C0C0C] transition-colors">
+                  <a href="#" className="w-12 h-12 rounded-full bg-[var(--bg-tertiary)] border border-[var(--text-primary)]/10 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors">
                     <Twitter className="w-5 h-5" />
                   </a>
                 </Magnet>
@@ -127,7 +115,7 @@ export function ContactPage() {
 
           {/* Contact Form */}
           <FadeIn delay={0.5} y={30}>
-            <form onSubmit={handleSubmit} className="bg-[#141414] p-8 md:p-10 rounded-2xl border border-[#D7E2EA]/10 space-y-6">
+            <form onSubmit={handleSubmit} className="bg-[var(--bg-tertiary)] p-8 md:p-10 rounded-2xl border border-[var(--text-primary)]/10 space-y-6">
               {status.text && (
                 <div className={`p-4 rounded-lg text-sm border ${status.type === 'error' ? 'bg-red-950/30 border-red-900/50 text-red-200' : 'bg-green-950/30 border-green-900/50 text-green-200'}`}>
                   {status.text}
@@ -135,30 +123,30 @@ export function ContactPage() {
               )}
               
               <div className="space-y-2">
-                <label className="text-[#D7E2EA]/60 text-sm uppercase tracking-wider">Name</label>
+                <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Name</label>
                 <input 
                   type="text" 
-                  className="w-full bg-[#0C0C0C] border border-[#D7E2EA]/20 rounded-lg p-4 text-[#D7E2EA] focus:outline-none focus:border-[#B600A8] transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] focus:outline-none focus:border-[#B600A8] transition-colors"
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[#D7E2EA]/60 text-sm uppercase tracking-wider">Email</label>
+                <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Email</label>
                 <input 
                   type="email" 
-                  className="w-full bg-[#0C0C0C] border border-[#D7E2EA]/20 rounded-lg p-4 text-[#D7E2EA] focus:outline-none focus:border-[#B600A8] transition-colors"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] focus:outline-none focus:border-[#B600A8] transition-colors"
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
                   required
                 />
               </div>
               <div className="space-y-2">
-                <label className="text-[#D7E2EA]/60 text-sm uppercase tracking-wider">Message</label>
+                <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Message</label>
                 <textarea 
                   rows={4}
-                  className="w-full bg-[#0C0C0C] border border-[#D7E2EA]/20 rounded-lg p-4 text-[#D7E2EA] focus:outline-none focus:border-[#B600A8] transition-colors resize-none"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] focus:outline-none focus:border-[#B600A8] transition-colors resize-none"
                   value={formData.message}
                   onChange={e => setFormData({...formData, message: e.target.value})}
                   required

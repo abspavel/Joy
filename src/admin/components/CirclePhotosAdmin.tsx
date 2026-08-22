@@ -28,7 +28,7 @@ export function CirclePhotosAdmin() {
       const ext = compressedFile.name.split('.').pop();
       const path = `circle/${Math.random()}.${ext}`;
       
-      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile);
+      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile, { cacheControl: '31536000' });
       if (!error) {
         const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
         const { error: insertError } = await supabase.from('circle_photos').insert([{ image_url: publicUrl, ring, order_index: photos.length }]);

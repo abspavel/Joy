@@ -45,7 +45,7 @@ export function CertificationsAdmin() {
 
     const { error: uploadError } = await supabase.storage
       .from('portfolio-media')
-      .upload(filePath, compressedFile);
+      .upload(filePath, compressedFile, { cacheControl: '31536000' });
 
     if (uploadError) throw uploadError;
 

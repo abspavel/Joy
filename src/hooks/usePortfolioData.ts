@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '../lib/supabase';
 
 // In-memory cache to prevent redundant fetches
@@ -9,64 +9,81 @@ export function usePortfolioData(tableName: string) {
   const [data, setData] = useState<any[] | null>(dataCache[tableName] || null);
   const [loading, setLoading] = useState(!dataCache[tableName]);
   const [error, setError] = useState<Error | null>(null);
+  const [timedOut, setTimedOut] = useState(false);
 
-  useEffect(() => {
-    // If already in cache, no need to fetch
-    if (dataCache[tableName]) {
+  const fetchData = useCallback(async (force = false) => {
+    // If already in cache and not forcing refresh, no need to fetch
+    if (dataCache[tableName] && !force) {
       setData(dataCache[tableName]);
       setLoading(false);
       return;
     }
 
-    let isMounted = true;
-
-    async function fetchData() {
-      try {
-        setLoading(true);
-
-        // If there's an ongoing request for this table, await it
-        if (!pendingRequests[tableName]) {
-          let query = supabase.from(tableName).select('*');
-          
-          if (tableName !== 'hero_content' && tableName !== 'about_content') {
-            query = query.order('order_index', { ascending: true });
-          }
-
-          const fetchPromise = query.then(({ data: result, error: fetchError }) => {
-            if (fetchError) throw fetchError;
-            return result || [];
-          });
-
-          // 10 second timeout for supabase request
-          const timeoutPromise = new Promise<any[]>((_, reject) => {
-            setTimeout(() => reject(new Error('Supabase request timeout')), 10000);
-          });
-
-          pendingRequests[tableName] = Promise.race([fetchPromise, timeoutPromise]).catch(err => {
-            console.error(`Error fetching ${tableName}:`, err);
-            return []; // Graceful fallback
-          });
-        }
-
-        const result = await pendingRequests[tableName];
+    setLoading(true);
+    setError(null);
+    setTimedOut(false);
+    
+    try {
+      // If there's an ongoing request for this table (and not forcing), await it
+      if (!pendingRequests[tableName] || force) {
+        let query = supabase.from(tableName).select('*');
         
-        if (isMounted) {
-          dataCache[tableName] = result;
-          setData(result);
+        if (tableName !== 'hero_content' && tableName !== 'about_content') {
+          query = query.order('order_index', { ascending: true });
         }
-      } catch (err: any) {
-        if (isMounted) setError(err);
-      } finally {
-        if (isMounted) setLoading(false);
-      }
-    }
+        
+        const fetchPromise = query.then(({ data: result, error: fetchError }) => {
+          if (fetchError) throw fetchError;
+          return result || [];
+        });
 
-    fetchData();
+        // 8 second timeout for supabase request
+        const timeoutPromise = new Promise<any[]>((_, reject) => {
+          setTimeout(() => reject(new Error('TIMEOUT')), 8000);
+        });
+
+        pendingRequests[tableName] = Promise.race([fetchPromise, timeoutPromise]).catch(err => {
+          if (err.message === 'TIMEOUT') {
+            throw err;
+          }
+          console.warn(`Fallback active for ${tableName}. (Supabase fetch failed)`);
+          return []; // Graceful fallback for non-timeout errors
+        });
+      }
+
+      const result = await pendingRequests[tableName];
+      
+      dataCache[tableName] = result;
+      setData(result);
+    } catch (err: any) {
+      if (err.message === 'TIMEOUT') {
+        setTimedOut(true);
+      } else {
+        setError(err);
+      }
+    } finally {
+      setLoading(false);
+    }
+  }, [tableName]);
+
+  useEffect(() => {
+    let isMounted = true;
+    
+    // We only want to set state if mounted
+    const runFetch = async () => {
+      await fetchData();
+    };
+    
+    runFetch();
 
     return () => {
       isMounted = false;
     };
-  }, [tableName]);
+  }, [fetchData]);
 
-  return { data, loading, error };
+  const retry = useCallback(() => {
+    fetchData(true);
+  }, [fetchData]);
+
+  return { data, loading, error, timedOut, retry };
 }

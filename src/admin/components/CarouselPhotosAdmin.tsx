@@ -28,7 +28,7 @@ export function CarouselPhotosAdmin() {
       const ext = compressedFile.name.split('.').pop();
       const path = `carousel/${Math.random()}.${ext}`;
       
-      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile);
+      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile, { cacheControl: '31536000' });
       if (!error) {
         const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
         const { error: insertError } = await supabase.from('carousel_photos').insert([{ image_url: publicUrl, order_index: photos.length }]);

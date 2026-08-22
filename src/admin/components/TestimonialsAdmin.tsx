@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { compressImage } from '../../utils/imageCompression';
 
 export function TestimonialsAdmin() {
   const [testimonials, setTestimonials] = useState<any[]>([]);
@@ -58,23 +59,29 @@ export function TestimonialsAdmin() {
     setUploadingField(id);
     setMsg({ text: '', type: '' });
     
-    const ext = file.name.split('.').pop();
-    const path = `testimonials/${Math.random()}.${ext}`;
-    
-    const { error } = await supabase.storage.from('portfolio-media').upload(path, file);
-    if (!error) {
-      const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
-      const { error: updateErr } = await supabase.from('testimonials').update({ client_photo_url: publicUrl }).eq('id', id);
-      if (updateErr) {
-        setMsg({ text: `Error saving: ${updateErr.message}`, type: 'error' });
+    try {
+      const compressedFile = await compressImage(file, 800);
+      const ext = compressedFile.name.split('.').pop();
+      const path = `testimonials/${Math.random()}.${ext}`;
+      
+      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile, { cacheControl: '31536000' });
+      if (!error) {
+        const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
+        const { error: updateErr } = await supabase.from('testimonials').update({ client_photo_url: publicUrl }).eq('id', id);
+        if (updateErr) {
+          setMsg({ text: `Error saving: ${updateErr.message}`, type: 'error' });
+        } else {
+          setMsg({ text: 'Photo uploaded successfully!', type: 'success' });
+          fetchTestimonials();
+        }
       } else {
-        setMsg({ text: 'Photo uploaded successfully!', type: 'success' });
-        fetchTestimonials();
+        setMsg({ text: `Error uploading: ${error.message}`, type: 'error' });
       }
-    } else {
-      setMsg({ text: `Upload error: ${error.message}`, type: 'error' });
+    } catch (err: any) {
+      setMsg({ text: `Compression error: ${err.message}`, type: 'error' });
+    } finally {
+      setUploadingField(null);
     }
-    setUploadingField(null);
     setTimeout(() => setMsg({ text: '', type: '' }), 4000);
   };
 

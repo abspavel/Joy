@@ -66,7 +66,7 @@ export function ProjectsAdmin() {
       const ext = compressedFile.name.split('.').pop();
       const path = `projects/${Math.random()}.${ext}`;
       
-      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile);
+      const { error } = await supabase.storage.from('portfolio-media').upload(path, compressedFile, { cacheControl: '31536000' });
       if (!error) {
         const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(path);
         const { error: updateErr } = await supabase.from('projects').update({ [field]: publicUrl }).eq('id', id);

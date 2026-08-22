@@ -35,10 +35,12 @@ function MarqueeImage({ src, index }: { src: string; index: number }) {
     <img 
       src={src}
       alt="Portfolio preview"
+      width="420"
+      height="270"
       loading={index < 4 ? "eager" : "lazy"}
       onLoad={() => setLoaded(true)}
-      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
       style={{ aspectRatio: '420/270' }}
+      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
     />
   );
 }
@@ -135,7 +137,7 @@ export function MarqueeSection() {
   return (
     <section 
       ref={sectionRef} 
-      className="bg-[#0C0C0C] pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden flex flex-col gap-2 md:gap-3"
+      className="bg-[var(--bg-primary)] pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden flex flex-col gap-2 md:gap-3"
       style={{
         maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
         WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'

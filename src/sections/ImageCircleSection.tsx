@@ -41,7 +41,7 @@ export function ImageCircleSection() {
     <section 
       id="image-circle" 
       ref={containerRef}
-      className="bg-[#0C0C0C] py-20 sm:py-28 md:py-36 relative flex flex-col items-center justify-center overflow-hidden z-10"
+      className="bg-[var(--bg-primary)] py-20 sm:py-28 md:py-36 relative flex flex-col items-center justify-center overflow-hidden z-10"
     >
       <div className="relative flex justify-center items-center w-full max-w-7xl mx-auto min-h-[clamp(320px,80vw,860px)]">
         
@@ -97,7 +97,7 @@ export function ImageCircleSection() {
             onClick={() => setSelectedPhoto(null)}
           >
             <button 
-              className="absolute top-6 right-6 text-[#D7E2EA] hover:text-white transition-colors z-[101] bg-black/50 p-2 rounded-full"
+              className="absolute top-6 right-6 text-[var(--text-primary)] hover:text-white transition-colors z-[101] bg-black/50 p-2 rounded-full"
               onClick={(e) => {
                 e.stopPropagation();
                 setSelectedPhoto(null);
@@ -147,7 +147,7 @@ function CircleItem({
       }}
     >
       <motion.div
-        className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[#181818] border-2 border-[#D7E2EA]/30 rounded-xl will-change-transform pointer-events-auto shadow-xl cursor-pointer hover:border-[#D7E2EA]/80 transition-colors ${sizeClasses}`}
+        className={`absolute top-0 left-1/2 -translate-x-1/2 -translate-y-1/2 overflow-hidden bg-[var(--bg-secondary)] border-2 border-[var(--text-primary)]/30 rounded-xl will-change-transform pointer-events-auto shadow-xl cursor-pointer hover:border-[var(--text-primary)]/80 transition-colors ${sizeClasses}`}
         style={{ rotate: counterRotation }}
         onClick={onClick}
       >
@@ -155,6 +155,9 @@ function CircleItem({
           src={photoUrl}
           alt="Gallery"
           loading="lazy"
+          width="800"
+          height="800"
+          style={{ aspectRatio: '1/1' }}
           className="w-full h-full object-cover object-center pointer-events-none"
           onError={(e) => { 
             // Fallback for missing placeholder images
@@ -162,7 +165,7 @@ function CircleItem({
             e.currentTarget.parentElement?.classList.add('flex', 'items-center', 'justify-center');
             if (e.currentTarget.parentElement) {
                 const span = document.createElement('span');
-                span.className = 'text-[#D7E2EA]/30 text-[10px] font-medium uppercase absolute';
+                span.className = 'text-[var(--text-primary)]/30 text-[10px] font-medium uppercase absolute';
                 span.innerText = 'IMG';
                 e.currentTarget.parentElement.appendChild(span);
             }

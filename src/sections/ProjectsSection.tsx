@@ -9,52 +9,34 @@ export function ProjectsSection() {
   const projects = data || [];
 
   return (
-    <section id="projects" className="bg-[#0C0C0C] rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 relative pt-20 sm:pt-24 md:pt-32 pb-40 min-h-[500px]">
+    <section id="projects" className="bg-[var(--bg-primary)] rounded-t-[40px] sm:rounded-t-[50px] md:rounded-t-[60px] -mt-10 sm:-mt-12 md:-mt-14 z-10 relative pt-20 sm:pt-24 md:pt-32 pb-40">
       <h2 className="hero-heading font-black uppercase text-center text-[clamp(3rem,12vw,160px)] mb-16 sm:mb-20 md:mb-28 leading-none">
         Project
       </h2>
 
       <div className="max-w-7xl mx-auto px-4 sm:px-6 md:px-8 flex flex-col">
-        <AnimatePresence mode="wait">
-          {loading ? (
-            <motion.div
-              key="skeleton"
-              initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}
-              className="w-full flex flex-col gap-10"
-            >
-              {[1, 2].map(i => (
-                <div key={i} className="w-full rounded-[40px] sm:rounded-[50px] md:rounded-[60px] border-2 border-[#D7E2EA]/10 bg-[#141414] p-4 sm:p-6 md:p-8 flex flex-col gap-6 md:gap-8 h-[60vh] min-h-[400px]">
-                  <div className="flex justify-between items-center">
-                    <Skeleton className="w-40 h-16" />
-                    <Skeleton className="w-16 h-16 rounded-full" />
-                  </div>
-                  <div className="flex flex-col md:flex-row gap-4 sm:gap-6 flex-1">
-                    <div className="w-full md:w-[40%] flex flex-col gap-4">
-                      <Skeleton className="w-full h-32 rounded-3xl" />
-                      <Skeleton className="w-full flex-1 rounded-3xl" />
-                    </div>
-                    <Skeleton className="w-full md:w-[60%] h-[300px] md:h-auto rounded-3xl" />
-                  </div>
-                </div>
-              ))}
-            </motion.div>
-          ) : projects.length === 0 ? (
-            <motion.div key="empty" className="text-[#D7E2EA]/50 text-center py-20 font-medium tracking-wide">
-              No projects yet.
-            </motion.div>
-          ) : (
-            <motion.div key="content">
-              {projects.map((project, i) => (
-                <ProjectCard 
-                  key={project.id || project.project_number} 
-                  project={project} 
-                  index={i} 
-                  totalCards={projects.length} 
-                />
-              ))}
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {loading ? (
+          <>
+            {[1, 2, 3].map(i => (
+              <div key={i} className="sticky flex items-center justify-center w-full min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] mb-8" style={{ top: `calc(10vh + ${i * 40}px)` }}>
+                 <div className="w-full h-full min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] bg-[var(--text-primary)]/5 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] animate-pulse border border-[var(--text-primary)]/10" />
+              </div>
+            ))}
+          </>
+        ) : projects.length === 0 ? (
+          <div className="text-[var(--text-primary)]/50 text-center py-20 font-medium tracking-wide">
+            No projects yet.
+          </div>
+        ) : (
+          projects.map((project, i) => (
+            <ProjectCard 
+              key={project.id || project.project_number} 
+              project={project} 
+              index={i} 
+              totalCards={projects.length} 
+            />
+          ))
+        )}
       </div>
     </section>
   );
@@ -134,7 +116,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
             rotateY: tiltRotateY,
             transformPerspective: 1000
           }}
-          className="w-full rounded-[40px] sm:rounded-[50px] md:rounded-[60px] border-2 border-[#D7E2EA] bg-[#0C0C0C] p-4 sm:p-6 md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden group will-change-transform"
+          className="w-full rounded-[40px] sm:rounded-[50px] md:rounded-[60px] border-2 border-[var(--text-primary)] bg-[var(--bg-primary)] p-4 sm:p-6 md:p-8 flex flex-col gap-6 md:gap-8 relative overflow-hidden group will-change-transform"
         >
           {/* Spotlight Layer */}
           <motion.div
@@ -144,10 +126,10 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
 
           <div className="flex flex-col md:flex-row md:items-center justify-between gap-4 relative z-10">
             <div className="flex items-center gap-6 md:gap-10">
-              <span className="font-black text-[#D7E2EA] text-[clamp(2.5rem,6vw,80px)] leading-none">{project.project_number}</span>
+              <span className="font-black text-[var(--text-primary)] text-[clamp(2.5rem,6vw,80px)] leading-none">{project.project_number}</span>
               <div className="flex flex-col gap-1">
-                <span className="text-[#D7E2EA]/60 uppercase tracking-wider text-sm font-medium">{project.category}</span>
-                <h3 className="text-[#D7E2EA] text-[clamp(1.5rem,3vw,2.5rem)] uppercase font-medium leading-none">{project.name}</h3>
+                <span className="text-[var(--text-primary)]/60 uppercase tracking-wider text-sm font-medium">{project.category}</span>
+                <h3 className="text-[var(--text-primary)] text-[clamp(1.5rem,3vw,2.5rem)] uppercase font-medium leading-none">{project.name}</h3>
               </div>
             </div>
             
@@ -166,7 +148,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
                   <LiveProjectButton />
                 </div>
                 <div
-                  className="absolute inset-0 bg-[#0C0C0C] border-2 border-[#D7E2EA] rounded-full flex flex-col items-center justify-center text-[#D7E2EA] uppercase tracking-widest leading-tight z-0"
+                  className="absolute inset-0 bg-[var(--bg-primary)] border-2 border-[var(--text-primary)] rounded-full flex flex-col items-center justify-center text-[var(--text-primary)] uppercase tracking-widest leading-tight z-0"
                   style={{ transform: 'rotateX(180deg)', backfaceVisibility: 'hidden' }}
                 >
                   <span className="text-[10px] sm:text-xs font-bold px-2">{project.category}</span>
@@ -183,7 +165,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
                 <motion.div
                   initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                   whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
-                  viewport={{ once: true, margin: "-50px" }}
+                  viewport={{ once: true, margin: "800px" }}
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.1 }}
                   className="absolute inset-0 w-full h-full"
                 >
@@ -195,7 +177,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
                 <motion.div
                   initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                   whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
-                  viewport={{ once: true, margin: "-50px" }}
+                  viewport={{ once: true, margin: "800px" }}
                   transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.2 }}
                   className="absolute inset-0 w-full h-full"
                 >
@@ -209,7 +191,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number }>
               <motion.div
                 initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                 whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
-                viewport={{ once: true, margin: "-50px" }}
+                viewport={{ once: true, margin: "800px" }}
                 transition={{ duration: 0.8, ease: [0.25, 0.1, 0.25, 1], delay: 0.3 }}
                 className="absolute inset-0 w-full h-full"
               >

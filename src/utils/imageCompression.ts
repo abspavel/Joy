@@ -48,7 +48,7 @@ export async function compressImage(file: File, maxWidth = 1600): Promise<File> 
             }
           },
           'image/webp',
-          0.85 // Quality
+          0.8 // Quality
         );
       };
       img.onerror = (error) => reject(error);

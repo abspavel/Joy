@@ -6,7 +6,7 @@ export function Skeleton({ className }: { className?: string }) {
       initial={{ opacity: 0.5 }}
       animate={{ opacity: 1 }}
       transition={{ duration: 0.8, repeat: Infinity, repeatType: 'reverse' }}
-      className={`bg-[#D7E2EA]/10 rounded-xl ${className || ''}`}
+      className={`bg-[var(--text-primary)]/10 rounded-xl ${className || ''}`}
     />
   );
 }

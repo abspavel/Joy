@@ -1,12 +1,36 @@
+@source "./components/originkit";
 @import "tailwindcss";
 
+:root {
+  /* Default: Dark Theme */
+  --bg-primary: #0C0C0C;
+  --bg-secondary: #181818;
+  --bg-tertiary: #141414;
+  --text-primary: #D7E2EA;
+  --text-highlight: #BBCCD7;
+  --bg-inverted: #FFFFFF;
+  --text-inverted: #0C0C0C;
+}
+
+:root.light {
+  /* High-Contrast Light Theme */
+  --bg-primary: #F0F4F8;
+  --bg-secondary: #E2E8F0;
+  --bg-tertiary: #CBD5E1;
+  --text-primary: #0C0C0C;
+  --text-highlight: #1E293B;
+  --bg-inverted: #0C0C0C;
+  --text-inverted: #FFFFFF;
+}
+
 html, body {
-  background-color: #0C0C0C;
+  background-color: var(--bg-primary);
   font-family: 'Kanit', sans-serif;
   box-sizing: border-box;
   margin: 0;
   padding: 0;
-  color: #D7E2EA;
+  color: var(--text-primary);
+  transition: background-color 0.3s ease, color 0.3s ease;
   
   /* Mobile Optimizations */
   -webkit-font-smoothing: antialiased;
@@ -19,11 +43,12 @@ body {
 }
 
 #root, .main-wrapper {
-  background-color: #0C0C0C;
+  background-color: var(--bg-primary);
   min-height: 100vh;
   /* Support for iOS notches/safe areas */
   padding-left: env(safe-area-inset-left);
   padding-right: env(safe-area-inset-right);
+  transition: background-color 0.3s ease;
 }
 
 /* Lenis recommended CSS */
@@ -48,7 +73,7 @@ html.lenis, html.lenis body {
 }
 
 .hero-heading {
-  background: linear-gradient(180deg, #646973 0%, #BBCCD7 100%);
+  background: linear-gradient(180deg, #646973 0%, var(--text-highlight) 100%);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
   font-weight: 900;
