@@ -1,4 +1,4 @@
-import { ReactNode, useRef, useState, MouseEvent } from 'react';
+import React, { ReactNode, useRef, useState, MouseEvent } from 'react';
 
 interface MagnetProps {
   children: ReactNode;
@@ -7,6 +7,7 @@ interface MagnetProps {
   activeTransition?: string;
   inactiveTransition?: string;
   className?: string;
+  key?: React.Key;
 }
 
 export function Magnet({

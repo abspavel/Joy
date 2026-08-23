@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState, useId } from 'react';
 import { motion, useScroll, useTransform, useSpring, useInView } from 'motion/react';
 
 const gifs = [
@@ -26,26 +26,98 @@ const gifs = [
 const row1Original = gifs.slice(0, 10);
 const row2Original = gifs.slice(10);
 
-function MarqueeImage({ src, index }: { src: string; index: number }) {
-  const ref = useRef<HTMLDivElement>(null);
-  // Unmount completely when scrolled out of a generous margin
-  const inView = useInView(ref, { margin: "600px" });
+// Global active pool for Marquee to strictly cap mounted <img> tags to at most 8 at once
+const MAX_MOUNTED_ELEMENTS = 8;
+const activeMountSet = new Set<string>();
+const subscribers = new Map<string, (allowed: boolean) => void>();
+
+function requestMount(id: string, callback: (allowed: boolean) => void) {
+  subscribers.set(id, callback);
+  if (activeMountSet.size < MAX_MOUNTED_ELEMENTS) {
+    activeMountSet.add(id);
+    callback(true);
+  } else {
+    callback(false);
+  }
+}
+
+function releaseMount(id: string) {
+  subscribers.delete(id);
+  activeMountSet.delete(id);
   
+  // Grant slot to next waiting subscriber if available
+  for (const [nextId, nextCb] of subscribers.entries()) {
+    if (!activeMountSet.has(nextId) && activeMountSet.size < MAX_MOUNTED_ELEMENTS) {
+      activeMountSet.add(nextId);
+      nextCb(true);
+      break;
+    }
+  }
+}
+
+function MarqueeImage({ src, index, sectionVisible }: { src: string; index: number; sectionVisible: boolean; key?: React.Key }) {
+  const ref = useRef<HTMLDivElement>(null);
+  const id = useId();
+  const [isIntersecting, setIsIntersecting] = useState(false);
+  const [canMount, setCanMount] = useState(false);
+
+  useEffect(() => {
+    if (!sectionVisible || !ref.current) {
+      setIsIntersecting(false);
+      return;
+    }
+
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        setIsIntersecting(entry.isIntersecting);
+      },
+      {
+        root: null,
+        rootMargin: '0px 50px 0px 50px',
+        threshold: 0.01
+      }
+    );
+
+    observer.observe(ref.current);
+
+    return () => {
+      observer.disconnect();
+    };
+  }, [sectionVisible]);
+
+  useEffect(() => {
+    if (isIntersecting && sectionVisible) {
+      requestMount(id, (allowed) => {
+        setCanMount(allowed);
+      });
+    } else {
+      setCanMount(false);
+      releaseMount(id);
+    }
+
+    return () => {
+      releaseMount(id);
+    };
+  }, [isIntersecting, sectionVisible, id]);
+
   return (
     <div 
       ref={ref} 
-      className="w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl shrink-0 bg-[var(--text-primary)]/5 flex items-center justify-center overflow-hidden"
+      className="w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl shrink-0 bg-[var(--text-primary)]/5 flex items-center justify-center overflow-hidden relative"
     >
-      {inView && (
+      {canMount ? (
         <img 
           src={src}
           alt="Portfolio preview"
           width="420"
           height="270"
-          loading={index < 3 ? "eager" : "lazy"}
+          loading="lazy"
+          decoding="async"
           style={{ aspectRatio: '420/270' }}
-          className="w-full h-full object-cover object-center animate-in fade-in duration-500"
+          className="w-full h-full object-cover object-center animate-in fade-in duration-300"
         />
+      ) : (
+        <div className="w-full h-full bg-[var(--text-primary)]/5" />
       )}
     </div>
   );
@@ -153,7 +225,7 @@ export function MarqueeSection() {
         style={{ x: row1Transform }}
       >
         {row1Images.map((src, i) => (
-          <MarqueeImage key={`row1-${i}`} src={src} index={i} />
+          <MarqueeImage key={`row1-${i}`} src={src} index={i} sectionVisible={sectionInView} />
         ))}
       </motion.div>
       <motion.div 
@@ -161,7 +233,7 @@ export function MarqueeSection() {
         style={{ x: row2Transform }}
       >
         {row2Images.map((src, i) => (
-          <MarqueeImage key={`row2-${i}`} src={src} index={i} />
+          <MarqueeImage key={`row2-${i}`} src={src} index={i} sectionVisible={sectionInView} />
         ))}
       </motion.div>
     </section>

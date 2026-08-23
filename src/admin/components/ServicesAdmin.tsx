@@ -34,11 +34,12 @@ export function ServicesAdmin() {
     fetchServices();
   };
 
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const deleteService = async (id: string) => {
-    if (confirm("Are you sure?")) {
-      await supabase.from('services').delete().eq('id', id);
-      fetchServices();
-    }
+    await supabase.from('services').delete().eq('id', id);
+    setConfirmDeleteId(null);
+    fetchServices();
   };
 
   // Helper functions for array fields
@@ -94,7 +95,15 @@ export function ServicesAdmin() {
                   </div>
                 </div>
               </div>
-              <button onClick={() => deleteService(s.id)} className="text-red-600 px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-sm font-medium">Delete</button>
+              {confirmDeleteId === s.id ? (
+                <div className="flex items-center gap-1 bg-red-100 p-1.5 rounded border border-red-200">
+                  <span className="text-xs text-red-700 font-bold px-1">Delete?</span>
+                  <button onClick={() => deleteService(s.id)} className="px-2.5 py-1 bg-red-600 hover:bg-red-700 text-white rounded text-xs font-bold">Yes</button>
+                  <button onClick={() => setConfirmDeleteId(null)} className="px-2.5 py-1 bg-gray-200 hover:bg-gray-300 text-gray-700 rounded text-xs">No</button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDeleteId(s.id)} className="text-red-600 px-3 py-1 bg-red-100 hover:bg-red-200 rounded text-sm font-medium">Delete</button>
+              )}
             </div>
             
             <div className="space-y-4">

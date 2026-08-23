@@ -134,6 +134,7 @@ function CircleItem({
   ringAngle: MotionValue<number>;
   sizeClasses: string;
   onClick: () => void;
+  key?: React.Key;
 }) {
   // Counter-rotate the item to keep the photo completely upright at all times.
   // It counteracts its fixed angle position and the dynamic rotation of its parent ring.

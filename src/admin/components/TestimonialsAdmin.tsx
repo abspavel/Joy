@@ -41,17 +41,22 @@ export function TestimonialsAdmin() {
     fetchTestimonials();
   };
 
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const deleteTestimonial = async (id: string) => {
-    if (confirm("Are you sure?")) {
+    try {
       const { error } = await supabase.from('testimonials').delete().eq('id', id);
       if (error) {
         setMsg({ text: `Error deleting: ${error.message}`, type: 'error' });
       } else {
+        setConfirmDeleteId(null);
         setMsg({ text: 'Testimonial deleted!', type: 'success' });
         fetchTestimonials();
       }
-      setTimeout(() => setMsg({ text: '', type: '' }), 4000);
+    } catch (err: any) {
+      setMsg({ text: `Error: ${err.message}`, type: 'error' });
     }
+    setTimeout(() => setMsg({ text: '', type: '' }), 4000);
   };
 
   const handleImageUpload = async (id: string, file: File) => {
@@ -124,7 +129,15 @@ export function TestimonialsAdmin() {
                     <input type="file" accept="image/*" onChange={e => e.target.files && handleImageUpload(t.id, e.target.files[0])} className="hidden" />
                  </label>
               </div>
-              <button onClick={() => deleteTestimonial(t.id)} className="text-red-600 px-2 py-1 hover:bg-red-50 rounded">Delete</button>
+              {confirmDeleteId === t.id ? (
+                <div className="flex flex-col gap-1 bg-red-100 p-1 rounded border border-red-200 text-center">
+                  <span className="text-[10px] text-red-700 font-bold">Delete?</span>
+                  <button onClick={() => deleteTestimonial(t.id)} className="px-2 py-0.5 bg-red-600 text-white rounded text-xs font-bold">Yes</button>
+                  <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-xs">No</button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDeleteId(t.id)} className="text-red-600 px-2 py-1 hover:bg-red-50 rounded text-sm">Delete</button>
+              )}
             </div>
             <div className="flex gap-2 text-sm text-gray-500 items-center">
                Order: <input type="number" className="border p-1 w-16 rounded" value={t.order_index} onChange={e => updateTestimonial(t.id, 'order_index', parseInt(e.target.value))} />

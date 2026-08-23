@@ -43,17 +43,22 @@ export function ProjectsAdmin() {
     fetchProjects();
   };
 
+  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
+
   const deleteProject = async (id: string) => {
-    if (confirm("Are you sure?")) {
+    try {
       const { error } = await supabase.from('projects').delete().eq('id', id);
       if (error) {
         setMsg({ text: `Error deleting: ${error.message}`, type: 'error' });
       } else {
+        setConfirmDeleteId(null);
         setMsg({ text: 'Project deleted!', type: 'success' });
         fetchProjects();
       }
-      setTimeout(() => setMsg({ text: '', type: '' }), 4000);
+    } catch (err: any) {
+      setMsg({ text: `Error: ${err.message}`, type: 'error' });
     }
+    setTimeout(() => setMsg({ text: '', type: '' }), 4000);
   };
 
   const handleImageUpload = async (id: string, field: string, file: File) => {
@@ -109,7 +114,15 @@ export function ProjectsAdmin() {
                 <option value="Client">Client</option>
                 <option value="Personal">Personal</option>
               </select>
-              <button onClick={() => deleteProject(p.id)} className="text-red-600 px-2">Delete</button>
+              {confirmDeleteId === p.id ? (
+                <div className="flex items-center gap-1 bg-red-100 p-1 rounded border border-red-200">
+                  <span className="text-xs text-red-700 font-bold px-1">Delete?</span>
+                  <button onClick={() => deleteProject(p.id)} className="px-2 py-0.5 bg-red-600 text-white rounded text-xs font-bold">Yes</button>
+                  <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-xs">No</button>
+                </div>
+              ) : (
+                <button onClick={() => setConfirmDeleteId(p.id)} className="text-red-600 hover:text-red-800 px-2 text-sm">Delete</button>
+              )}
             </div>
             
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">

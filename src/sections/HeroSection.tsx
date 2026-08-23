@@ -181,10 +181,10 @@ export function HeroSection() {
       {/* Hero Heading */}
       <div className="flex-1 flex flex-col justify-center overflow-hidden z-20 relative pt-10 pointer-events-none">
         <FadeIn delay={0.1} y={0} className="absolute top-[10%] left-[4%] z-20 pointer-events-none hidden sm:block">
-          <img src="/moon_icon.webp" width="160" height="160" style={{ aspectRatio: '1/1' }} className="w-[100px] md:w-[160px] opacity-80" alt="Moon" loading="lazy" fetchPriority="low" />
+          <img src="/moon_icon.webp" width="160" height="160" style={{ aspectRatio: '1/1' }} className="w-[100px] md:w-[160px] opacity-80" alt="Moon" loading="eager" />
         </FadeIn>
         <FadeIn delay={0.15} y={0} className="absolute top-[8%] right-[4%] z-20 pointer-events-none hidden sm:block">
-          <img src="/lego_icon.webp" width="150" height="150" style={{ aspectRatio: '1/1' }} className="w-[90px] md:w-[150px] opacity-80" alt="Lego" loading="lazy" fetchPriority="low" />
+          <img src="/lego_icon.webp" width="150" height="150" style={{ aspectRatio: '1/1' }} className="w-[90px] md:w-[150px] opacity-80" alt="Lego" loading="eager" />
         </FadeIn>
         
         <div className="w-full relative z-10">
