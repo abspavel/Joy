@@ -37,7 +37,13 @@ export function TestimonialsSection() {
   const { data: testimonialsData, loading } = usePortfolioData('testimonials');
   
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef);
+  const isInView = useInView(sectionRef, { margin: "400px" });
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    if (isInView && !hasMounted) setHasMounted(true);
+  }, [isInView, hasMounted]);
+
   const [isHovered, setIsHovered] = useState(false);
   const [layoutMeasurements, setLayoutMeasurements] = useState({ 
     setWidth: 1000,
@@ -114,10 +120,10 @@ export function TestimonialsSection() {
         }}
       >
         <motion.div 
-          className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch will-change-transform shrink-0 cursor-grab active:cursor-grabbing px-[10vw]"
+          className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch will-change-transform shrink-0 cursor-grab active:cursor-grabbing px-[10vw] min-h-[280px] sm:min-h-[320px]"
           style={{ x: baseX }}
         >
-          {displayItems.map((item, i) => (
+          {hasMounted && displayItems.map((item, i) => (
             <TestimonialCard key={`testimonial-${item.id}-${i}`} item={item} />
           ))}
         </motion.div>

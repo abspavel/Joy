@@ -8,7 +8,12 @@ const FALLBACK_INNER = Array.from({ length: 7 }, (_, i) => ({ id: `inner-${i}`, 
 
 export function ImageCircleSection() {
   const containerRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(containerRef);
+  const isInView = useInView(containerRef, { margin: "400px" });
+  const [hasMounted, setHasMounted] = useState(false);
+
+  useEffect(() => {
+    if (isInView && !hasMounted) setHasMounted(true);
+  }, [isInView, hasMounted]);
   const { data, loading } = usePortfolioData('circle_photos');
   const [selectedPhoto, setSelectedPhoto] = useState<string | null>(null);
 
@@ -45,44 +50,47 @@ export function ImageCircleSection() {
     >
       <div className="relative flex justify-center items-center w-full max-w-7xl mx-auto min-h-[clamp(320px,80vw,860px)]">
         
-        {/* Outer Ring */}
-        {outerPhotos.length > 0 && (
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[clamp(260px,65vw,700px)] h-[clamp(260px,65vw,700px)] will-change-transform"
-            style={{ rotate: outerAngle }}
-          >
-            {outerPhotos.map((photo, i) => (
-              <CircleItem 
-                key={photo.id || `outer-${i}`}
-                photoUrl={photo.image_url}
-                angle={i * (360 / outerPhotos.length)}
-                ringAngle={outerAngle}
-                sizeClasses="w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24"
-                onClick={() => setSelectedPhoto(photo.image_url)}
-              />
-            ))}
-          </motion.div>
-        )}
+        {!hasMounted ? null : (
+          <>
+            {/* Outer Ring */}
+            {outerPhotos.length > 0 && (
+              <motion.div 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[clamp(260px,65vw,700px)] h-[clamp(260px,65vw,700px)] will-change-transform"
+                style={{ rotate: outerAngle }}
+              >
+                {outerPhotos.map((photo, i) => (
+                  <CircleItem 
+                    key={photo.id || `outer-${i}`}
+                    photoUrl={photo.image_url}
+                    angle={i * (360 / outerPhotos.length)}
+                    ringAngle={outerAngle}
+                    sizeClasses="w-12 h-16 sm:w-16 sm:h-20 md:w-20 md:h-24"
+                    onClick={() => setSelectedPhoto(photo.image_url)}
+                  />
+                ))}
+              </motion.div>
+            )}
 
-        {/* Inner Ring */}
-        {innerPhotos.length > 0 && (
-          <motion.div 
-            className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[clamp(120px,30vw,320px)] h-[clamp(120px,30vw,320px)] will-change-transform"
-            style={{ rotate: innerAngle }}
-          >
-            {innerPhotos.map((photo, i) => (
-              <CircleItem 
-                key={photo.id || `inner-${i}`}
-                photoUrl={photo.image_url}
-                angle={i * (360 / innerPhotos.length)}
-                ringAngle={innerAngle}
-                sizeClasses="w-14 h-20 sm:w-20 sm:h-28 md:w-24 md:h-32"
-                onClick={() => setSelectedPhoto(photo.image_url)}
-              />
-            ))}
-          </motion.div>
+            {/* Inner Ring */}
+            {innerPhotos.length > 0 && (
+              <motion.div 
+                className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[clamp(120px,30vw,320px)] h-[clamp(120px,30vw,320px)] will-change-transform"
+                style={{ rotate: innerAngle }}
+              >
+                {innerPhotos.map((photo, i) => (
+                  <CircleItem 
+                    key={photo.id || `inner-${i}`}
+                    photoUrl={photo.image_url}
+                    angle={i * (360 / innerPhotos.length)}
+                    ringAngle={innerAngle}
+                    sizeClasses="w-14 h-20 sm:w-20 sm:h-28 md:w-24 md:h-32"
+                    onClick={() => setSelectedPhoto(photo.image_url)}
+                  />
+                ))}
+              </motion.div>
+            )}
+          </>
         )}
-
       </div>
 
       {/* Lightbox Modal */}

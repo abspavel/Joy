@@ -1,4 +1,4 @@
-import React, { useRef, useEffect, useState, useId } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring, useInView } from 'motion/react';
 
 const gifs = [
@@ -26,99 +26,21 @@ const gifs = [
 const row1Original = gifs.slice(0, 10);
 const row2Original = gifs.slice(10);
 
-// Global active pool for Marquee to strictly cap mounted <img> tags to at most 8 at once
-const MAX_MOUNTED_ELEMENTS = 8;
-const activeMountSet = new Set<string>();
-const subscribers = new Map<string, (allowed: boolean) => void>();
-
-function requestMount(id: string, callback: (allowed: boolean) => void) {
-  subscribers.set(id, callback);
-  if (activeMountSet.size < MAX_MOUNTED_ELEMENTS) {
-    activeMountSet.add(id);
-    callback(true);
-  } else {
-    callback(false);
-  }
-}
-
-function releaseMount(id: string) {
-  subscribers.delete(id);
-  activeMountSet.delete(id);
-  
-  // Grant slot to next waiting subscriber if available
-  for (const [nextId, nextCb] of subscribers.entries()) {
-    if (!activeMountSet.has(nextId) && activeMountSet.size < MAX_MOUNTED_ELEMENTS) {
-      activeMountSet.add(nextId);
-      nextCb(true);
-      break;
-    }
-  }
-}
-
 function MarqueeImage({ src, index, sectionVisible }: { src: string; index: number; sectionVisible: boolean; key?: React.Key }) {
-  const ref = useRef<HTMLDivElement>(null);
-  const id = useId();
-  const [isIntersecting, setIsIntersecting] = useState(false);
-  const [canMount, setCanMount] = useState(false);
-
-  useEffect(() => {
-    if (!sectionVisible || !ref.current) {
-      setIsIntersecting(false);
-      return;
-    }
-
-    const observer = new IntersectionObserver(
-      ([entry]) => {
-        setIsIntersecting(entry.isIntersecting);
-      },
-      {
-        root: null,
-        rootMargin: '0px 50px 0px 50px',
-        threshold: 0.01
-      }
-    );
-
-    observer.observe(ref.current);
-
-    return () => {
-      observer.disconnect();
-    };
-  }, [sectionVisible]);
-
-  useEffect(() => {
-    if (isIntersecting && sectionVisible) {
-      requestMount(id, (allowed) => {
-        setCanMount(allowed);
-      });
-    } else {
-      setCanMount(false);
-      releaseMount(id);
-    }
-
-    return () => {
-      releaseMount(id);
-    };
-  }, [isIntersecting, sectionVisible, id]);
-
   return (
     <div 
-      ref={ref} 
       className="w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl shrink-0 bg-[var(--text-primary)]/5 flex items-center justify-center overflow-hidden relative"
     >
-      {canMount ? (
-        <img 
-          src={src}
-          alt="Portfolio preview"
-          width="420"
-          height="270"
-          loading="lazy"
-          decoding="async"
-          style={{ aspectRatio: '420/270' }}
-          className="w-full h-full object-cover object-center animate-in fade-in duration-300"
-        />
-      ) : (
-        <div className="w-full h-full bg-[var(--text-primary)]/5" />
-      )}
+      <img 
+        src={src}
+        alt={`Portfolio preview ${index}`}
+        width="420"
+        height="270"
+        loading="lazy"
+        decoding="async"
+        style={{ aspectRatio: '420/270' }}
+        className="w-full h-full object-cover object-center"
+      />
     </div>
   );
 }
@@ -126,7 +48,12 @@ function MarqueeImage({ src, index, sectionVisible }: { src: string; index: numb
 export function MarqueeSection() {
   const sectionRef = useRef<HTMLDivElement>(null);
   const sectionInView = useInView(sectionRef, { margin: "200px" });
+  const [hasMounted, setHasMounted] = useState(false);
   const { scrollY } = useScroll();
+  
+  useEffect(() => {
+    if (sectionInView && !hasMounted) setHasMounted(true);
+  }, [sectionInView, hasMounted]);
   
   const [layoutMeasurements, setLayoutMeasurements] = useState({ 
     top: 0, 
@@ -139,27 +66,31 @@ export function MarqueeSection() {
 
   useEffect(() => {
     let animationFrameId: number;
+
+    // Cache window dimensions so we don't force reflows repeatedly
+    let cachedScreenW = window.innerWidth;
+    let cachedScreenH = window.innerHeight;
+
     const updateMeasurements = () => {
       if (sectionRef.current) {
-        const screenW = window.innerWidth;
-        
         let tileW = 160, gap = 8;
-        if (screenW >= 768) {
+        if (cachedScreenW >= 768) {
           tileW = 420; gap = 12;
-        } else if (screenW >= 640) {
+        } else if (cachedScreenW >= 640) {
           tileW = 280; gap = 8;
         }
 
         const r1SetWidth = (tileW + gap) * row1Original.length;
         const r2SetWidth = (tileW + gap) * row2Original.length;
+        const requiredTrackWidth = cachedScreenW * 3;
 
-        const requiredTrackWidth = screenW * 3;
         const rep1 = Math.max(3, Math.ceil(requiredTrackWidth / r1SetWidth) + 2);
         const rep2 = Math.max(3, Math.ceil(requiredTrackWidth / r2SetWidth) + 2);
 
+        // offsetTop causes reflow, but only run when resize happens
         setLayoutMeasurements({
           top: sectionRef.current.offsetTop,
-          windowHeight: window.innerHeight,
+          windowHeight: cachedScreenH,
           row1SetWidth: r1SetWidth,
           row2SetWidth: r2SetWidth,
           repeats1: rep1,
@@ -168,12 +99,16 @@ export function MarqueeSection() {
       }
     };
     
+    // Initial measurement
+    updateMeasurements();
+
     const handleResize = () => {
+      cachedScreenW = window.innerWidth;
+      cachedScreenH = window.innerHeight;
       cancelAnimationFrame(animationFrameId);
       animationFrameId = requestAnimationFrame(updateMeasurements);
     };
 
-    updateMeasurements();
     window.addEventListener('resize', handleResize, { passive: true });
     
     return () => {
@@ -197,6 +132,7 @@ export function MarqueeSection() {
   const row1Transform = useTransform(smoothScrollOffset, (offset) => {
     if (!sectionInView) return "0px";
     const { row1SetWidth } = layoutMeasurements;
+    if (row1SetWidth === 0) return "0px";
     const modOffset = ((offset % row1SetWidth) + row1SetWidth) % row1SetWidth;
     return `${modOffset - row1SetWidth}px`;
   });
@@ -204,6 +140,7 @@ export function MarqueeSection() {
   const row2Transform = useTransform(smoothScrollOffset, (offset) => {
     if (!sectionInView) return "0px";
     const { row2SetWidth } = layoutMeasurements;
+    if (row2SetWidth === 0) return "0px";
     const modOffset = ((offset % row2SetWidth) + row2SetWidth) % row2SetWidth;
     return `${-modOffset}px`;
   });
@@ -214,25 +151,26 @@ export function MarqueeSection() {
   return (
     <section 
       ref={sectionRef} 
-      className="bg-[var(--bg-primary)] pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden flex flex-col gap-2 md:gap-3"
+      className="bg-[var(--bg-primary)] pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden flex flex-col gap-2 md:gap-3 min-h-[300px]"
       style={{
         maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
         WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'
       }}
     >
       <motion.div 
-        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
+        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0 min-h-[100px] sm:min-h-[180px] md:min-h-[270px]"
         style={{ x: row1Transform }}
       >
-        {row1Images.map((src, i) => (
+        {hasMounted && row1Images.map((src, i) => (
           <MarqueeImage key={`row1-${i}`} src={src} index={i} sectionVisible={sectionInView} />
         ))}
       </motion.div>
+      
       <motion.div 
-        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
+        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0 min-h-[100px] sm:min-h-[180px] md:min-h-[270px]"
         style={{ x: row2Transform }}
       >
-        {row2Images.map((src, i) => (
+        {hasMounted && row2Images.map((src, i) => (
           <MarqueeImage key={`row2-${i}`} src={src} index={i} sectionVisible={sectionInView} />
         ))}
       </motion.div>

@@ -14,7 +14,7 @@ export function AboutSection() {
       {/* Decorative 3D Images */}
       <FadeIn delay={0.1} x={-80} y={0} duration={0.9} className="absolute top-[4%] left-[1%] sm:left-[2%] md:left-[4%] z-0">
         <img 
-          src="/moon_icon.webp" 
+          src="/moon-3d.webp" 
           alt="Moon 3D icon" 
           loading="lazy"
           width="210"
@@ -26,7 +26,7 @@ export function AboutSection() {
 
       <FadeIn delay={0.25} x={-80} y={0} duration={0.9} className="absolute bottom-[8%] left-[3%] sm:left-[6%] md:left-[10%] z-0">
         <img 
-          src="/p59_icon.webp" 
+          src="/p59-3d.webp" 
           alt="3D object" 
           loading="lazy"
           width="180"
@@ -38,7 +38,7 @@ export function AboutSection() {
 
       <FadeIn delay={0.15} x={80} y={0} duration={0.9} className="absolute top-[4%] right-[1%] sm:right-[2%] md:right-[4%] z-0">
         <img 
-          src="/lego_icon.webp" 
+          src="/lego-3d.webp" 
           alt="Lego 3D icon" 
           loading="lazy"
           width="210"
@@ -50,7 +50,7 @@ export function AboutSection() {
 
       <FadeIn delay={0.3} x={80} y={0} duration={0.9} className="absolute bottom-[8%] right-[3%] sm:right-[6%] md:right-[10%] z-0">
         <img 
-          src="/group_icon.webp" 
+          src="/group-3d.webp" 
           alt="3D group" 
           loading="lazy"
           width="220"

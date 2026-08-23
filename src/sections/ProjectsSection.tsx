@@ -1,10 +1,11 @@
 import React, { useRef, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, AnimatePresence } from 'motion/react';
+import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate, AnimatePresence, useInView } from 'motion/react';
 import { LiveProjectButton } from '../components/LiveProjectButton';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { Skeleton } from '../components/Skeleton';
 import { X, ExternalLink, Info } from 'lucide-react';
 import { useEffect } from 'react';
+import { useSEO } from '../hooks/useSEO';
 
 export function ProjectsSection() {
   const { data, loading } = usePortfolioData('projects');
@@ -105,9 +106,16 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number, o
     mouseX.set(0);
     mouseY.set(0);
   };
+  
+  const isInView = useInView(containerRef, { margin: "600px" });
+  const [hasMounted, setHasMounted] = useState(false);
+  useEffect(() => {
+    if (isInView && !hasMounted) setHasMounted(true);
+  }, [isInView, hasMounted]);
 
   return (
     <div ref={containerRef} className="h-[85vh] flex items-start justify-center perspective-[1500px]" style={{ marginTop: index === 0 ? 0 : '10vh' }}>
+      {!hasMounted ? null : (
       <motion.div 
         style={{ 
           scale, 
@@ -198,6 +206,7 @@ const ProjectCard: React.FC<{ project: any, index: number, totalCards: number, o
           </div>
         </motion.div>
       </motion.div>
+      )}
     </div>
   );
 }
@@ -211,6 +220,12 @@ function ProjectModal({ project, onClose }: { project: any, onClose: () => void 
   }, []);
 
   const description = project.description || "A comprehensive digital experience designed with clean aesthetics and modern technologies. This project focuses on delivering seamless user interactions, optimized performance, and a responsive layout that adapts to any device. Explore the live preview to see the functional details and design system in action.";
+
+  useSEO({
+    title: `${project.title || project.client_name} | Joy -- 3D Creator`,
+    description: description,
+    image: project.col1_image1_url || project.col2_image_url || project.col1_image2_url,
+  });
 
   return (
     <motion.div 

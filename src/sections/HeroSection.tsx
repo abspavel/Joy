@@ -65,7 +65,7 @@ function AnimatedHeroTitle({ text1 = "Hi, i'm ", text2 = "joy" }: { text1?: stri
   );
 }
 
-function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUrl?: string }) {
+function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.webp" }: { imageUrl?: string }) {
   const ref = React.useRef<HTMLDivElement>(null);
   const isInView = useInView(ref, { margin: "100px" });
   const { scrollY } = useScroll();
@@ -147,11 +147,11 @@ export function HeroSection() {
   
   const portraitUrl = (heroData.portrait_image_url && heroData.portrait_image_url.trim() !== "") 
     ? heroData.portrait_image_url 
-    : "/joy-photo-transparent.png";
+    : "/joy-photo-transparent.webp";
     
   useEffect(() => {
     // Dynamically preload the portrait image to ensure it fetches as fast as possible
-    if (portraitUrl && portraitUrl !== "/joy-photo-transparent.png") {
+    if (portraitUrl && portraitUrl !== "/joy-photo-transparent.webp") {
       const existingLink = document.querySelector(`link[href="${portraitUrl}"]`);
       if (!existingLink) {
         const link = document.createElement('link');
@@ -180,11 +180,11 @@ export function HeroSection() {
 
       {/* Hero Heading */}
       <div className="flex-1 flex flex-col justify-center overflow-hidden z-20 relative pt-10 pointer-events-none">
-        <FadeIn delay={0.1} y={0} className="absolute top-[10%] left-[4%] z-20 pointer-events-none hidden sm:block">
-          <img src="/moon_icon.webp" width="160" height="160" style={{ aspectRatio: '1/1' }} className="w-[100px] md:w-[160px] opacity-80" alt="Moon" loading="eager" />
+        <FadeIn delay={0.1} y={0} className="absolute top-[8%] left-[2%] sm:top-[10%] sm:left-[4%] z-20 pointer-events-none block">
+          <img src="/moon-3d.webp" width="160" height="160" style={{ aspectRatio: '1/1' }} className="w-[80px] sm:w-[100px] md:w-[160px] opacity-80" alt="Moon" loading="eager" />
         </FadeIn>
-        <FadeIn delay={0.15} y={0} className="absolute top-[8%] right-[4%] z-20 pointer-events-none hidden sm:block">
-          <img src="/lego_icon.webp" width="150" height="150" style={{ aspectRatio: '1/1' }} className="w-[90px] md:w-[150px] opacity-80" alt="Lego" loading="eager" />
+        <FadeIn delay={0.15} y={0} className="absolute top-[6%] right-[2%] sm:top-[8%] sm:right-[4%] z-20 pointer-events-none block">
+          <img src="/lego-3d.webp" width="150" height="150" style={{ aspectRatio: '1/1' }} className="w-[70px] sm:w-[90px] md:w-[150px] opacity-80" alt="Lego" loading="eager" />
         </FadeIn>
         
         <div className="w-full relative z-10">

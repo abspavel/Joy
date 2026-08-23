@@ -14,8 +14,9 @@ export function ServiceDetailPage() {
   const [loading, setLoading] = useState(true);
 
   useSEO({
-    title: service ? `${service.title} | Joy -- 3D Creator` : 'Service | Joy -- 3D Creator',
+    title: service ? `${service.title || service.name} | Joy -- 3D Creator` : 'Service | Joy -- 3D Creator',
     description: service?.description || 'Learn more about this service.',
+    image: service?.image_url || service?.thumbnail_url,
   });
 
   useEffect(() => {
