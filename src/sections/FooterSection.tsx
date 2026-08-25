@@ -117,15 +117,17 @@ export function FooterSection() {
           
           <div className="flex gap-4 mt-2">
             {[Github, Linkedin, Instagram, Twitter].map((Icon, i) => (
-              <Magnet key={i} padding={20} strength={2}>
-                <motion.a 
-                  href="#" 
-                  whileHover={{ scale: 1.1 }}
-                  className="w-10 h-10 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors"
-                >
-                  <Icon size={18} />
-                </motion.a>
-              </Magnet>
+              <div key={i}>
+                <Magnet padding={20} strength={2}>
+                  <motion.a 
+                    href="#" 
+                    whileHover={{ scale: 1.1 }}
+                    className="w-10 h-10 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors"
+                  >
+                    <Icon size={18} />
+                  </motion.a>
+                </Magnet>
+              </div>
             ))}
           </div>
         </FadeIn>

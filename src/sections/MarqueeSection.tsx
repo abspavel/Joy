@@ -1,4 +1,4 @@
-import { useRef, useEffect, useState } from 'react';
+import React, { useRef, useEffect, useState } from 'react';
 import { motion, useScroll, useTransform, useSpring } from 'motion/react';
 
 const gifs = [
@@ -28,7 +28,7 @@ const gifs = [
 const row1Original = gifs.slice(0, 11);
 const row2Original = gifs.slice(11);
 
-function MarqueeImage({ src, index }: { src: string; index: number }) {
+const MarqueeImage: React.FC<{ src: string; index: number }> = ({ src, index }) => {
   const [loaded, setLoaded] = useState(false);
   
   return (

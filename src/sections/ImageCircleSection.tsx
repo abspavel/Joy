@@ -122,19 +122,21 @@ export function ImageCircleSection() {
   );
 }
 
-function CircleItem({
-  photoUrl,
-  angle,
-  ringAngle,
-  sizeClasses,
-  onClick
-}: {
+interface CircleItemProps {
   photoUrl: string;
   angle: number;
   ringAngle: MotionValue<number>;
   sizeClasses: string;
   onClick: () => void;
-}) {
+}
+
+const CircleItem: React.FC<CircleItemProps> = ({
+  photoUrl,
+  angle,
+  ringAngle,
+  sizeClasses,
+  onClick
+}) => {
   // Counter-rotate the item to keep the photo completely upright at all times.
   // It counteracts its fixed angle position and the dynamic rotation of its parent ring.
   const counterRotation = useTransform(ringAngle, (v) => -v - angle);

@@ -1,11 +1,11 @@
-import { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useAnimationFrame, useMotionValue, useInView, AnimatePresence } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { Star, User } from 'lucide-react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { Skeleton } from '../components/Skeleton';
 
-function TestimonialCard({ item }: { item: any }) {
+const TestimonialCard: React.FC<{ item: any }> = ({ item }) => {
   return (
     <div className="flex flex-col justify-between w-[280px] sm:w-[340px] md:w-[380px] shrink-0 bg-[var(--bg-tertiary)] border border-[var(--text-primary)]/15 rounded-2xl p-6 sm:p-8 h-[280px] sm:h-[320px]">
       <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
