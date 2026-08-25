@@ -1,21 +1,22 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
+import { motion, AnimatePresence } from 'motion/react';
 import React, { useEffect, Suspense } from 'react';
 import Lenis from 'lenis';
 import { useSEO } from './hooks/useSEO';
 import { TopProgressBar } from './components/TopProgressBar';
 
 import { HeroSection } from './sections/HeroSection';
-import { AboutSection } from './sections/AboutSection';
-import { ServicesSection } from './sections/ServicesSection';
-import { FooterSection } from './sections/FooterSection';
+const AboutSection = React.lazy(() => import('./sections/AboutSection').then(m => ({ default: m.AboutSection })));
+const ServicesSection = React.lazy(() => import('./sections/ServicesSection').then(m => ({ default: m.ServicesSection })));
+const FooterSection = React.lazy(() => import('./sections/FooterSection').then(m => ({ default: m.FooterSection })));
 
 // Lazy loaded sections
-import { MarqueeSection } from './sections/MarqueeSection';
-import { AchievementsSection } from './sections/AchievementsSection';
-import { ImageCircleSection } from './sections/ImageCircleSection';
-import { SkillsCertificationsSection } from './sections/SkillsCertificationsSection';
-import { ProjectsSection } from './sections/ProjectsSection';
-import { TestimonialsSection } from './sections/TestimonialsSection';
+const MarqueeSection = React.lazy(() => import('./sections/MarqueeSection').then(m => ({ default: m.MarqueeSection })));
+const AchievementsSection = React.lazy(() => import('./sections/AchievementsSection').then(m => ({ default: m.AchievementsSection })));
+const ImageCircleSection = React.lazy(() => import('./sections/ImageCircleSection').then(m => ({ default: m.ImageCircleSection })));
+const SkillsCertificationsSection = React.lazy(() => import('./sections/SkillsCertificationsSection').then(m => ({ default: m.SkillsCertificationsSection })));
+const ProjectsSection = React.lazy(() => import('./sections/ProjectsSection').then(m => ({ default: m.ProjectsSection })));
+const TestimonialsSection = React.lazy(() => import('./sections/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
 
 // Lazy loaded pages/routes
 const AdminRouter = React.lazy(() => import('./admin/AdminRouter').then(m => ({ default: m.AdminRouter })));
@@ -60,41 +61,39 @@ function ScrollToTop() {
   }, [key]);
   
   useEffect(() => {
-    if (hash) {
-      const id = hash.replace('#', '');
-      const scrollToHash = () => {
-        const element = document.getElementById(id);
-        if (element) {
-          setTimeout(() => {
+    // Wait for exit animations to complete before restoring scroll position
+    const timeout = setTimeout(() => {
+      if (hash) {
+        const id = hash.replace('#', '');
+        const scrollToHash = () => {
+          const element = document.getElementById(id);
+          if (element) {
             element.scrollIntoView({ behavior: 'smooth' });
-          }, 100);
-          return true;
-        }
-        return false;
-      };
-
-      if (!scrollToHash()) {
-        const observer = new MutationObserver(() => {
-          if (scrollToHash()) {
-            observer.disconnect();
+            return true;
           }
-        });
-        observer.observe(document.body, { childList: true, subtree: true });
-        setTimeout(() => observer.disconnect(), 3000);
-      }
-    } else {
-      // Check if we have a saved scroll position for this specific history key
-      const savedPosition = sessionStorage.getItem(`scroll-${key}`);
-      if (savedPosition) {
-        // Wait a tick for rendering, then restore scroll
-        setTimeout(() => {
-          window.scrollTo(0, parseInt(savedPosition, 10));
-        }, 50);
+          return false;
+        };
+
+        if (!scrollToHash()) {
+          const observer = new MutationObserver(() => {
+            if (scrollToHash()) {
+              observer.disconnect();
+            }
+          });
+          observer.observe(document.body, { childList: true, subtree: true });
+          setTimeout(() => observer.disconnect(), 3000);
+        }
       } else {
-        // New navigation without hash -> scroll to top
-        window.scrollTo(0, 0);
+        const savedPosition = sessionStorage.getItem(`scroll-${key}`);
+        if (savedPosition) {
+          window.scrollTo(0, parseInt(savedPosition, 10));
+        } else {
+          window.scrollTo(0, 0);
+        }
       }
-    }
+    }, 450); // Delay allows AnimatePresence exit animations (0.4s) to complete first
+
+    return () => clearTimeout(timeout);
   }, [pathname, hash, key]);
   
   return null;
@@ -134,7 +133,7 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
 
 function BelowTheFold() {
   return (
-    <>
+    <Suspense fallback={<div style={{height: '100vh'}} />}>
       <MarqueeSection />
       <AchievementsSection />
       <ImageCircleSection />
@@ -144,7 +143,7 @@ function BelowTheFold() {
       <ProjectsSection />
       <TestimonialsSection />
       <FooterSection />
-    </>
+    </Suspense>
   );
 }
 
@@ -205,17 +204,40 @@ function PublicSite() {
   );
 }
 
+function AnimatedRoutes() {
+  const location = useLocation();
+  
+  return (
+    <AnimatePresence mode="wait" initial={false}>
+      <Routes location={location} key={location.pathname} {...({} as any)}>
+        <Route path="/admin/*" element={<AdminRouter />} />
+        <Route path="/contact" element={
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <ContactPage />
+          </motion.div>
+        } />
+        <Route path="/services/:slug" element={
+          <motion.div initial={{ opacity: 0, scale: 0.98, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
+            <ServiceDetailPage />
+          </motion.div>
+        } />
+        <Route path="*" element={
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
+            <PublicSite />
+          </motion.div>
+        } />
+      </Routes>
+    </AnimatePresence>
+  );
+}
+
 export default function App() {
   return (
     <BrowserRouter>
       <ScrollToTop />
+      <TopProgressBar />
       <Suspense fallback={<PageSkeleton />}>
-        <Routes>
-          <Route path="/admin/*" element={<AdminRouter />} />
-          <Route path="/contact" element={<ContactPage />} />
-          <Route path="/services/:slug" element={<ServiceDetailPage />} />
-          <Route path="*" element={<PublicSite />} />
-        </Routes>
+        <AnimatedRoutes />
       </Suspense>
     </BrowserRouter>
   );

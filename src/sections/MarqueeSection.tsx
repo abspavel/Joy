@@ -1,165 +1,136 @@
-import React, { useRef, useEffect, useState } from 'react';
-import { motion, useScroll, useTransform, useSpring } from 'motion/react';
-
-const gifs = [
-  "https://motionsites.ai/assets/hero-space-voyage-preview-eECLH3Yc.gif",
-  "https://motionsites.ai/assets/hero-codenest-preview-Cgppc2qV.gif",
-  "https://motionsites.ai/assets/hero-vex-ventures-preview-BczMFIiw.gif",
-  "https://motionsites.ai/assets/hero-stellar-ai-v2-preview-DjvxjG3C.gif",
-  "https://motionsites.ai/assets/hero-asme-preview-B_nGDnTP.gif",
-  "https://motionsites.ai/assets/hero-transform-data-preview-Cx5OU29N.gif",
-  "https://motionsites.ai/assets/hero-vitara-preview-Cjz2QYyU.gif",
-  "https://motionsites.ai/assets/hero-terra-preview-BFjrCr7T.gif",
-  "https://motionsites.ai/assets/hero-skyelite-preview-DHaZIgUv.gif",
-  "https://motionsites.ai/assets/hero-aethera-preview-DknSlcTa.gif",
-  "https://motionsites.ai/assets/hero-designpro-preview-D8c5_een.gif",
-  "https://motionsites.ai/assets/hero-stellar-ai-preview-D3HL6bw1.gif",
-  "https://motionsites.ai/assets/hero-xportfolio-preview-D4A8maiC.gif",
-  "https://motionsites.ai/assets/hero-orbit-web3-preview-BXt4OttD.gif",
-  "https://motionsites.ai/assets/hero-nexora-preview-cx5HmUgo.gif",
-  "https://motionsites.ai/assets/hero-evr-ventures-preview-DZxeVFEX.gif",
-  "https://motionsites.ai/assets/hero-planet-orbit-preview-DWAP8Z1P.gif",
-  "https://motionsites.ai/assets/hero-new-era-preview-CocuDUm9.gif",
-  "https://motionsites.ai/assets/hero-wealth-preview-B70idl_u.gif",
-  "https://motionsites.ai/assets/hero-luminex-preview-CxOP7ce6.gif",
-  "https://motionsites.ai/assets/hero-celestia-preview-0yO3jXO8.gif"
-];
-
-const row1Original = gifs.slice(0, 11);
-const row2Original = gifs.slice(11);
+import React, { useState, useEffect } from 'react';
+import { supabase } from '../lib/supabase';
 
 const MarqueeImage: React.FC<{ src: string; index: number }> = ({ src, index }) => {
   const [loaded, setLoaded] = useState(false);
   
   return (
-    <img 
+    <img decoding="async" 
       src={src}
-      alt="Portfolio preview"
+      alt="3D Creative Portfolio"
       width="420"
       height="270"
       loading={index < 4 ? "eager" : "lazy"}
       onLoad={() => setLoaded(true)}
       style={{ aspectRatio: '420/270' }}
-      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-300 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
     />
   );
 }
 
+const getRepeatedArray = (arr: string[]) => {
+  if (arr.length === 0) return [];
+  let result = [...arr];
+  // Ensure we have at least 10 items in the base array to cover wide screens
+  while (result.length < 10) {
+    result = [...result, ...arr];
+  }
+  // Duplicate it once more to ensure exactly 50% translation perfectly loops
+  return [...result, ...result];
+};
+
 export function MarqueeSection() {
-  const sectionRef = useRef<HTMLDivElement>(null);
-  const { scrollY } = useScroll();
-  
-  const [layoutMeasurements, setLayoutMeasurements] = useState({ 
-    top: 0, 
-    windowHeight: 0,
-    row1SetWidth: 1000,
-    row2SetWidth: 1000,
-    repeats1: 3,
-    repeats2: 3
-  });
+  const [row1Original, setRow1Original] = useState<string[]>([]);
+  const [row2Original, setRow2Original] = useState<string[]>([]);
+  const [row3Original, setRow3Original] = useState<string[]>([]);
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    let animationFrameId: number;
-    const updateMeasurements = () => {
-      if (sectionRef.current) {
-        const screenW = window.innerWidth;
-        
-        // Calculate tile width + gap per breakpoint
-        let tileW = 160, gap = 8;
-        if (screenW >= 768) {
-          tileW = 420; gap = 12;
-        } else if (screenW >= 640) {
-          tileW = 280; gap = 8;
+    const fetchImages = async () => {
+      try {
+        const { data, error } = await supabase
+          .from('marquee_images')
+          .select('*')
+          .order('order_index', { ascending: true });
+
+        if (!error && data) {
+          // Exclude any previous Unsplash demo images and show only user-uploaded photos
+          const userPhotos = data.filter(img => !img.image_url.includes('unsplash.com'));
+          const row1 = userPhotos.filter(img => img.row_number === 1).map(img => img.image_url);
+          const row2 = userPhotos.filter(img => img.row_number === 2).map(img => img.image_url);
+          const row3 = userPhotos.filter(img => img.row_number === 3).map(img => img.image_url);
+          setRow1Original(row1);
+          setRow2Original(row2);
+          setRow3Original(row3);
+        } else {
+          setRow1Original([]);
+          setRow2Original([]);
+          setRow3Original([]);
         }
-
-        const r1SetWidth = (tileW + gap) * row1Original.length;
-        const r2SetWidth = (tileW + gap) * row2Original.length;
-
-        // Dynamically calculate repeats so track width is >= 3x screen width
-        // Add 2 extra sets for safe modulo buffering
-        const requiredTrackWidth = screenW * 3;
-        const rep1 = Math.max(3, Math.ceil(requiredTrackWidth / r1SetWidth) + 2);
-        const rep2 = Math.max(3, Math.ceil(requiredTrackWidth / r2SetWidth) + 2);
-
-        setLayoutMeasurements({
-          top: sectionRef.current.offsetTop,
-          windowHeight: window.innerHeight,
-          row1SetWidth: r1SetWidth,
-          row2SetWidth: r2SetWidth,
-          repeats1: rep1,
-          repeats2: rep2
-        });
+      } catch (err) {
+        setRow1Original([]);
+        setRow2Original([]);
+        setRow3Original([]);
+      } finally {
+        setLoading(false);
       }
     };
-    
-    // Throttle resize events for performance
-    const handleResize = () => {
-      cancelAnimationFrame(animationFrameId);
-      animationFrameId = requestAnimationFrame(updateMeasurements);
-    };
 
-    updateMeasurements();
-    window.addEventListener('resize', handleResize, { passive: true });
-    return () => {
-      window.removeEventListener('resize', handleResize);
-      cancelAnimationFrame(animationFrameId);
-    };
+    fetchImages();
   }, []);
 
-  const rawScrollOffset = useTransform(scrollY, (y) => {
-    return (y - layoutMeasurements.top + layoutMeasurements.windowHeight) * 0.3;
-  });
+  if (loading) {
+    return <div className="h-40 bg-[var(--bg-primary)]"></div>; // Placeholder while loading
+  }
 
-  const smoothScrollOffset = useSpring(rawScrollOffset, {
-    stiffness: 100,
-    damping: 30,
-    mass: 0.5
-  });
+  if (row1Original.length === 0 && row2Original.length === 0 && row3Original.length === 0) {
+    return null;
+  }
 
-  const row1Transform = useTransform(smoothScrollOffset, (offset) => {
-    const { row1SetWidth } = layoutMeasurements;
-    // Ensure safe positive modulo for seamless reset
-    const modOffset = ((offset % row1SetWidth) + row1SetWidth) % row1SetWidth;
-    // Row 1 moves right -> shift starting position left by 1 full set
-    return `${modOffset - row1SetWidth}px`;
-  });
-
-  const row2Transform = useTransform(smoothScrollOffset, (offset) => {
-    const { row2SetWidth } = layoutMeasurements;
-    const modOffset = ((offset % row2SetWidth) + row2SetWidth) % row2SetWidth;
-    // Row 2 moves left -> starts at 0, shifts negative up to 1 full set
-    return `${-modOffset}px`;
-  });
-
-  const row1Images = Array(layoutMeasurements.repeats1).fill(row1Original).flat();
-  const row2Images = Array(layoutMeasurements.repeats2).fill(row2Original).flat();
+  const row1Images = getRepeatedArray(row1Original);
+  const row2Images = getRepeatedArray(row2Original);
+  const row3Images = getRepeatedArray(row3Original);
 
   return (
     <section 
-      ref={sectionRef} 
-      className="bg-[var(--bg-primary)] pt-24 sm:pt-32 md:pt-40 pb-10 overflow-hidden flex flex-col gap-2 md:gap-3"
+      className="bg-[var(--bg-primary)] pt-4 sm:pt-6 md:pt-8 pb-10 overflow-hidden flex flex-col gap-2 md:gap-3"
       style={{
         maskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)',
         WebkitMaskImage: 'linear-gradient(to right, transparent, black 8%, black 92%, transparent)'
       }}
     >
-      <motion.div 
-        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
-        style={{ x: row1Transform }}
-      >
-        {row1Images.map((src, i) => (
-          <MarqueeImage key={`row1-${i}`} src={src} index={i} />
-        ))}
-      </motion.div>
+      <style>
+        {`
+          @keyframes marquee-left {
+            0% { transform: translateX(0%); }
+            100% { transform: translateX(-50%); }
+          }
+          @keyframes marquee-right {
+            0% { transform: translateX(-50%); }
+            100% { transform: translateX(0%); }
+          }
+          .animate-marquee-left {
+            animation: marquee-left 40s linear infinite;
+          }
+          .animate-marquee-right {
+            animation: marquee-right 40s linear infinite;
+          }
+        `}
+      </style>
+      
+      {row1Images.length > 0 && (
+        <div className="flex flex-nowrap w-max gap-2 md:gap-3 shrink-0 animate-marquee-right hover:[animation-play-state:paused]">
+          {row1Images.map((src, i) => (
+            <MarqueeImage key={`row1-${i}`} src={src} index={i} />
+          ))}
+        </div>
+      )}
 
-      <motion.div 
-        className="flex flex-nowrap w-max gap-2 md:gap-3 will-change-transform shrink-0"
-        style={{ x: row2Transform }}
-      >
-        {row2Images.map((src, i) => (
-          <MarqueeImage key={`row2-${i}`} src={src} index={i} />
-        ))}
-      </motion.div>
+      {row2Images.length > 0 && (
+        <div className="flex flex-nowrap w-max gap-2 md:gap-3 shrink-0 animate-marquee-left hover:[animation-play-state:paused]">
+          {row2Images.map((src, i) => (
+            <MarqueeImage key={`row2-${i}`} src={src} index={i} />
+          ))}
+        </div>
+      )}
+
+      {row3Images.length > 0 && (
+        <div className="flex flex-nowrap w-max gap-2 md:gap-3 shrink-0 animate-marquee-right hover:[animation-play-state:paused]">
+          {row3Images.map((src, i) => (
+            <MarqueeImage key={`row3-${i}`} src={src} index={i} />
+          ))}
+        </div>
+      )}
     </section>
   );
 }

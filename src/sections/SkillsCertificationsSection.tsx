@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { FadeIn } from '../components/FadeIn';
-import { X } from 'lucide-react';
+import { Award, Calendar, ExternalLink, X } from 'lucide-react';
 
 export function SkillsCertificationsSection() {
   const { data: skillsData } = usePortfolioData('skills');
@@ -55,41 +55,60 @@ export function SkillsCertificationsSection() {
         )}
 
         {certs.length > 0 && (
-          <div className={`w-full max-w-4xl flex flex-col items-center ${skills.length > 0 ? 'mt-16 sm:mt-20 md:mt-24' : ''}`}>
-            <FadeIn delay={0.2}>
-              <h3 className="text-[var(--text-primary)] font-medium uppercase tracking-wide text-center text-sm sm:text-base md:text-lg mb-8 sm:mb-10 opacity-80">
-                Certifications
-              </h3>
+          <div className={`w-full max-w-6xl flex flex-col items-center ${skills.length > 0 ? 'mt-24 sm:mt-32' : ''}`}>
+            <FadeIn delay={0.2} className="w-full flex justify-center mb-10 sm:mb-14">
+              <div className="inline-flex items-center justify-center px-5 py-2 rounded-full border border-[var(--text-primary)]/20 bg-[var(--text-primary)]/5">
+                <span className="text-[var(--text-primary)] font-semibold uppercase tracking-widest text-xs sm:text-sm">
+                  Certifications & Licenses
+                </span>
+              </div>
             </FadeIn>
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 w-full">
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8 lg:gap-10 w-full">
               {certs.map((cert, i) => (
                 <FadeIn key={cert.id} delay={i * 0.1} y={30} className="h-full">
                   <div 
-                    className="flex flex-col h-full rounded-2xl border border-[var(--text-primary)]/15 overflow-hidden hover:-translate-y-1 transition-transform duration-300 cursor-pointer bg-[var(--bg-tertiary)]"
+                    className="group relative flex flex-col h-full rounded-[2rem] bg-[var(--bg-secondary)] border border-[var(--text-primary)]/10 overflow-hidden hover:border-[var(--text-primary)]/30 transition-all duration-500 cursor-pointer shadow-lg hover:shadow-2xl hover:-translate-y-2"
                     onClick={() => setSelectedCert(cert.image_url)}
                   >
-                    <div className="w-full aspect-[4/3] bg-black/50 overflow-hidden">
-                      <img 
+                    {/* Image Area */}
+                    <div className="relative w-full aspect-[4/3] bg-[var(--bg-primary)] overflow-hidden">
+                      <img decoding="async" 
                         src={cert.image_url} 
                         alt={cert.title} 
                         loading="lazy"
-                        width="800"
-                        height="600"
-                        className="w-full h-full object-cover object-center"
+                        className="w-full h-full object-cover object-top transition-transform duration-700 group-hover:scale-105"
                       />
+                      {/* Hover Overlay */}
+                      <div className="absolute inset-0 bg-black/0 group-hover:bg-black/30 transition-colors duration-500 flex items-center justify-center opacity-0 group-hover:opacity-100">
+                        <div className="translate-y-4 group-hover:translate-y-0 transition-all duration-500 bg-white/20 backdrop-blur-md border border-white/30 text-white rounded-full px-6 py-3 flex items-center gap-2 font-medium text-sm shadow-xl">
+                          <ExternalLink className="w-4 h-4" />
+                          View Full Certificate
+                        </div>
+                      </div>
                     </div>
-                    <div className="p-5 flex flex-col gap-1">
-                      <h4 className="text-[var(--text-primary)] font-medium uppercase text-base sm:text-lg leading-tight">
-                        {cert.title}
-                      </h4>
-                      <p className="text-[var(--text-primary)] opacity-70 text-sm">
-                        {cert.issuer}
-                      </p>
-                      {cert.issue_date && (
-                        <p className="text-[var(--text-primary)] opacity-50 text-xs mt-1">
-                          {new Date(cert.issue_date).toLocaleDateString(undefined, { year: 'numeric', month: 'long' })}
+
+                    {/* Content Area */}
+                    <div className="p-6 sm:p-8 flex flex-col flex-grow bg-gradient-to-b from-[var(--bg-secondary)] to-[var(--bg-tertiary)]">
+                      <div className="flex items-start justify-between gap-4 mb-6">
+                        <h4 className="text-[var(--text-primary)] font-bold text-lg sm:text-xl leading-snug">
+                          {cert.title}
+                        </h4>
+                        <div className="bg-[var(--text-highlight)]/10 text-[var(--text-highlight)] p-2.5 rounded-full shrink-0">
+                          <Award className="w-5 h-5" />
+                        </div>
+                      </div>
+                      
+                      <div className="mt-auto flex items-center justify-between border-t border-[var(--text-primary)]/10 pt-5">
+                        <p className="text-[var(--text-primary)] opacity-70 font-bold text-sm uppercase tracking-wider">
+                          {cert.issuer}
                         </p>
-                      )}
+                        {cert.issue_date && (
+                          <p className="flex items-center gap-1.5 text-[var(--text-primary)] opacity-50 text-xs font-medium">
+                            <Calendar className="w-3.5 h-3.5" />
+                            {new Date(cert.issue_date).toLocaleDateString(undefined, { year: 'numeric', month: 'short' })}
+                          </p>
+                        )}
+                      </div>
                     </div>
                   </div>
                 </FadeIn>
@@ -120,7 +139,7 @@ export function SkillsCertificationsSection() {
             >
               <X className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
-            <motion.img 
+            <motion.img decoding="async" 
               src={selectedCert}
               alt="Certificate Preview"
               initial={{ scale: 0.8 }}

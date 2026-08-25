@@ -12,6 +12,7 @@ import { AchievementsAdmin } from './components/AchievementsAdmin';
 import { SkillsAdmin } from './components/SkillsAdmin';
 import { CertificationsAdmin } from './components/CertificationsAdmin';
 import { OptimizeImagesAdmin } from './components/OptimizeImagesAdmin';
+import { MarqueeAdmin } from './components/MarqueeAdmin';
 
 export function Dashboard() {
   const [activeTab, setActiveTab] = useState('Hero');
@@ -20,7 +21,7 @@ export function Dashboard() {
     await supabase.auth.signOut();
   };
 
-  const tabs = ['Hero', 'About', 'Achievements', 'Skills', 'Certifications', 'Circle Photos', 'Carousel', 'Projects', 'Services', 'Testimonials', 'Messages', 'Optimize Images'];
+  const tabs = ['Hero', 'Marquee', 'About', 'Achievements', 'Skills', 'Certifications', 'Circle Photos', 'Carousel', 'Projects', 'Services', 'Testimonials', 'Messages', 'Optimize Images'];
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
@@ -30,6 +31,7 @@ export function Dashboard() {
           <button onClick={handleLogout} className="px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 rounded-md">Logout</button>
         </div>
       </header>
+
       <div className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-8 flex flex-col md:flex-row gap-8">
         <aside className="w-full md:w-64 flex-shrink-0">
           <nav className="space-y-1">
@@ -44,8 +46,10 @@ export function Dashboard() {
             ))}
           </nav>
         </aside>
+
         <main className="flex-1 bg-white shadow rounded-lg p-6 overflow-x-auto text-gray-900">
           {activeTab === 'Hero' && <HeroAdmin />}
+          {activeTab === 'Marquee' && <MarqueeAdmin />}
           {activeTab === 'About' && <AboutAdmin />}
           {activeTab === 'Achievements' && <AchievementsAdmin />}
           {activeTab === 'Skills' && <SkillsAdmin />}

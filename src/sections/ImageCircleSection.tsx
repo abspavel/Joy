@@ -43,6 +43,15 @@ export function ImageCircleSection() {
       ref={containerRef}
       className="bg-[var(--bg-primary)] py-20 sm:py-28 md:py-36 relative flex flex-col items-center justify-center overflow-hidden z-10"
     >
+      <div className="text-center w-full max-w-4xl mx-auto px-5 mb-8 md:mb-12 z-20 relative">
+        <h2 className="hero-heading font-black uppercase leading-none tracking-tight text-[clamp(2.5rem,8vw,80px)]">
+          DESIGN THAT SPEAK.
+        </h2>
+        <p className="mt-4 text-[var(--text-primary)] opacity-70 text-sm sm:text-base tracking-widest uppercase font-medium">
+          Tap to zoom in and see the details.
+        </p>
+      </div>
+
       <div className="relative flex justify-center items-center w-full max-w-7xl mx-auto min-h-[clamp(320px,80vw,860px)]">
         
         {/* Outer Ring */}
@@ -105,7 +114,7 @@ export function ImageCircleSection() {
             >
               <X className="w-6 h-6 sm:w-8 sm:h-8" />
             </button>
-            <motion.img 
+            <motion.img decoding="async" 
               src={selectedPhoto}
               alt="Preview"
               initial={{ scale: 0.8 }}

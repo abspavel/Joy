@@ -19,7 +19,7 @@ const TestimonialCard: React.FC<{ item: any }> = ({ item }) => {
       <div className="flex items-center gap-4 mt-6 pt-4 border-t border-[var(--text-primary)]/10 shrink-0">
         <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full overflow-hidden bg-[var(--bg-primary)] flex-shrink-0 flex items-center justify-center border border-[var(--text-primary)]/10">
           {item.client_photo_url ? (
-            <img src={item.client_photo_url} alt={item.client_name} loading="lazy" width="48" height="48" style={{ aspectRatio: '1/1' }} className="w-full h-full object-cover" />
+            <img decoding="async" src={item.client_photo_url} alt={item.client_name} loading="lazy" width="48" height="48" style={{ aspectRatio: '1/1' }} className="w-full h-full object-cover" />
           ) : (
             <User className="w-5 h-5 sm:w-6 sm:h-6 text-[var(--text-primary)]/40" />
           )}
@@ -82,7 +82,7 @@ export function TestimonialsSection() {
     return (
       <section className="bg-[var(--bg-primary)] px-5 sm:px-8 md:px-10 py-20 sm:py-28 md:py-32 flex flex-col items-center justify-center">
         <FadeIn delay={0.1} y={30}>
-          <h2 className="hero-heading font-black uppercase text-center text-[clamp(2.5rem,10vw,100px)] mb-10">Client Reviews</h2>
+          <h2 className="hero-heading font-black uppercase text-center text-[clamp(2.5rem,10vw,100px)] mb-10">TRUSTED BY CLIENT'S</h2>
         </FadeIn>
         <FadeIn delay={0.2} y={20}>
           <p className="text-[var(--text-primary)]/60 font-light text-center">No reviews yet.</p>
@@ -99,7 +99,7 @@ export function TestimonialsSection() {
     <section ref={sectionRef} className="bg-[var(--bg-primary)] py-20 sm:py-28 md:py-32 overflow-hidden flex flex-col relative">
       <FadeIn delay={0} y={30} className="px-5 sm:px-8 md:px-10 mb-12 sm:mb-16 md:mb-20">
         <h2 className="hero-heading font-black uppercase text-center text-[clamp(2.5rem,10vw,100px)]">
-          Client Reviews
+          TRUSTED BY CLIENT'S
         </h2>
       </FadeIn>
 

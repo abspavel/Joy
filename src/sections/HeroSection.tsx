@@ -169,8 +169,11 @@ export function HeroSection() {
 
   return (
     <section className="h-[100dvh] flex flex-col overflow-x-clip relative">
-      <div className="absolute inset-0 z-0 pointer-events-none opacity-40">
-        <RisingLinesVariant5 />
+      <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
+        <RisingLinesVariant5 
+          horizonOpacity={40}
+          opacity={60}
+        />
       </div>
       {/* Navbar */}
       <Navbar />
@@ -212,6 +215,11 @@ export function HeroSection() {
           <ContactButton />
         </FadeIn>
       </div>
+
+      {/* Gradient Overlay to fade the matrix-rain effect smoothly into the solid background */}
+      <div 
+        className="absolute bottom-0 left-0 right-0 h-[25vh] min-h-[150px] max-h-[250px] z-10 pointer-events-none bg-gradient-to-b from-transparent to-[var(--bg-primary)]"
+      />
     </section>
   );
 }
