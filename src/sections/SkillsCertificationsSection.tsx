@@ -7,7 +7,6 @@ import { X } from 'lucide-react';
 export function SkillsCertificationsSection() {
   const { data: skillsData } = usePortfolioData('skills');
   const { data: certsData } = usePortfolioData('certifications');
-
   const [selectedCert, setSelectedCert] = useState<string | null>(null);
 
   const skills = skillsData ? [...skillsData].sort((a, b) => (a.order_index || 0) - (b.order_index || 0)) : [];

@@ -29,7 +29,7 @@ function AnimatedNumber({ value }: { value: string }) {
 
     if (inView) {
       let start = 0;
-      const duration = 500;
+      const duration = 1500;
       let startTime: number | null = null;
 
       const update = (currentTime: number) => {
@@ -85,7 +85,7 @@ export function AchievementsSection() {
           const needsDivider = (i % colsCount) !== 0;
 
           return (
-            <FadeIn key={stat.id} delay={0} y={15} className="w-full">
+            <FadeIn key={stat.id} delay={i * 0.15} y={30} className="w-full">
               <div className={`flex flex-col items-center justify-center gap-2 text-center relative w-full h-full ${needsDivider ? 'md:border-l md:border-[var(--text-primary)]/15' : ''}`}>
                 <h3 className="hero-heading font-black tracking-tight leading-none text-[clamp(2.5rem,7vw,4.5rem)]">
                   <AnimatedNumber value={stat.value} />

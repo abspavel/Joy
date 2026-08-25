@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { supabase } from '../lib/supabase';
 
 export function Login() {
@@ -12,15 +12,30 @@ export function Login() {
     setLoading(true);
     setError('');
     
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    try {
+      const timeoutPromise = new Promise((_, reject) => {
+        setTimeout(() => reject(new Error('TIMEOUT')), 8000);
+      });
 
-    if (error) {
-      setError(error.message);
+      const loginPromise = supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+
+      const { error } = await Promise.race([loginPromise, timeoutPromise]) as any;
+
+      if (error) {
+        setError(error.message);
+      }
+    } catch (err: any) {
+      if (err.message === 'TIMEOUT') {
+        setError('Connection timed out. Please check your internet connection or Supabase URL.');
+      } else {
+        setError(err.message || 'An error occurred while logging in.');
+      }
+    } finally {
+      setLoading(false);
     }
-    setLoading(false);
   };
 
   return (

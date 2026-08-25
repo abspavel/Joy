@@ -1,11 +1,10 @@
 import React, { useState } from 'react';
 import { Link } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { FooterSection } from '../sections/FooterSection';
 import { Navbar } from '../components/Navbar';
 import { Magnet } from '../components/Magnet';
-import { Mail, Phone, MapPin, Github, Linkedin, Instagram, Twitter, Loader2, CheckCircle2, XCircle } from 'lucide-react';
+import { Mail, Phone, MapPin, Github, Linkedin, Instagram, Twitter, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useSEO } from '../hooks/useSEO';
 
@@ -116,7 +115,12 @@ export function ContactPage() {
 
           {/* Contact Form */}
           <FadeIn delay={0.5} y={30}>
-            <form onSubmit={handleSubmit} className="bg-[var(--bg-tertiary)] p-8 md:p-10 rounded-2xl border border-[var(--text-primary)]/10 space-y-6 relative">
+            <form onSubmit={handleSubmit} className="bg-[var(--bg-tertiary)] p-8 md:p-10 rounded-2xl border border-[var(--text-primary)]/10 space-y-6">
+              {status.text && (
+                <div className={`p-4 rounded-lg text-sm border ${status.type === 'error' ? 'bg-red-950/30 border-red-900/50 text-red-200' : 'bg-green-950/30 border-green-900/50 text-green-200'}`}>
+                  {status.text}
+                </div>
+              )}
               
               <div className="space-y-2">
                 <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Name</label>
@@ -168,32 +172,6 @@ export function ContactPage() {
       </div>
 
       <FooterSection />
-
-      {/* Toast Notification */}
-      <AnimatePresence>
-        {status.text && (
-          <motion.div
-            initial={{ opacity: 0, y: 50, scale: 0.9 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 20, scale: 0.9 }}
-            className="fixed bottom-6 left-1/2 -translate-x-1/2 z-[100] px-6 py-4 rounded-xl shadow-2xl flex items-center gap-3 backdrop-blur-md border"
-            style={{
-              backgroundColor: status.type === 'error' ? 'rgba(69, 10, 10, 0.9)' : 'rgba(20, 83, 45, 0.9)',
-              borderColor: status.type === 'error' ? 'rgba(239, 68, 68, 0.3)' : 'rgba(34, 197, 94, 0.3)',
-              color: status.type === 'error' ? '#fca5a5' : '#bbf7d0'
-            }}
-          >
-            {status.type === 'error' ? (
-              <XCircle className="w-5 h-5 text-red-400" />
-            ) : (
-              <CheckCircle2 className="w-5 h-5 text-green-400" />
-            )}
-            <span className="font-medium tracking-wide text-sm sm:text-base">
-              {status.text}
-            </span>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </main>
   );
 }

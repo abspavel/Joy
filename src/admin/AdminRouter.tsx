@@ -9,16 +9,43 @@ export function AdminRouter() {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      setSession(session);
-      setLoading(false);
-    });
+    let isMounted = true;
+    
+    // Add a 5 second timeout to prevent infinite loading if Supabase is unreachable
+    const fetchSession = async () => {
+      try {
+        const timeoutPromise = new Promise((_, reject) => {
+          setTimeout(() => reject(new Error('TIMEOUT')), 5000);
+        });
+        
+        const sessionPromise = supabase.auth.getSession();
+        
+        const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
+        
+        if (isMounted) {
+          setSession(session);
+          setLoading(false);
+        }
+      } catch (err) {
+        console.warn("Session fetch failed or timed out:", err);
+        if (isMounted) {
+          setLoading(false);
+        }
+      }
+    };
+    
+    fetchSession();
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
-      setSession(session);
+      if (isMounted) {
+        setSession(session);
+      }
     });
 
-    return () => subscription.unsubscribe();
+    return () => {
+      isMounted = false;
+      subscription.unsubscribe();
+    };
   }, []);
 
   if (loading) return <div className="min-h-screen bg-gray-50 flex items-center justify-center text-gray-800">Loading...</div>;

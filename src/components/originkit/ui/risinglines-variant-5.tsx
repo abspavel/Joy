@@ -490,6 +490,6 @@ const __originkitPresetProps = {
   "direction": "down"
 };
 
-export default function RisingLines(props: any) {
-  return <__OriginkitBase_RisingLines {...(__originkitPresetProps as any)} {...props} />;
+export default function RisingLines(props: Record<string, unknown>) {
+  return <__OriginkitBase_RisingLines {...(__originkitPresetProps as Record<string, unknown>)} {...props} />;
 }

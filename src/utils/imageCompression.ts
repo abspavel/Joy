@@ -1,67 +1,58 @@
-export async function compressImage(file: File | Blob, maxWidth = 1600, filename = 'image.webp'): Promise<File> {
-  const fileName = (file as File).name || filename;
-  
-  return new Promise((resolve) => {
-    const objectUrl = URL.createObjectURL(file);
-    const img = new Image();
-    
-    img.onload = () => {
-      URL.revokeObjectURL(objectUrl);
-      
-      let width = img.naturalWidth || img.width;
-      let height = img.naturalHeight || img.height;
+export async function compressImage(file: File, maxWidth = 1600): Promise<File> {
+  // Only compress images, skip others (gifs, svg, etc. if any)
+  if (!file.type.startsWith('image/') || file.type === 'image/gif' || file.type === 'image/svg+xml') {
+    return file;
+  }
 
-      if (!width || !height) {
-        const fallbackFile = file instanceof File ? file : new File([file], fileName, { type: file.type || 'image/jpeg' });
-        resolve(fallbackFile);
-        return;
-      }
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.readAsDataURL(file);
+    reader.onload = (event) => {
+      const img = new Image();
+      img.src = event.target?.result as string;
+      img.onload = () => {
+        const canvas = document.createElement('canvas');
+        
+        let width = img.width;
+        let height = img.height;
 
-      if (width > maxWidth) {
-        height = Math.round((height * maxWidth) / width);
-        width = maxWidth;
-      }
+        if (width > maxWidth) {
+          height = Math.round((height * maxWidth) / width);
+          width = maxWidth;
+        }
 
-      const canvas = document.createElement('canvas');
-      canvas.width = width;
-      canvas.height = height;
+        canvas.width = width;
+        canvas.height = height;
 
-      const ctx = canvas.getContext('2d');
-      if (!ctx) {
-        const fallbackFile = file instanceof File ? file : new File([file], fileName, { type: file.type || 'image/jpeg' });
-        resolve(fallbackFile);
-        return;
-      }
+        const ctx = canvas.getContext('2d');
+        if (!ctx) {
+          resolve(file); // Fallback to original if ctx fails
+          return;
+        }
 
-      ctx.imageSmoothingEnabled = true;
-      ctx.imageSmoothingQuality = 'high';
-      ctx.drawImage(img, 0, 0, width, height);
+        ctx.drawImage(img, 0, 0, width, height);
 
-      canvas.toBlob(
-        (blob) => {
-          if (blob) {
-            const newName = fileName.replace(/\.[^/.]+$/, "") + ".webp";
-            const compressedFile = new File([blob], newName, {
-              type: 'image/webp',
-              lastModified: Date.now(),
-            });
-            resolve(compressedFile);
-          } else {
-            const fallbackFile = file instanceof File ? file : new File([file], fileName, { type: file.type || 'image/jpeg' });
-            resolve(fallbackFile);
-          }
-        },
-        'image/webp',
-        0.82
-      );
+        // Convert to WebP for better compression if supported, else JPEG
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              // Create a new File from the blob
+              const newName = file.name.replace(/\.[^/.]+$/, "") + ".webp";
+              const compressedFile = new File([blob], newName, {
+                type: 'image/webp',
+                lastModified: Date.now(),
+              });
+              resolve(compressedFile);
+            } else {
+              resolve(file); // Fallback to original
+            }
+          },
+          'image/webp',
+          0.8 // Quality
+        );
+      };
+      img.onerror = (error) => reject(error);
     };
-
-    img.onerror = () => {
-      URL.revokeObjectURL(objectUrl);
-      const fallbackFile = file instanceof File ? file : new File([file], fileName, { type: file.type || 'image/jpeg' });
-      resolve(fallbackFile);
-    };
-
-    img.src = objectUrl;
+    reader.onerror = (error) => reject(error);
   });
 }

@@ -1,4 +1,3 @@
-import React from 'react';
 import { Link } from 'react-router-dom';
 
 export function ContactButton({ className = "", children = "Contact Me" }: { className?: string, children?: React.ReactNode }) {

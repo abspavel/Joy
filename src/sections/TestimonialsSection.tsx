@@ -1,11 +1,11 @@
-import React, { useRef, useState, useEffect } from 'react';
+import { useRef, useState, useEffect } from 'react';
 import { motion, useAnimationFrame, useMotionValue, useInView, AnimatePresence } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { Star, User } from 'lucide-react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { Skeleton } from '../components/Skeleton';
 
-function TestimonialCard({ item }: { item: any; key?: React.Key }) {
+function TestimonialCard({ item }: { item: any }) {
   return (
     <div className="flex flex-col justify-between w-[280px] sm:w-[340px] md:w-[380px] shrink-0 bg-[var(--bg-tertiary)] border border-[var(--text-primary)]/15 rounded-2xl p-6 sm:p-8 h-[280px] sm:h-[320px]">
       <div className="space-y-4 overflow-y-auto pr-2 custom-scrollbar">
@@ -37,13 +37,7 @@ export function TestimonialsSection() {
   const { data: testimonialsData, loading } = usePortfolioData('testimonials');
   
   const sectionRef = useRef<HTMLDivElement>(null);
-  const isInView = useInView(sectionRef, { margin: "400px" });
-  const [hasMounted, setHasMounted] = useState(false);
-
-  useEffect(() => {
-    if (isInView && !hasMounted) setHasMounted(true);
-  }, [isInView, hasMounted]);
-
+  const isInView = useInView(sectionRef);
   const [isHovered, setIsHovered] = useState(false);
   const [layoutMeasurements, setLayoutMeasurements] = useState({ 
     setWidth: 1000,
@@ -72,7 +66,7 @@ export function TestimonialsSection() {
 
   const baseX = useMotionValue(0);
   const baseVelocity = -1; 
-
+  
   useAnimationFrame((t, delta) => {
     if (!isInView || isHovered || !testimonialsData || testimonialsData.length === 0) return;
     let moveBy = (baseVelocity * delta) / 16; // approx 60fps normalization
@@ -98,6 +92,7 @@ export function TestimonialsSection() {
   }
 
   const items = testimonialsData || [];
+
   const displayItems = Array(layoutMeasurements.repeats).fill(items).flat();
 
   return (
@@ -120,10 +115,10 @@ export function TestimonialsSection() {
         }}
       >
         <motion.div 
-          className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch will-change-transform shrink-0 cursor-grab active:cursor-grabbing px-[10vw] min-h-[280px] sm:min-h-[320px]"
+          className="flex flex-nowrap w-max gap-5 sm:gap-6 items-stretch will-change-transform shrink-0 cursor-grab active:cursor-grabbing px-[10vw]"
           style={{ x: baseX }}
         >
-          {hasMounted && displayItems.map((item, i) => (
+          {displayItems.map((item, i) => (
             <TestimonialCard key={`testimonial-${item.id}-${i}`} item={item} />
           ))}
         </motion.div>

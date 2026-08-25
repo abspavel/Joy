@@ -5,15 +5,13 @@ import { usePortfolioData } from '../hooks/usePortfolioData';
 export function RoundCarousel() {
   const { data, loading } = usePortfolioData('carousel_photos');
   const cards = data || [];
+
   const rotation = useMotionValue(0);
   const isInteracting = useRef(false);
   const currentVelocity = useRef(15); // degrees per second
   const autoSpinVelocity = 15;
   const containerRef = useRef<HTMLDivElement>(null);
-  const inView = useInView(containerRef, { margin: "400px" });
-  
-  const hasMounted = useRef(false);
-  if (inView && !hasMounted.current) hasMounted.current = true;
+  const inView = useInView(containerRef);
 
   useAnimationFrame((t, delta) => {
     if (!inView) return;
@@ -47,7 +45,7 @@ export function RoundCarousel() {
   return (
     <div 
       ref={containerRef}
-      className="relative w-full flex justify-center items-center perspective-[1200px] py-20 sm:py-28 min-h-[400px]"
+      className="relative w-full flex justify-center items-center perspective-[1200px] py-20 sm:py-28"
       onMouseEnter={() => { isInteracting.current = true; }}
       onMouseLeave={() => { isInteracting.current = false; }}
     >
@@ -61,7 +59,7 @@ export function RoundCarousel() {
         {/* Placeholder container to give the group height/width */}
         <div className="w-[140px] h-[180px] sm:w-[180px] sm:h-[240px] md:w-[220px] md:h-[300px] pointer-events-none" />
         
-        {hasMounted.current && cards.map((card, i) => {
+        {cards.map((card, i) => {
           const angle = (360 / cards.length) * i;
           return (
             <motion.div

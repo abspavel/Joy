@@ -52,22 +52,11 @@ export function CarouselPhotosAdmin() {
     await supabase.from('carousel_photos').update({ caption }).eq('id', id);
   };
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
   const deletePhoto = async (id: string) => {
-    try {
-      const { error } = await supabase.from('carousel_photos').delete().eq('id', id);
-      if (error) {
-        setMsg({ text: `Delete error: ${error.message}`, type: 'error' });
-      } else {
-        setConfirmDeleteId(null);
-        setMsg({ text: 'Photo deleted successfully!', type: 'success' });
-        fetchPhotos();
-      }
-    } catch (err: any) {
-      setMsg({ text: `Delete error: ${err.message}`, type: 'error' });
+    if (confirm('Delete photo?')) {
+      await supabase.from('carousel_photos').delete().eq('id', id);
+      fetchPhotos();
     }
-    setTimeout(() => setMsg({ text: '', type: '' }), 4000);
   };
 
   return (
@@ -91,15 +80,7 @@ export function CarouselPhotosAdmin() {
           <div key={p.id} className="border p-2 rounded space-y-2">
             <div className="relative w-full aspect-[3/4] bg-gray-100 rounded overflow-hidden">
               <img src={p.image_url} className="w-full h-full object-cover" />
-              {confirmDeleteId === p.id ? (
-                <div className="absolute top-2 right-2 bg-red-100 p-1 rounded border border-red-200 flex items-center gap-1 z-10">
-                  <span className="text-[10px] text-red-700 font-bold px-1">Delete?</span>
-                  <button onClick={() => deletePhoto(p.id)} className="px-2 py-0.5 bg-red-600 text-white rounded text-xs font-bold">Yes</button>
-                  <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-0.5 bg-gray-200 text-gray-700 rounded text-xs">No</button>
-                </div>
-              ) : (
-                <button onClick={() => setConfirmDeleteId(p.id)} className="absolute top-2 right-2 bg-red-600/90 hover:bg-red-600 text-white p-1 px-2 text-xs rounded shadow">Delete</button>
-              )}
+              <button onClick={() => deletePhoto(p.id)} className="absolute top-2 right-2 bg-red-600 text-white p-1 px-2 text-xs rounded">Delete</button>
             </div>
             <input 
               type="text" 

@@ -48,22 +48,11 @@ export function CirclePhotosAdmin() {
     setTimeout(() => setMsg({ text: '', type: '' }), 4000);
   };
 
-  const [confirmDeleteId, setConfirmDeleteId] = useState<string | null>(null);
-
   const deletePhoto = async (id: string) => {
-    try {
-      const { error } = await supabase.from('circle_photos').delete().eq('id', id);
-      if (error) {
-        setMsg({ text: `Delete error: ${error.message}`, type: 'error' });
-      } else {
-        setConfirmDeleteId(null);
-        setMsg({ text: 'Photo deleted successfully!', type: 'success' });
-        fetchPhotos();
-      }
-    } catch (err: any) {
-      setMsg({ text: `Delete failed: ${err.message}`, type: 'error' });
+    if (confirm('Delete photo?')) {
+      await supabase.from('circle_photos').delete().eq('id', id);
+      fetchPhotos();
     }
-    setTimeout(() => setMsg({ text: '', type: '' }), 4000);
   };
 
   return (
@@ -90,25 +79,9 @@ export function CirclePhotosAdmin() {
           </div>
           <div className="flex flex-wrap gap-4">
             {photos.filter(p => p.ring === ring).map(p => (
-              <div key={p.id} className="relative group w-24 h-32 bg-gray-100 rounded-lg overflow-hidden border border-gray-200 shadow-sm">
+              <div key={p.id} className="relative group w-24 h-32 bg-gray-100 rounded overflow-hidden">
                 <img src={p.image_url} className="w-full h-full object-cover" />
-                {confirmDeleteId === p.id ? (
-                  <div className="absolute inset-0 bg-black/80 flex flex-col items-center justify-center p-1 gap-1 text-center">
-                    <span className="text-[10px] text-white font-bold">Delete?</span>
-                    <div className="flex gap-1">
-                      <button onClick={() => deletePhoto(p.id)} className="px-2 py-0.5 bg-red-600 hover:bg-red-700 text-white rounded text-[10px] font-bold">Yes</button>
-                      <button onClick={() => setConfirmDeleteId(null)} className="px-2 py-0.5 bg-gray-600 hover:bg-gray-500 text-white rounded text-[10px]">No</button>
-                    </div>
-                  </div>
-                ) : (
-                  <button 
-                    onClick={() => setConfirmDeleteId(p.id)} 
-                    className="absolute top-1 right-1 bg-red-600/90 hover:bg-red-600 text-white p-1 text-xs rounded-md sm:opacity-0 sm:group-hover:opacity-100 transition-opacity"
-                    title="Delete photo"
-                  >
-                    ✕
-                  </button>
-                )}
+                <button onClick={() => deletePhoto(p.id)} className="absolute top-1 right-1 bg-red-600 text-white p-1 text-xs rounded opacity-0 group-hover:opacity-100">X</button>
               </div>
             ))}
           </div>
