@@ -3,8 +3,8 @@ import { motion, AnimatePresence } from 'motion/react';
 import React, { useEffect, Suspense } from 'react';
 import Lenis from 'lenis';
 import { useSEO } from './hooks/useSEO';
-import PixelReveal from './components/originkit/ui/pixelreveal';
 import { TopProgressBar } from './components/TopProgressBar';
+import { ServiceDetailPage } from './pages/ServiceDetailPage';
 
 import { HeroSection } from './sections/HeroSection';
 const AboutSection = React.lazy(() => import('./sections/AboutSection').then(m => ({ default: m.AboutSection })));
@@ -22,7 +22,6 @@ const TestimonialsSection = React.lazy(() => import('./sections/TestimonialsSect
 // Lazy loaded pages/routes
 const AdminRouter = React.lazy(() => import('./admin/AdminRouter').then(m => ({ default: m.AdminRouter })));
 const ContactPage = React.lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
-const ServiceDetailPage = React.lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
 
 
 function PageSkeleton() {
@@ -62,7 +61,8 @@ function ScrollToTop() {
   }, [key]);
   
   useEffect(() => {
-    // Wait for exit animations to complete before restoring scroll position
+    // Instant scroll restoration for seamless navigation
+    const delay = hash ? 150 : 0;
     const timeout = setTimeout(() => {
       if (hash) {
         const id = hash.replace('#', '');
@@ -92,7 +92,7 @@ function ScrollToTop() {
           window.scrollTo(0, 0);
         }
       }
-    }, 450); // Delay allows AnimatePresence exit animations (0.4s) to complete first
+    }, delay);
 
     return () => clearTimeout(timeout);
   }, [pathname, hash, key]);
@@ -218,10 +218,13 @@ function AnimatedRoutes() {
           </motion.div>
         } />
         <Route path="/services/:slug" element={
-          <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 1 }} transition={{ duration: 1.2 }}>
-            <PixelReveal transitionColor="#0C0C0C" transition={{ duration: 1.2 }} edgeHeight={4}>
-              <ServiceDetailPage />
-            </PixelReveal>
+          <motion.div 
+            initial={{ opacity: 0, y: 8 }} 
+            animate={{ opacity: 1, y: 0 }} 
+            exit={{ opacity: 0, y: -8 }} 
+            transition={{ duration: 0.2, ease: "easeOut" }}
+          >
+            <ServiceDetailPage />
           </motion.div>
         } />
         <Route path="*" element={
