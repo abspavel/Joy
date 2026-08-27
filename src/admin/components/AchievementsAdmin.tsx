@@ -1,3 +1,4 @@
+import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
@@ -37,7 +38,7 @@ export function AchievementsAdmin() {
       if (err) throw err;
       setNewVal('');
       setNewLabel('');
-      await fetchStats();
+      undefined
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -51,7 +52,7 @@ export function AchievementsAdmin() {
       setSaving(true);
       const { error: err } = await supabase.from('achievements').delete().eq('id', id);
       if (err) throw err;
-      await fetchStats();
+      undefined
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -84,7 +85,7 @@ export function AchievementsAdmin() {
       ]);
     } catch (err: any) {
       alert(err.message);
-      await fetchStats(); // revert on error
+      undefined // revert on error
     } finally {
       setSaving(false);
     }

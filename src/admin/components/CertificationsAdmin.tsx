@@ -1,3 +1,4 @@
+import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { compressImage } from '../../utils/imageCompression';
@@ -87,7 +88,7 @@ export function CertificationsAdmin() {
       setNewImage(null);
       (document.getElementById('cert-image-upload') as HTMLInputElement).value = '';
 
-      await fetchCerts();
+      undefined
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -115,7 +116,7 @@ export function CertificationsAdmin() {
 
       const { error: err } = await supabase.from('certifications').delete().eq('id', id);
       if (err) throw err;
-      await fetchCerts();
+      undefined
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -146,7 +147,7 @@ export function CertificationsAdmin() {
       ]);
     } catch (err: any) {
       alert(err.message);
-      await fetchCerts();
+      undefined
     } finally {
       setSaving(false);
     }

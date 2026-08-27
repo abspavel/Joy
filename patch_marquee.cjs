@@ -1,4 +1,6 @@
-import React, { useState } from 'react';
+const fs = require('fs');
+
+const code = `import React, { useState } from 'react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const MarqueeImage: React.FC<{ src: string; index: number }> = ({ src, index }) => {
@@ -13,7 +15,7 @@ const MarqueeImage: React.FC<{ src: string; index: number }> = ({ src, index }) 
       loading={index < 4 ? "eager" : "lazy"}
       onLoad={() => setLoaded(true)}
       style={{ aspectRatio: '420/270' }}
-      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      className={\`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-500 \${loaded ? 'opacity-100' : 'opacity-0'}\`}
     />
   );
 }
@@ -63,7 +65,7 @@ export function MarqueeSection() {
       }}
     >
       <style>
-        {`
+        {\`
           @keyframes marquee-left {
             0% { transform: translateX(0%); }
             100% { transform: translateX(-50%); }
@@ -78,30 +80,32 @@ export function MarqueeSection() {
           .animate-marquee-right {
             animation: marquee-right 40s linear infinite;
           }
-        `}
+        \`}
       </style>
       
       {row1Images.length > 0 && (
         <div className="flex flex-nowrap w-max gap-2 md:gap-3 shrink-0 animate-marquee-right hover:[animation-play-state:paused]">
           {row1Images.map((src, i) => (
-            <MarqueeImage key={`row1-${i}`} src={src} index={i} />
+            <MarqueeImage key={\`row1-\${i}\`} src={src} index={i} />
           ))}
         </div>
       )}
       {row2Images.length > 0 && (
         <div className="flex flex-nowrap w-max gap-2 md:gap-3 shrink-0 animate-marquee-left hover:[animation-play-state:paused]">
           {row2Images.map((src, i) => (
-            <MarqueeImage key={`row2-${i}`} src={src} index={i} />
+            <MarqueeImage key={\`row2-\${i}\`} src={src} index={i} />
           ))}
         </div>
       )}
       {row3Images.length > 0 && (
         <div className="flex flex-nowrap w-max gap-2 md:gap-3 shrink-0 animate-marquee-right hover:[animation-play-state:paused]">
           {row3Images.map((src, i) => (
-            <MarqueeImage key={`row3-${i}`} src={src} index={i} />
+            <MarqueeImage key={\`row3-\${i}\`} src={src} index={i} />
           ))}
         </div>
       )}
     </section>
   );
 }
+`;
+fs.writeFileSync('src/sections/MarqueeSection.tsx', code);

@@ -1,3 +1,4 @@
+import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2, Plus, Trash2, Globe, FileText, Code2, Sparkles, Image as ImageIcon } from 'lucide-react';

@@ -1,3 +1,4 @@
+import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import React, { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 
@@ -34,7 +35,7 @@ export function SkillsAdmin() {
       const { error: err } = await supabase.from('skills').insert([{ name: newSkillName, order_index: newOrder }]);
       if (err) throw err;
       setNewSkillName('');
-      await fetchSkills();
+      undefined
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -48,7 +49,7 @@ export function SkillsAdmin() {
       setSaving(true);
       const { error: err } = await supabase.from('skills').delete().eq('id', id);
       if (err) throw err;
-      await fetchSkills();
+      undefined
     } catch (err: any) {
       alert(err.message);
     } finally {
@@ -79,7 +80,7 @@ export function SkillsAdmin() {
       ]);
     } catch (err: any) {
       alert(err.message);
-      await fetchSkills();
+      undefined
     } finally {
       setSaving(false);
     }

@@ -2,27 +2,51 @@ import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2 } from 'lucide-react';
 import { compressImage } from '../../utils/imageCompression';
+import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 
 export function HeroAdmin() {
   const [data, setData] = useState<any>({ heading_line1: '', heading_line2: '', tagline_text: '', portrait_image_url: '' });
+  const [rowId, setRowId] = useState<string | null>(null);
   const [saving, setSaving] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
   const [msg, setMsg] = useState({ text: '', type: '' });
 
   useEffect(() => {
-    supabase.from('hero_content').select('*').eq('id', 1).single().then(({ data }) => {
-      if (data) setData(data);
+    supabase.from('hero_content').select('*').limit(1).then(({ data: rows, error }) => {
+      if (rows && rows.length > 0) {
+        setData(rows[0]);
+        setRowId(rows[0].id);
+      }
     });
   }, []);
 
   const handleSave = async () => {
     setSaving(true);
     setMsg({ text: '', type: '' });
-    const { error } = await supabase.from('hero_content').upsert({ id: 1, ...data });
+
+    const payload = {
+      heading_line1: data.heading_line1,
+      heading_line2: data.heading_line2,
+      tagline_text: data.tagline_text,
+      portrait_image_url: data.portrait_image_url,
+      updated_at: new Date().toISOString()
+    };
+
+    let error: any = null;
+    if (rowId) {
+      const res = await supabase.from('hero_content').update(payload).eq('id', rowId);
+      error = res.error;
+    } else {
+      const res = await supabase.from('hero_content').insert([payload]).select();
+      error = res.error;
+      if (res.data && res.data[0]) setRowId(res.data[0].id);
+    }
+
     setSaving(false);
     if (error) {
       setMsg({ text: `Error saving: ${error.message}`, type: 'error' });
     } else {
+      invalidatePortfolioCache('hero_content');
       setMsg({ text: 'Saved successfully!', type: 'success' });
     }
     setTimeout(() => setMsg({ text: '', type: '' }), 3000);
@@ -44,14 +68,18 @@ export function HeroAdmin() {
       if (!uploadError) {
         const { data: { publicUrl } } = supabase.storage.from('portfolio-media').getPublicUrl(filePath);
         
-        // Update the database row directly
-        const { error: updateError } = await supabase.from('hero_content').update({ portrait_image_url: publicUrl }).eq('id', 1);
-        
-        if (!updateError) {
-          setData({ ...data, portrait_image_url: publicUrl });
-          setMsg({ text: 'Image uploaded successfully!', type: 'success' });
+        if (rowId) {
+          const { error: updateError } = await supabase.from('hero_content').update({ portrait_image_url: publicUrl }).eq('id', rowId);
+          if (!updateError) {
+            setData({ ...data, portrait_image_url: publicUrl });
+            invalidatePortfolioCache('hero_content');
+            setMsg({ text: 'Image uploaded successfully!', type: 'success' });
+          } else {
+            setMsg({ text: `Database update error: ${updateError.message}`, type: 'error' });
+          }
         } else {
-          setMsg({ text: `Database update error: ${updateError.message}`, type: 'error' });
+          setData({ ...data, portrait_image_url: publicUrl });
+          setMsg({ text: 'Image uploaded! Remember to click Save.', type: 'success' });
         }
       } else {
         setMsg({ text: `Error uploading image: ${uploadError.message}`, type: 'error' });
@@ -75,15 +103,15 @@ export function HeroAdmin() {
 
       <div>
         <label className="block text-sm font-medium">Heading Line 1</label>
-        <input className="mt-1 block w-full border border-gray-300 rounded-md p-2" value={data.heading_line1} onChange={e => setData({...data, heading_line1: e.target.value})} />
+        <input className="mt-1 block w-full border border-gray-300 rounded-md p-2" value={data.heading_line1 || ''} onChange={e => setData({...data, heading_line1: e.target.value})} />
       </div>
       <div>
         <label className="block text-sm font-medium">Heading Line 2</label>
-        <input className="mt-1 block w-full border border-gray-300 rounded-md p-2" value={data.heading_line2} onChange={e => setData({...data, heading_line2: e.target.value})} />
+        <input className="mt-1 block w-full border border-gray-300 rounded-md p-2" value={data.heading_line2 || ''} onChange={e => setData({...data, heading_line2: e.target.value})} />
       </div>
       <div>
         <label className="block text-sm font-medium">Tagline Text</label>
-        <textarea className="mt-1 block w-full border border-gray-300 rounded-md p-2" value={data.tagline_text} onChange={e => setData({...data, tagline_text: e.target.value})} />
+        <textarea className="mt-1 block w-full border border-gray-300 rounded-md p-2" value={data.tagline_text || ''} onChange={e => setData({...data, tagline_text: e.target.value})} />
       </div>
       <div>
         <label className="block text-sm font-medium mb-2">Portrait Image</label>

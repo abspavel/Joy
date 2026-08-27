@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import React, { useEffect, Suspense } from 'react';
 import Lenis from 'lenis';
 import { useSEO } from './hooks/useSEO';
+import PixelReveal from './components/originkit/ui/pixelreveal';
 import { TopProgressBar } from './components/TopProgressBar';
 
 import { HeroSection } from './sections/HeroSection';
@@ -217,8 +218,10 @@ function AnimatedRoutes() {
           </motion.div>
         } />
         <Route path="/services/:slug" element={
-          <motion.div initial={{ opacity: 0, scale: 0.98, y: 20 }} animate={{ opacity: 1, scale: 1, y: 0 }} exit={{ opacity: 0, scale: 0.98, y: -20 }} transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}>
-            <ServiceDetailPage />
+          <motion.div initial={{ opacity: 1 }} animate={{ opacity: 1 }} exit={{ opacity: 1 }} transition={{ duration: 1.2 }}>
+            <PixelReveal transitionColor="#0C0C0C" transition={{ duration: 1.2 }} edgeHeight={4}>
+              <ServiceDetailPage />
+            </PixelReveal>
           </motion.div>
         } />
         <Route path="*" element={

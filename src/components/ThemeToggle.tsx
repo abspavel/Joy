@@ -38,10 +38,10 @@ export function ThemeToggle() {
   return (
     <button 
       onClick={toggleTheme}
-      className="text-[var(--text-primary)] hover:opacity-70 transition-opacity duration-200 ml-2 md:ml-4 flex items-center justify-center"
+      className="text-[var(--text-primary)] hover:opacity-80 transition-all duration-200 ml-1 sm:ml-2 flex items-center justify-center p-1.5 sm:p-2 rounded-full border border-[var(--text-primary)]/20 hover:border-[var(--text-primary)]/50 bg-[var(--text-primary)]/5 hover:bg-[var(--text-primary)]/15 shrink-0"
       aria-label="Toggle theme"
     >
-      {isLight ? <Moon size={20} /> : <Sun size={20} />}
+      {isLight ? <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" /> : <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />}
     </button>
   );
 }
