@@ -1,27 +1,62 @@
 const fs = require('fs');
-const file = 'src/components/originkit/ui/risinglines-variant-5.tsx';
-let content = fs.readFileSync(file, 'utf8');
+let code = fs.readFileSync('src/components/originkit/ui/pixelreveal.tsx', 'utf8');
 
-const strToReplace = `        rafRef.current = requestAnimationFrame(loop)
+code = code.replace(
+    `const propsRef = useRef({
+        gridSize,
+        edgeHeight,
+        direction,
+        transition,
+        transitionColor,
+        onRevealComplete,
+    })`,
+    `const propsRef = useRef({
+        gridSize,
+        edgeHeight,
+        direction,
+        transition,
+        transitionColor,
+        onRevealComplete,
+        reverse: false as boolean,
+    })`
+);
 
-        return () => {`;
+code = code.replace(
+    `        propsRef.current = {
+            gridSize,
+            edgeHeight,
+            direction,
+            transition,
+            transitionColor,
+            onRevealComplete,
+        }`,
+    `        propsRef.current = {
+            gridSize,
+            edgeHeight,
+            direction,
+            transition,
+            transitionColor,
+            onRevealComplete,
+            reverse: propsRef.current.reverse,
+        }`
+);
 
-const newStr = `        const visibilityObserver = new IntersectionObserver((entries) => {
-            if (entries[0]) {
-                isVisible = entries[0].isIntersecting;
-                if (isVisible && rafRef.current === null) {
-                    lastT = performance.now();
-                    rafRef.current = requestAnimationFrame(loop);
-                }
+code = code.replace(
+    `        progressRef.current = easeFn(linear)`,
+    `        progressRef.current = propsRef.current.reverse ? (1 - easeFn(linear)) : easeFn(linear)`
+);
+
+code = code.replace(
+    `        if (linear >= 1) {
+            stopRaf()
+            if (!completedRef.current) {`,
+    `        if (linear >= 1) {
+            if (propsRef.current.reverse) {
+                progressRef.current = 0;
+                draw();
             }
-        }, { rootMargin: '100px' });
-        visibilityObserver.observe(container);
+            stopRaf()
+            if (!completedRef.current) {`
+);
 
-        rafRef.current = requestAnimationFrame(loop)
-
-        return () => {
-            visibilityObserver.disconnect();`;
-
-content = content.replace(strToReplace, newStr);
-
-fs.writeFileSync(file, content);
+fs.writeFileSync('src/components/originkit/ui/pixelreveal.tsx', code);

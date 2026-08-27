@@ -18,7 +18,7 @@ interface FloatingBadgeProps {
   className: string;
 }
 
-const FloatingBadge = React.memo(function FloatingBadge({
+function FloatingBadge({
   icon,
   label,
   badgeDotColor,
@@ -57,9 +57,9 @@ const FloatingBadge = React.memo(function FloatingBadge({
       </div>
     </motion.div>
   );
-});
+}
 
-const AnimatedHeroTitle = React.memo(function AnimatedHeroTitle({ text1 = "Hi, i'm ", text2 = "joy" }: { text1?: string, text2?: string }) {
+function AnimatedHeroTitle({ text1 = "Hi, i'm ", text2 = "joy" }: { text1?: string, text2?: string }) {
   const containerVariants = {
     hidden: { opacity: 0 },
     visible: {
@@ -166,9 +166,9 @@ const AnimatedHeroTitle = React.memo(function AnimatedHeroTitle({ text1 = "Hi, i
       </div>
     </div>
   );
-});
+}
 
-const ScrollDownIndicator = React.memo(function ScrollDownIndicator() {
+function ScrollDownIndicator() {
   const handleScroll = () => {
     const nextSection = document.getElementById('about') || document.querySelector('section:nth-of-type(2)');
     if (nextSection) {
@@ -208,9 +208,9 @@ const ScrollDownIndicator = React.memo(function ScrollDownIndicator() {
       </div>
     </motion.button>
   );
-});
+}
 
-const EnhancedPortrait = React.memo(function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUrl?: string }) {
+function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUrl?: string }) {
   const { scrollY } = useScroll();
   
   // Parallax + fade as user scrolls out of the hero section
@@ -231,20 +231,15 @@ const EnhancedPortrait = React.memo(function EnhancedPortrait({ imageUrl = "/joy
   
   useEffect(() => {
     const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
-    let rafId: number | null = null;
 
     const handleMouseMove = (e: MouseEvent) => {
       if (!mq.matches) return;
-      if (rafId) cancelAnimationFrame(rafId);
-      rafId = requestAnimationFrame(() => {
-        mX.set((e.clientX / window.innerWidth) * 2 - 1);
-        mY.set((e.clientY / window.innerHeight) * 2 - 1);
-      });
+      mX.set((e.clientX / window.innerWidth) * 2 - 1);
+      mY.set((e.clientY / window.innerHeight) * 2 - 1);
     };
     
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
     return () => {
-      if (rafId) cancelAnimationFrame(rafId);
       window.removeEventListener('mousemove', handleMouseMove);
     };
   }, [mX, mY]);
@@ -286,7 +281,7 @@ const EnhancedPortrait = React.memo(function EnhancedPortrait({ imageUrl = "/joy
       </motion.div>
     </motion.div>
   );
-});
+}
 
 export function HeroSection() {
   const { data } = usePortfolioData('hero_content');
