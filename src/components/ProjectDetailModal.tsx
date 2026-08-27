@@ -1,5 +1,6 @@
 import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
+import { useSEO } from '../hooks/useSEO';
 import { 
   X, 
   ExternalLink, 
@@ -58,6 +59,53 @@ export function ProjectDetailModal({
   const [isIframeLoading, setIsIframeLoading] = useState(true);
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const modalContainerRef = useRef<HTMLDivElement>(null);
+
+  // Dynamic Open Graph, Twitter cards, and Schema.org SEO for individual project
+  const projectTitle = project?.title || project?.name || 'Project Case Study';
+  const projectDescription = project?.description || project?.overview || `Explore ${projectTitle}, an interactive 3D and frontend development case study by Joy.`;
+  const projectImage = project?.col1_image1_url || project?.col2_image_url || project?.image_url;
+  const projectUrl = typeof window !== 'undefined' && project?.id 
+    ? `${window.location.origin}/?project=${project.id}` 
+    : undefined;
+
+  const techStackKeywords = Array.isArray(project?.tech_stack)
+    ? project.tech_stack
+    : (typeof project?.tech_stack === 'string' ? project.tech_stack.split(',').map((s) => s.trim()) : []);
+
+  useSEO({
+    title: isOpen && project ? `${projectTitle} | 3D Case Study` : 'Joy -- 3D Creator',
+    description: isOpen && project ? projectDescription : undefined,
+    image: isOpen && project ? projectImage : undefined,
+    imageAlt: isOpen && project ? `${projectTitle} Preview Showcase` : undefined,
+    url: isOpen && project ? projectUrl : undefined,
+    type: 'article',
+    twitterCard: 'summary_large_image',
+    section: project?.category || 'Creative 3D Projects',
+    keywords: [
+      projectTitle,
+      project?.category || '3D Development',
+      '3D Interactive Demo',
+      'Creative Frontend',
+      'WebGL Case Study',
+      ...techStackKeywords,
+    ],
+    structuredData: isOpen && project ? {
+      '@context': 'https://schema.org',
+      '@type': 'CreativeWork',
+      'name': projectTitle,
+      'headline': projectTitle,
+      'description': projectDescription,
+      'image': projectImage || `${typeof window !== 'undefined' ? window.location.origin : ''}/joy-photo-transparent.png`,
+      'url': projectUrl,
+      'author': {
+        '@type': 'Person',
+        'name': 'Pavel Ahmed Joy',
+        'jobTitle': '3D Creator & Frontend Developer'
+      },
+      'genre': project?.category || 'Interactive 3D Art & Development',
+      'keywords': techStackKeywords.join(', ')
+    } : undefined
+  });
 
   // Reset tab when project changes
   useEffect(() => {

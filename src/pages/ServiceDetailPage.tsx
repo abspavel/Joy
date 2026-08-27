@@ -1,14 +1,16 @@
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect, useMemo, Suspense } from 'react';
+import React from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { DEFAULT_PORTFOLIO_DATA } from '../data/defaultPortfolioData';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { FadeIn } from '../components/FadeIn';
-import { FooterSection } from '../sections/FooterSection';
 import { Navbar } from '../components/Navbar';
 import { ContactButton } from '../components/ContactButton';
 import { Check, ArrowLeft } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
+
+const FooterSection = React.lazy(() => import('../sections/FooterSection').then(m => ({ default: m.FooterSection })));
 
 function findServiceInList(slug: string | undefined, list: any[]) {
   if (!slug || !Array.isArray(list)) return null;
@@ -34,9 +36,52 @@ export function ServiceDetailPage() {
   const [service, setService] = useState<any>(initialResolvedService);
   const [loading, setLoading] = useState<boolean>(!initialResolvedService);
 
+  const serviceName = service ? (service.name || service.title || 'Creative Service') : 'Creative Service';
+  const serviceDescription = service?.description || 'Custom 3D modeling, interactive web animations, WebGL experiences, and frontend engineering solutions.';
+  const serviceImage = service?.image_url || '/joy-photo-transparent.png';
+  const serviceFeatures = Array.isArray(service?.features) ? service.features : [];
+
   useSEO({
-    title: service ? `${service.name || service.title} | Joy -- 3D Creator` : 'Service | Joy -- 3D Creator',
-    description: service?.description || 'Learn more about this service.',
+    title: service ? `${serviceName} | Creative 3D & Web Services` : 'Creative 3D & Web Services | Joy',
+    description: serviceDescription,
+    image: serviceImage,
+    imageAlt: `${serviceName} Showcase`,
+    type: 'website',
+    twitterCard: 'summary_large_image',
+    keywords: [
+      serviceName,
+      '3D Design Services',
+      'WebGL Development',
+      'Interactive Web Experiences',
+      'Creative Frontend Services',
+      'Blender Modeling',
+      'Three.js Consulting',
+      ...serviceFeatures
+    ],
+    structuredData: service ? {
+      '@context': 'https://schema.org',
+      '@type': 'Service',
+      'name': serviceName,
+      'description': serviceDescription,
+      'provider': {
+        '@type': 'Person',
+        'name': 'Pavel Ahmed Joy',
+        'jobTitle': '3D Creator & Frontend Engineer'
+      },
+      'areaServed': 'Worldwide',
+      'hasOfferCatalog': {
+        '@type': 'OfferCatalog',
+        'name': `${serviceName} Deliverables`,
+        'itemListElement': serviceFeatures.map((f: string, idx: number) => ({
+          '@type': 'Offer',
+          'itemOffered': {
+            '@type': 'Service',
+            'name': f
+          },
+          'position': idx + 1
+        }))
+      }
+    } : undefined
   });
 
   // Keep state in sync if data arrives from hook
@@ -216,7 +261,9 @@ export function ServiceDetailPage() {
         </FadeIn>
       </div>
 
-      <FooterSection />
+      <Suspense fallback={<div className="h-40 bg-[var(--bg-secondary)]" />}>
+        <FooterSection />
+      </Suspense>
     </main>
   );
 }

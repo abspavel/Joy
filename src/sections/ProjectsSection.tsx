@@ -1,8 +1,12 @@
-import React, { useRef, useState } from 'react';
+import React, { useRef, useState, useEffect } from 'react';
 import { motion, useScroll, useTransform, useSpring, useMotionValue, useMotionTemplate } from 'motion/react';
 import { LiveProjectButton } from '../components/LiveProjectButton';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import { ProjectDetailModal, ProjectData } from '../components/ProjectDetailModal';
+import type { ProjectData } from '../components/ProjectDetailModal';
+
+const ProjectDetailModal = React.lazy(() => 
+  import('../components/ProjectDetailModal').then(m => ({ default: m.ProjectDetailModal }))
+);
 import { 
   Sparkles, 
   Maximize2, 
@@ -21,13 +25,47 @@ export function ProjectsSection() {
   const [selectedProject, setSelectedProject] = useState<ProjectData | null>(null);
   const [isModalOpen, setIsModalOpen] = useState(false);
 
+  // Check URL query parameter on load or change (e.g., ?project=...)
+  useEffect(() => {
+    if (typeof window === 'undefined' || projects.length === 0) return;
+    const searchParams = new URLSearchParams(window.location.search);
+    const projectIdOrSlug = searchParams.get('project');
+    if (projectIdOrSlug) {
+      const match = projects.find(
+        (p) =>
+          p.id === projectIdOrSlug ||
+          p.project_number === projectIdOrSlug ||
+          p.title?.toLowerCase().replace(/[^a-z0-9]+/g, '-') === projectIdOrSlug.toLowerCase() ||
+          p.name?.toLowerCase().replace(/[^a-z0-9]+/g, '-') === projectIdOrSlug.toLowerCase()
+      );
+      if (match) {
+        setSelectedProject(match);
+        setIsModalOpen(true);
+      }
+    }
+  }, [projects]);
+
   const handleOpenProject = (project: ProjectData) => {
     setSelectedProject(project);
     setIsModalOpen(true);
+
+    // Update URL query without full reload for direct link sharing
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.set('project', project.id || project.project_number || project.title || 'detail');
+      window.history.replaceState({}, '', url.toString());
+    }
   };
 
   const handleCloseModal = () => {
     setIsModalOpen(false);
+
+    // Clean up URL query parameter
+    if (typeof window !== 'undefined') {
+      const url = new URL(window.location.href);
+      url.searchParams.delete('project');
+      window.history.replaceState({}, '', url.toString());
+    }
   };
 
   return (
@@ -78,13 +116,17 @@ export function ProjectsSection() {
       </div>
 
       {/* Project Detail & Live Preview Modal */}
-      <ProjectDetailModal
-        project={selectedProject}
-        allProjects={projects}
-        isOpen={isModalOpen}
-        onClose={handleCloseModal}
-        onSelectProject={(proj) => setSelectedProject(proj)}
-      />
+      {isModalOpen && (
+        <React.Suspense fallback={null}>
+          <ProjectDetailModal
+            project={selectedProject}
+            allProjects={projects}
+            isOpen={isModalOpen}
+            onClose={handleCloseModal}
+            onSelectProject={(proj) => setSelectedProject(proj)}
+          />
+        </React.Suspense>
+      )}
     </section>
   );
 }

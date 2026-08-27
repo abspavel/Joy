@@ -96,7 +96,7 @@ export function TestimonialsSection() {
   const displayItems = Array(layoutMeasurements.repeats).fill(items).flat();
 
   return (
-    <section ref={sectionRef} className="bg-[var(--bg-primary)] py-20 sm:py-28 md:py-32 overflow-hidden flex flex-col relative">
+    <section id="testimonials" ref={sectionRef} className="bg-[var(--bg-primary)] py-20 sm:py-28 md:py-32 overflow-hidden flex flex-col relative">
       <FadeIn delay={0} y={30} className="px-5 sm:px-8 md:px-10 mb-12 sm:mb-16 md:mb-20">
         <h2 className="hero-heading font-black uppercase text-center text-[clamp(2.5rem,10vw,100px)]">
           TRUSTED BY CLIENT'S

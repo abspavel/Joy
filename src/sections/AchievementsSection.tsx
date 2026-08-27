@@ -77,7 +77,7 @@ export function AchievementsSection() {
     : 'md:grid-cols-4';
 
   return (
-    <section className="bg-[var(--bg-primary)] px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24 border-none relative z-10">
+    <section id="achievements" className="bg-[var(--bg-primary)] px-5 sm:px-8 md:px-10 py-16 sm:py-20 md:py-24 border-none relative z-10">
       <div className={`max-w-5xl mx-auto grid grid-cols-2 ${gridColsClasses} gap-6 sm:gap-8 md:gap-10`}>
         {stats.map((stat, i) => {
           // Determine if we need a left border for desktop (not the first item in a row)

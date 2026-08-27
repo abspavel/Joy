@@ -2,9 +2,8 @@ import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
 import { motion, AnimatePresence } from 'motion/react';
 import React, { useEffect, Suspense } from 'react';
 import Lenis from 'lenis';
-import { useSEO } from './hooks/useSEO';
+import { useSEO, useSectionViewportSEO, SectionMetaConfig } from './hooks/useSEO';
 import { TopProgressBar } from './components/TopProgressBar';
-import { ServiceDetailPage } from './pages/ServiceDetailPage';
 
 import { HeroSection } from './sections/HeroSection';
 const AboutSection = React.lazy(() => import('./sections/AboutSection').then(m => ({ default: m.AboutSection })));
@@ -22,6 +21,7 @@ const TestimonialsSection = React.lazy(() => import('./sections/TestimonialsSect
 // Lazy loaded pages/routes
 const AdminRouter = React.lazy(() => import('./admin/AdminRouter').then(m => ({ default: m.AdminRouter })));
 const ContactPage = React.lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
+const ServiceDetailPage = React.lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
 
 
 function PageSkeleton() {
@@ -148,52 +148,118 @@ function BelowTheFold() {
   );
 }
 
+const HOME_SECTIONS_SEO: SectionMetaConfig[] = [
+  {
+    id: 'hero',
+    title: 'Joy -- 3D Creator & Frontend Developer',
+    description: "Welcome to the portfolio of Pavel Ahmed Joy, a passionate 3D creator and frontend developer building interactive 3D web experiences, WebGL demos, and high-performance user interfaces.",
+    keywords: ['Pavel Ahmed Joy', 'Joy 3D Creator', 'Interactive 3D Portfolio', 'WebGL Developer', 'Three.js Enthusiast', 'Frontend Engineer'],
+  },
+  {
+    id: 'achievements',
+    title: 'Milestones & Accomplishments | Joy -- 3D Creator',
+    description: 'Track record of 250+ completed digital projects, 5+ years in professional web development, 50+ worldwide clients, and 98% client satisfaction rate.',
+    keywords: ['250+ Projects', 'Years of Experience', 'Pavel Ahmed Joy Milestones', 'Client Success', 'Portfolio Stats'],
+  },
+  {
+    id: 'about',
+    title: 'About Pavel Ahmed Joy | 3D Creator & Web Developer',
+    description: "Discover Pavel Ahmed Joy's creative background, philosophy, and expertise in crafting modern, high-performing websites and 3D visual experiences.",
+    keywords: ['About Joy', 'Pavel Ahmed Joy Biography', '3D Artist', 'Creative Technologist', 'Web Developer'],
+  },
+  {
+    id: 'skills-certifications',
+    title: 'Skills & Technical Credentials | Joy -- 3D Creator',
+    description: 'Technical proficiency in React, TypeScript, Three.js, WebGL, Blender, Tailwind CSS, API development, and verified developer certifications.',
+    keywords: ['React Developer', 'TypeScript', 'Three.js 3D', 'WebGL Shader Art', 'Blender 3D Modeling', 'Technical Certifications'],
+  },
+  {
+    id: 'services',
+    title: 'Creative Services & Solutions | Joy -- 3D Creator',
+    description: 'Professional services in 3D Web Design, Responsive Frontend Development, Backend & API Architectures, E-Commerce, and Website Performance Optimization.',
+    keywords: ['3D Web Design Services', 'Frontend Development', 'WebGL Custom Experience', 'Fullstack Web Services', 'Web Performance'],
+  },
+  {
+    id: 'projects',
+    title: 'Selected Projects & Interactive Demos | Joy -- 3D Creator',
+    description: 'Browse interactive 3D web applications, case studies, live previews, and design systems crafted by Pavel Ahmed Joy.',
+    keywords: ['3D Projects', 'Interactive Web Demos', 'WebGL Showcase', 'Frontend Case Studies', 'Creative Web Portfolio'],
+  },
+  {
+    id: 'testimonials',
+    title: 'Client Reviews & Testimonials | Joy -- 3D Creator',
+    description: 'Client testimonials, reviews, and feedback from founders, teams, and collaborators worldwide partnering with Joy.',
+    keywords: ['Client Reviews', 'Joy Testimonials', 'Collaborations', 'Customer Satisfaction', 'Recommendations'],
+  },
+  {
+    id: 'contact',
+    title: 'Contact & Collaboration | Joy -- 3D Creator',
+    description: 'Start a project or connect with Pavel Ahmed Joy for freelance 3D design, interactive development, and web inquiries.',
+    keywords: ['Contact Joy', 'Hire 3D Developer', 'Freelance 3D Designer', 'Work Together'],
+  },
+];
+
 function PublicSite() {
-  const [activeSection, setActiveSection] = React.useState('Home');
-
-  React.useEffect(() => {
-    const observer = new IntersectionObserver((entries) => {
-      let maxRatio = 0;
-      let mostVisibleId = '';
-      
-      entries.forEach(entry => {
-        if (entry.isIntersecting && entry.intersectionRatio > maxRatio) {
-          maxRatio = entry.intersectionRatio;
-          mostVisibleId = entry.target.id;
-        }
-      });
-      
-      if (mostVisibleId && maxRatio > 0) {
-        const titleMap: Record<string, string> = {
-          'projects': 'Projects',
-          'about': 'About Me',
-          'services': 'Services',
-          'contact': 'Contact',
-          'skills-certifications': 'Skills & Certifications'
-        };
-        const sectionName = titleMap[mostVisibleId] || mostVisibleId.charAt(0).toUpperCase() + mostVisibleId.slice(1);
-        setActiveSection(sectionName);
-      } else if (window.scrollY < 100) {
-        setActiveSection('Home');
-      }
-    }, {
-      threshold: [0.1, 0.3, 0.5, 0.7, 0.9]
-    });
-
-    const sections = document.querySelectorAll('section[id], footer[id]');
-    sections.forEach(section => observer.observe(section));
-
-    return () => observer.disconnect();
-  }, []);
-
-  const title = activeSection === 'Home' 
-    ? 'Joy -- 3D Creator' 
-    : `${activeSection} | Joy -- 3D Creator`;
-    
+  // Base initial SEO with Schema.org Person, WebSite, and ProfessionalService structured data
   useSEO({
-    title,
-    description: `View the ${activeSection} section of Joy's 3D Creator portfolio. Exploring 3D design, development, and more.`,
+    title: 'Joy -- 3D Creator & Frontend Developer',
+    description: 'Portfolio of Pavel Ahmed Joy, a passionate 3D creator and frontend developer building interactive 3D web experiences, WebGL demos, and modern UI/UX.',
+    keywords: [
+      'Pavel Ahmed Joy',
+      'Joy 3D Creator',
+      '3D Web Designer',
+      'WebGL Developer',
+      'Three.js',
+      'React Developer',
+      'Creative Technologist',
+      'Blender Artist',
+      'Interactive 3D Portfolio'
+    ],
+    image: '/joy-photo-transparent.png',
+    imageAlt: 'Pavel Ahmed Joy - 3D Creator & Frontend Developer',
+    type: 'website',
+    twitterCard: 'summary_large_image',
+    structuredData: [
+      {
+        '@context': 'https://schema.org',
+        '@type': 'Person',
+        'name': 'Pavel Ahmed Joy',
+        'alternateName': ['Joy', 'Pavel Joy'],
+        'jobTitle': '3D Creator & Frontend Developer',
+        'url': typeof window !== 'undefined' ? window.location.origin : 'https://joy.dev',
+        'image': typeof window !== 'undefined' ? `${window.location.origin}/joy-photo-transparent.png` : '/joy-photo-transparent.png',
+        'sameAs': [
+          'https://github.com',
+          'https://linkedin.com',
+          'https://twitter.com',
+          'https://instagram.com'
+        ],
+        'knowsAbout': [
+          '3D Modeling',
+          'WebGL',
+          'Three.js',
+          'React',
+          'TypeScript',
+          'Blender',
+          'Frontend Engineering',
+          'UI/UX Design'
+        ]
+      },
+      {
+        '@context': 'https://schema.org',
+        '@type': 'WebSite',
+        'name': 'Joy -- 3D Creator & Developer Portfolio',
+        'url': typeof window !== 'undefined' ? window.location.origin : 'https://joy.dev',
+        'author': {
+          '@type': 'Person',
+          'name': 'Pavel Ahmed Joy'
+        }
+      }
+    ]
   });
+
+  // Dynamically update SEO meta tags as user scrolls into different sections
+  useSectionViewportSEO(HOME_SECTIONS_SEO, true);
 
   return (
     <SmoothScroll>

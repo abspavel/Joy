@@ -6,7 +6,8 @@ import { Navbar } from '../components/Navbar';
 import { Magnet } from '../components/Magnet';
 import { ContactButton } from '../components/ContactButton';
 import { usePortfolioData } from '../hooks/usePortfolioData';
-import RisingLinesVariant5 from '../components/originkit/ui/risinglines-variant-5';
+
+const RisingLinesVariant5 = React.lazy(() => import('../components/originkit/ui/risinglines-variant-5'));
 
 interface FloatingBadgeProps {
   icon: ReactNode;
@@ -311,13 +312,15 @@ export function HeroSection() {
   const heading2 = heroData.heading_line2 || "joy";
 
   return (
-    <section className="min-h-[100dvh] flex flex-col justify-between overflow-x-clip relative">
+    <section id="hero" className="min-h-[100dvh] flex flex-col justify-between overflow-x-clip relative">
       {/* Background Matrix/Rising lines effect */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
-        <RisingLinesVariant5 
-          horizonOpacity={40}
-          opacity={60}
-        />
+        <React.Suspense fallback={null}>
+          <RisingLinesVariant5 
+            horizonOpacity={40}
+            opacity={60}
+          />
+        </React.Suspense>
       </div>
 
       {/* 1. Top Navbar */}
