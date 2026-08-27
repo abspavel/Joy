@@ -132,18 +132,47 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
 }
 
 
+function LazySection({ children, height = '100vh', id }: { children: React.ReactNode, height?: string, id?: string }) {
+  const [isVisible, setIsVisible] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
+
+  React.useEffect(() => {
+    // Small delay to ensure hydration completes first before we start measuring
+    const timer = setTimeout(() => {
+      const observer = new IntersectionObserver(
+        ([entry]) => {
+          if (entry.isIntersecting) {
+            setIsVisible(true);
+            observer.disconnect();
+          }
+        },
+        { rootMargin: '400px 0px' }
+      );
+      if (ref.current) observer.observe(ref.current);
+      return () => observer.disconnect();
+    }, 100);
+    return () => clearTimeout(timer);
+  }, []);
+
+  return (
+    <div ref={ref} id={id} style={{ minHeight: isVisible ? 'auto' : height }}>
+      {isVisible ? children : null}
+    </div>
+  );
+}
+
 function BelowTheFold() {
   return (
     <Suspense fallback={<div style={{height: '100vh'}} />}>
-      <MarqueeSection />
-      <AchievementsSection />
-      <ImageCircleSection />
-      <AboutSection />
-      <SkillsCertificationsSection />
-      <ServicesSection />
-      <ProjectsSection />
-      <TestimonialsSection />
-      <FooterSection />
+      <LazySection height="400px"><MarqueeSection /></LazySection>
+      <LazySection height="600px"><AchievementsSection /></LazySection>
+      <LazySection height="100vh"><ImageCircleSection /></LazySection>
+      <LazySection height="100vh"><AboutSection /></LazySection>
+      <LazySection height="100vh"><SkillsCertificationsSection /></LazySection>
+      <LazySection height="100vh"><ServicesSection /></LazySection>
+      <LazySection height="100vh"><ProjectsSection /></LazySection>
+      <LazySection height="100vh"><TestimonialsSection /></LazySection>
+      <LazySection height="500px"><FooterSection /></LazySection>
     </Suspense>
   );
 }

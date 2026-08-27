@@ -311,16 +311,25 @@ export function HeroSection() {
   const heading1 = heroData.heading_line1 || "Hi, i'm ";
   const heading2 = heroData.heading_line2 || "joy";
 
+  const [renderBg, setRenderBg] = useState(false);
+  useEffect(() => {
+    // Defer the heavy canvas/webgl background rendering slightly
+    const timer = setTimeout(() => setRenderBg(true), 200);
+    return () => clearTimeout(timer);
+  }, []);
+
   return (
     <section id="hero" className="min-h-[100dvh] flex flex-col justify-between overflow-x-clip relative">
       {/* Background Matrix/Rising lines effect */}
       <div className="absolute inset-0 z-0 pointer-events-none opacity-30">
-        <React.Suspense fallback={null}>
-          <RisingLinesVariant5 
-            horizonOpacity={40}
-            opacity={60}
-          />
-        </React.Suspense>
+        {renderBg && (
+          <React.Suspense fallback={null}>
+            <RisingLinesVariant5 
+              horizonOpacity={40}
+              opacity={60}
+            />
+          </React.Suspense>
+        )}
       </div>
 
       {/* 1. Top Navbar */}
