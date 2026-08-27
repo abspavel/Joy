@@ -401,8 +401,9 @@ function __OriginkitBase_RisingLines(props: Props) {
             }
         }
 
-        let lastT = performance.now()
+        let isVisible = true; let lastT = performance.now()
         const loop = (t: number) => {
+            if (!isVisible) { rafRef.current = null; return; }
             const deltaSec = (t - lastT) / 1000
             lastT = t
             drawFrame(deltaSec)

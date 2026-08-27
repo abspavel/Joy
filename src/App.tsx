@@ -133,6 +133,24 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
 
 
 function BelowTheFold() {
+  const [shouldRender, setShouldRender] = React.useState(false);
+
+  React.useEffect(() => {
+    // Wait until browser is idle to start loading below the fold components
+    // This dramatically reduces initial Total Blocking Time (TBT)
+    if ('requestIdleCallback' in window) {
+      const id = requestIdleCallback(() => setShouldRender(true), { timeout: 2000 });
+      return () => cancelIdleCallback(id);
+    } else {
+      const id = setTimeout(() => setShouldRender(true), 500);
+      return () => clearTimeout(id);
+    }
+  }, []);
+
+  if (!shouldRender) {
+    return <div style={{ height: '100vh' }} />;
+  }
+
   return (
     <Suspense fallback={<div style={{height: '100vh'}} />}>
       <MarqueeSection />

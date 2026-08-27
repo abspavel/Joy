@@ -131,12 +131,17 @@ export function ProjectsSection() {
   );
 }
 
-const ProjectCard: React.FC<{ 
+const ProjectCard = React.memo(({ 
+  project, 
+  index, 
+  totalCards,
+  onOpen
+}: {
   project: ProjectData; 
   index: number; 
   totalCards: number;
   onOpen: () => void;
-}> = ({ project, index, totalCards, onOpen }) => {
+}) => {
   const containerRef = useRef<HTMLDivElement>(null);
   
   const { scrollYProgress: scrollYProgressLeave } = useScroll({
@@ -443,5 +448,5 @@ const ProjectCard: React.FC<{
       </motion.div>
     </div>
   );
-};
+});
 
