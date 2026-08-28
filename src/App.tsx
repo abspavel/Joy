@@ -1,5 +1,4 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import { motion, AnimatePresence } from 'motion/react';
 import React, { useEffect, Suspense } from 'react';
 import Lenis from 'lenis';
 import { useSEO, useSectionViewportSEO, SectionMetaConfig } from './hooks/useSEO';
@@ -140,54 +139,57 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
 }
 
 
-function BelowTheFold() {
-  const [shouldRender, setShouldRender] = React.useState(false);
+function LazySection({ children, fallbackHeight = "100vh" }: { children: React.ReactNode, fallbackHeight?: string }) {
+  const [inView, setInView] = React.useState(false);
+  const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
-    // We defer rendering the heavy below-the-fold content until the browser is idle.
-    // This allows the initial LCP and TTI to remain extremely fast.
-    const timer = setTimeout(() => {
-      if ('requestIdleCallback' in window) {
-        window.requestIdleCallback(() => setShouldRender(true), { timeout: 2000 });
-      } else {
-        setShouldRender(true);
+    const el = ref.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(([entry]) => {
+      if (entry.isIntersecting) {
+        setInView(true);
+        observer.disconnect();
       }
-    }, 150);
-    return () => clearTimeout(timer);
+    }, { rootMargin: '800px' });
+    observer.observe(el);
+    return () => observer.disconnect();
   }, []);
 
-  if (!shouldRender) {
-    // Return a lightweight placeholder roughly matching the height to prevent scrollbar pop
-    return <div style={{ height: '300vh' }} />;
-  }
+  return (
+    <div ref={ref} style={{ minHeight: inView ? 'auto' : fallbackHeight }}>
+      {inView && <Suspense fallback={<div style={{ height: fallbackHeight }} />}>{children}</Suspense>}
+    </div>
+  );
+}
 
+function BelowTheFold() {
   return (
     <>
-      {/* Individual Suspense boundaries prevent one section from unmounting the others */}
-      <Suspense fallback={<div className="h-[600px]" />}>
+      <LazySection fallbackHeight="600px">
         <AchievementsSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[100vh]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="800px">
         <ImageCircleSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[100vh]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="100vh">
         <AboutSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[100vh]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="100vh">
         <SkillsCertificationsSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[100vh]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="100vh">
         <ServicesSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[100vh]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="100vh">
         <ProjectsSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[100vh]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="100vh">
         <TestimonialsSection />
-      </Suspense>
-      <Suspense fallback={<div className="h-[500px]" />}>
+      </LazySection>
+      <LazySection fallbackHeight="500px">
         <FooterSection />
-      </Suspense>
+      </LazySection>
     </>
   );
 }
@@ -323,31 +325,12 @@ function AnimatedRoutes() {
   const location = useLocation();
   
   return (
-    <AnimatePresence mode="wait" initial={false}>
-      <Routes location={location} key={location.pathname} {...({} as any)}>
-        <Route path="/admin/*" element={<AdminRouter />} />
-        <Route path="/contact" element={
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-            <ContactPage />
-          </motion.div>
-        } />
-        <Route path="/services/:slug" element={
-          <motion.div 
-            initial={{ opacity: 0, y: 8 }} 
-            animate={{ opacity: 1, y: 0 }} 
-            exit={{ opacity: 0, y: -8 }} 
-            transition={{ duration: 0.2, ease: "easeOut" }}
-          >
-            <ServiceDetailPage />
-          </motion.div>
-        } />
-        <Route path="*" element={
-          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.4 }}>
-            <PublicSite />
-          </motion.div>
-        } />
-      </Routes>
-    </AnimatePresence>
+    <Routes location={location}>
+      <Route path="/admin/*" element={<AdminRouter />} />
+      <Route path="/contact" element={<ContactPage />} />
+      <Route path="/services/:slug" element={<ServiceDetailPage />} />
+      <Route path="*" element={<PublicSite />} />
+    </Routes>
   );
 }
 

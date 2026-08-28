@@ -2,19 +2,17 @@ import React, { useState } from 'react';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 
 const MarqueeImage: React.FC<{ src: string; index: number }> = ({ src, index }) => {
-  const [loaded, setLoaded] = useState(false);
-  
+    
   return (
     <img decoding="async" 
       src={src}
       alt="3D Creative Portfolio"
       width="420"
       height="270"
-      fetchPriority={index < 2 ? "high" : "auto"}
-      loading={index < 4 ? "eager" : "lazy"}
-      onLoad={() => setLoaded(true)}
+      fetchPriority="low"
+      loading="lazy"
       style={{ aspectRatio: '420/270' }}
-      className={`w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 transition-opacity duration-500 ${loaded ? 'opacity-100' : 'opacity-0'}`}
+      className="w-[160px] h-[100px] sm:w-[280px] sm:h-[180px] md:w-[420px] md:h-[270px] rounded-2xl object-cover object-center shrink-0 bg-white/5"
     />
   );
 }

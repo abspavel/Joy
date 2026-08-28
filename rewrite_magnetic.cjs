@@ -1,39 +1,12 @@
-"use client";
+const fs = require('fs');
+let code = fs.readFileSync('src/components/originkit/ui/magnetic-hover-button.tsx', 'utf8');
 
+// Strip motion imports
+code = code.replace(/import { motion, useMotionValue, useSpring } from "motion\/react";/g, '');
 
-import React, { useRef, useState, useEffect, type CSSProperties } from "react";
+const regex = /export default function MagneticButton\([\s\S]*?}\) {[\s\S]*?return \([\s\S]*?\);\n\}/;
 
-const RANGE_PER_POINT = 18;
-const MAX_PULL = 0.5;
-
-interface BorderOptions {
-  color: string;
-  width: number;
-}
-
-export interface MagneticButtonProps {
-  label?: string;
-  children?: React.ReactNode;
-  link?: string;
-  newTab?: boolean;
-  font?: CSSProperties;
-  fill?: string;
-  textColor?: string;
-  sweepColor?: string;
-  sweepTextColor?: string;
-  radius?: number | string;
-  magnet?: number;
-  paddingX?: number;
-  paddingY?: number;
-  transition?: any;
-  border?: boolean;
-  borderOptions?: BorderOptions;
-  style?: CSSProperties;
-  className?: string;
-  onClick?: (e: React.MouseEvent<HTMLAnchorElement>) => void;
-}
-
-export default function MagneticButton({
+const newComponent = `export default function MagneticButton({
   label,
   children,
   link = "",
@@ -72,7 +45,7 @@ export default function MagneticButton({
     const pull = (magnet / 20) * MAX_PULL;
     const reach = magnet * RANGE_PER_POINT;
 
-    function onMove(event) {
+    function onMove(event: PointerEvent) {
       const rect = el.getBoundingClientRect();
       const cx = rect.left + rect.width / 2 - pos.x;
       const cy = rect.top + rect.height / 2 - pos.y;
@@ -124,7 +97,7 @@ export default function MagneticButton({
 
   const paddingStyle =
     paddingX !== undefined || paddingY !== undefined
-      ? { padding: `${paddingY ?? 0}px ${paddingX ?? 0}px` }
+      ? { padding: \`\$\{paddingY ?? 0\}px \$\{paddingX ?? 0\}px\` }
       : {};
 
   return (
@@ -134,13 +107,13 @@ export default function MagneticButton({
       target={link && newTab ? "_blank" : undefined}
       rel={link && newTab ? "noopener noreferrer" : undefined}
       onClick={onClick}
-      className={`relative inline-flex items-center justify-center box-border cursor-pointer select-none overflow-hidden no-underline whitespace-nowrap will-change-transform ${className}`}
+      className={\`relative inline-flex items-center justify-center box-border cursor-pointer select-none overflow-hidden no-underline whitespace-nowrap will-change-transform \$\{className\}\`}
       style={{
         ...paddingStyle,
         borderRadius: radius,
         background: fill,
-        border: borderWidth > 0 ? `${borderWidth}px solid ${borderColor}` : "none",
-        transform: `translate3d(${pos.x}px, ${pos.y}px, 0)`,
+        border: borderWidth > 0 ? \`\$\{borderWidth\}px solid \$\{borderColor\}\` : "none",
+        transform: \`translate3d(\$\{pos.x\}px, \$\{pos.y\}px, 0)\`,
         transition: 'transform 0.2s cubic-bezier(0.25, 1, 0.5, 1)',
         ...font,
         ...style,
@@ -177,4 +150,7 @@ export default function MagneticButton({
       </span>
     </a>
   );
-}
+}`;
+
+code = code.replace(regex, newComponent);
+fs.writeFileSync('src/components/originkit/ui/magnetic-hover-button.tsx', code);

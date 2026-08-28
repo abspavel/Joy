@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react';
-import { motion, AnimatePresence } from 'motion/react';
+
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { FadeIn } from '../components/FadeIn';
 import { 
@@ -299,11 +299,7 @@ export function SkillsCertificationsSection() {
                       {cat.icon}
                       <span>{cat.label}</span>
                       {isActive && (
-                        <motion.span
-                          layoutId="activeFilterIndicator"
-                          className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 -z-10 opacity-70"
-                          transition={{ type: 'spring', stiffness: 380, damping: 30 }}
-                        />
+                        <span className="absolute inset-0 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 -z-10 opacity-70 transition-all duration-300" />
                       )}
                     </button>
                   );
@@ -312,23 +308,13 @@ export function SkillsCertificationsSection() {
             </FadeIn>
 
             {/* Colorful Interactive Skills Grid */}
-            <motion.div 
-              layout
-              className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full mb-16 sm:mb-20"
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5 w-full mb-16 sm:mb-20"
             >
-              <AnimatePresence mode="popLayout">
+              
                 {filteredSkills.map((skill, index) => {
                   const meta = skill.meta;
                   return (
-                    <motion.div
-                      key={skill.id}
-                      layout
-                      initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                      animate={{ opacity: 1, scale: 1, y: 0 }}
-                      exit={{ opacity: 0, scale: 0.9, y: 10 }}
-                      transition={{ duration: 0.35, delay: index * 0.04 }}
-                      whileHover={{ y: -6, transition: { duration: 0.2 } }}
-                      className="group relative rounded-2xl p-5 sm:p-6 bg-[var(--bg-secondary)] border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg hover:shadow-2xl"
+                    <div key={skill.id} className="animate-fade-in-up group relative rounded-2xl p-5 sm:p-6 bg-[var(--bg-secondary)] border border-white/10 hover:border-white/25 transition-all duration-300 flex flex-col justify-between overflow-hidden shadow-lg hover:shadow-2xl"
                       style={{
                         boxShadow: `0 10px 30px -10px rgba(0,0,0,0.5)`
                       }}
@@ -383,24 +369,15 @@ export function SkillsCertificationsSection() {
                           <span style={{ color: meta.color }}>{meta.percent}%</span>
                         </div>
                         <div className="w-full h-1.5 rounded-full bg-white/10 overflow-hidden">
-                          <motion.div 
-                            initial={{ width: 0 }}
-                            whileInView={{ width: `${meta.percent}%` }}
-                            viewport={{ once: true }}
-                            transition={{ duration: 1, ease: 'easeOut', delay: 0.1 + index * 0.05 }}
-                            className="h-full rounded-full"
-                            style={{ 
-                              background: `linear-gradient(90deg, ${meta.color}88, ${meta.color})`,
-                              boxShadow: `0 0 8px ${meta.color}`
-                            }}
+                          <div className="h-full rounded-full transition-all duration-1000 ease-out" style={{ width: `${meta.percent}%`, background: `linear-gradient(90deg, ${meta.color}88, ${meta.color})`, boxShadow: `0 0 8px ${meta.color}` }}
                           />
                         </div>
                       </div>
-                    </motion.div>
+                    </div>
                   );
                 })}
-              </AnimatePresence>
-            </motion.div>
+              
+            </div>
 
             {/* Quick Floating Highlights Banner */}
             <FadeIn delay={0.2} y={20} className="w-full max-w-4xl mb-16 sm:mb-20">
@@ -518,40 +495,31 @@ export function SkillsCertificationsSection() {
       </div>
 
       {/* Lightbox Modal */}
-      <AnimatePresence>
-        {selectedCert && (
-          <motion.div 
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            transition={{ duration: 0.25 }}
-            className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4"
-            onClick={() => setSelectedCert(null)}
+      {selectedCert && (
+        <div 
+          className="fixed inset-0 z-[100] flex items-center justify-center bg-black/85 backdrop-blur-md p-4 animate-fade-in-up"
+          style={{ animationDuration: '0.2s' }}
+          onClick={() => setSelectedCert(null)}
+        >
+          <button 
+            className="absolute top-6 right-6 text-white hover:text-amber-400 transition-colors z-[101] bg-white/10 hover:bg-white/20 p-2.5 rounded-full border border-white/20 shadow-2xl cursor-pointer"
+            onClick={(e) => {
+              e.stopPropagation();
+              setSelectedCert(null);
+            }}
+            aria-label="Close modal"
           >
-            <button 
-              className="absolute top-6 right-6 text-white hover:text-amber-400 transition-colors z-[101] bg-white/10 hover:bg-white/20 p-2.5 rounded-full border border-white/20 shadow-2xl cursor-pointer"
-              onClick={(e) => {
-                e.stopPropagation();
-                setSelectedCert(null);
-              }}
-              aria-label="Close modal"
-            >
-              <X className="w-6 h-6 sm:w-7 sm:h-7" />
-            </button>
-            <motion.img decoding="async" 
-              src={selectedCert}
-              alt="Certificate Preview"
-              initial={{ scale: 0.85, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.85, opacity: 0 }}
-              transition={{ duration: 0.25, ease: "easeOut" }}
-              className="max-w-[92vw] max-h-[85vh] object-contain rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/20"
-              onClick={(e) => e.stopPropagation()}
-            />
-          </motion.div>
-        )}
-      </AnimatePresence>
+            <X className="w-6 h-6 sm:w-7 sm:h-7" />
+          </button>
+          <img decoding="async" 
+            src={selectedCert}
+            alt="Certificate Preview"
+            className="max-w-[92vw] max-h-[85vh] object-contain rounded-2xl shadow-[0_20px_60px_rgba(0,0,0,0.8)] border border-white/20 animate-badge-in"
+            style={{ animationDuration: '0.3s' }}
+            onClick={(e) => e.stopPropagation()}
+          />
+        </div>
+      )}
     </section>
   );
 }
-

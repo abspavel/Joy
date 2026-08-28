@@ -1,5 +1,4 @@
 import { useState, useEffect, useCallback } from 'react';
-import { supabase } from '../lib/supabase';
 import { DEFAULT_PORTFOLIO_DATA } from '../data/defaultPortfolioData';
 
 // 5 minutes TTL for cache
@@ -70,6 +69,7 @@ const fetchTableData = async (tableName: string): Promise<any[] | null> => {
       controller.abort();
     }, 15000); // 15s timeout
 
+    const { supabase } = await import('../lib/supabase');
     let query = supabase.from(tableName).select('*');
     if (tableName !== 'hero_content' && tableName !== 'about_content') {
       query = query.order('order_index', { ascending: true });

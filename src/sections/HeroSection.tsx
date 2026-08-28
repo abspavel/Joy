@@ -1,5 +1,5 @@
 import React, { useEffect, useRef, useState, type ReactNode } from 'react';
-import { motion, useScroll, useTransform, useMotionValue, useSpring } from 'motion/react';
+
 import { Layers, Terminal, Database, Zap, Box, Palette, Layout, ChevronDown } from 'lucide-react';
 import { FadeIn } from '../components/FadeIn';
 import { Navbar } from '../components/Navbar';
@@ -27,18 +27,7 @@ function FloatingBadge({
   className
 }: FloatingBadgeProps) {
   return (
-    <motion.div
-      className={`absolute z-30 pointer-events-auto select-none ${className}`}
-      initial={{ opacity: 0, scale: 0.5, y: 20 }}
-      animate={{ opacity: 1, scale: 1, y: 0 }}
-      transition={{
-        type: 'spring',
-        stiffness: 220,
-        damping: 16,
-        mass: 0.8,
-        delay: 0.2 + delay
-      }}
-    >
+    <div className={`absolute z-30 pointer-events-auto select-none ${className} animate-badge-in`} style={{ animationDelay: `${0.2 + delay}s` }}>
       <div className={animationClass}>
         <div 
           className="flex items-center gap-1 sm:gap-1.5 md:gap-2 px-1.5 py-0.5 sm:px-2.5 sm:py-1 md:px-3.5 md:py-1.5 rounded-full bg-[var(--bg-secondary)]/90 backdrop-blur-md border border-white/15 shadow-[0_6px_20px_rgba(0,0,0,0.35)] text-[var(--text-primary)] hover:border-white/40 hover:scale-110 transition-all duration-300 cursor-default"
@@ -55,114 +44,58 @@ function FloatingBadge({
           />
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
 function AnimatedHeroTitle({ text1 = "Hi, i'm ", text2 = "joy" }: { text1?: string, text2?: string }) {
-  const containerVariants = {
-    hidden: { opacity: 0 },
-    visible: {
-      opacity: 1,
-      transition: { staggerChildren: 0.08, delayChildren: 0.15 }
-    }
-  };
-
-  const letterVariants = {
-    hidden: { opacity: 0, y: 35 },
-    visible: {
-      opacity: 1,
-      y: 0,
-      transition: { type: 'spring', damping: 14, stiffness: 100 }
-    }
-  };
-
   const renderChar = (char: string, key: string, isGradient = false) => {
-    if (char === ' ') return <span key={key}>{'\u00A0'}</span>;
-    // Check all variants of commas and apostrophes / single quotes / primes
+    if (char === ' ') return <span key={key}>{' '}</span>;
     const isPurplePunctuation = [',', "'", '’', '`', '‘', 'ʼ', '′', '´', 'ʻ', '‚', '՚'].includes(char);
     
+    // Extract a numeric index from key like "text1-4" for animation stagger
+    let idx = 0;
+    if (key.includes('-')) {
+      const parts = key.split('-');
+      idx = parseInt(parts[1]) || 0;
+      if (parts[0] === 'text2') idx += 10;
+    }
+
     if (isPurplePunctuation) {
       return (
-        <motion.span
-          key={key}
-          variants={letterVariants}
-          style={{
-            color: '#c084fc',
-            WebkitTextFillColor: '#c084fc',
-            background: 'none',
-            WebkitBackgroundClip: 'unset',
-            display: 'inline-block'
-          }}
-          className="inline-block text-[#c084fc] drop-shadow-[0_0_20px_rgba(192,132,252,1)] font-black mx-[0.5px]"
-        >
+        <span key={key} className="inline-block text-[#c084fc] drop-shadow-[0_0_20px_rgba(192,132,252,1)] font-black mx-[0.5px] animate-title-char" style={{ animationDelay: `${0.15 + idx * 0.08}s`, color: '#c084fc', WebkitTextFillColor: '#c084fc', background: 'none', WebkitBackgroundClip: 'unset' }}>
           {char}
-        </motion.span>
+        </span>
       );
     }
-
     if (isGradient) {
       return (
-        <motion.span
-          key={key}
-          variants={letterVariants}
-          className="inline-block"
-          style={{
-            backgroundImage: 'linear-gradient(90deg, #d946ef, #a855f7, #f43f5e, #d946ef)',
-            backgroundSize: '300% auto',
-            WebkitBackgroundClip: 'text',
-            WebkitTextFillColor: 'transparent',
-            backgroundClip: 'text',
-            color: 'transparent'
-          }}
-        >
+        <span key={key} className="inline-block animate-title-char" style={{ animationDelay: `${0.15 + idx * 0.08}s`, backgroundImage: 'linear-gradient(90deg, #d946ef, #a855f7, #f43f5e, #d946ef)', backgroundSize: '300% auto', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent', backgroundClip: 'text', color: 'transparent' }}>
           {char}
-        </motion.span>
+        </span>
       );
     }
-
     return (
-      <motion.span 
-        key={key} 
-        variants={letterVariants} 
-        className="inline-block text-[var(--text-primary)]"
-        style={{
-          color: 'var(--text-primary)',
-          WebkitTextFillColor: 'var(--text-primary)'
-        }}
-      >
+      <span key={key} className="inline-block text-[var(--text-primary)] animate-title-char" style={{ animationDelay: `${0.15 + idx * 0.08}s`, color: 'var(--text-primary)', WebkitTextFillColor: 'var(--text-primary)' }}>
         {char}
-      </motion.span>
+      </span>
     );
   };
-
   return (
     <div className="relative inline-flex items-center justify-center mx-auto max-w-full">
-      {/* Ambient background glow highlight */}
       <div 
         className="absolute -inset-x-8 -inset-y-4 rounded-full bg-gradient-to-r from-purple-600/20 via-fuchsia-500/15 to-indigo-600/20 blur-2xl pointer-events-none -z-10 animate-pulse" 
         style={{ animationDuration: '4s' }}
       />
-      
-      {/* Highlighted text container */}
       <div className="relative px-4 sm:px-8 py-1 sm:py-2.5 rounded-2xl sm:rounded-3xl bg-white/[0.04] border border-white/10 sm:border-white/15 shadow-[0_4px_35px_rgba(168,85,247,0.15)] backdrop-blur-[4px]">
-        <motion.h1 
-          variants={containerVariants}
-          initial="hidden"
-          animate="visible"
-          className="font-black uppercase tracking-tight text-center whitespace-nowrap z-20 select-none text-[11vw] sm:text-[10vw] md:text-[8.5vw] lg:text-[7.5vw] xl:text-[7vw] flex justify-center items-center w-full leading-none"
-        >
+        <h1 className="font-black uppercase tracking-tight text-center whitespace-nowrap z-20 select-none text-[11vw] sm:text-[10vw] md:text-[8.5vw] lg:text-[7.5vw] xl:text-[7vw] flex justify-center items-center w-full leading-none">
           <span className="flex mr-[1.5vw] drop-shadow-[0_2px_15px_rgba(0,0,0,0.5)]">
             {text1.split('').map((char, index) => renderChar(char, `text1-${index}`, false))}
           </span>
-          <motion.span 
-            className="flex drop-shadow-[0_2px_18px_rgba(168,85,247,0.4)]"
-            animate={{ backgroundPosition: ['0% center', '-300% center'] }}
-            transition={{ duration: 8, repeat: Infinity, ease: 'linear' }}
-          >
+          <span className="flex drop-shadow-[0_2px_18px_rgba(168,85,247,0.4)] animate-title-gradient">
             {text2.split('').map((char, index) => renderChar(char, `text2-${index}`, true))}
-          </motion.span>
-        </motion.h1>
+          </span>
+        </h1>
       </div>
     </div>
   );
@@ -177,95 +110,77 @@ function ScrollDownIndicator() {
       window.scrollTo({ top: window.innerHeight, behavior: 'smooth' });
     }
   };
-
   return (
-    <motion.button
-      onClick={handleScroll}
-      initial={{ opacity: 0, y: 15 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.8, duration: 0.8 }}
-      className="flex flex-col items-center gap-1.5 cursor-pointer group focus:outline-none select-none transition-all duration-200"
-      aria-label="Scroll down to view more content"
-    >
-      {/* Animated Mouse Icon */}
+    <button onClick={handleScroll} className="animate-fade-in-up flex flex-col items-center gap-1.5 cursor-pointer group focus:outline-none select-none transition-all duration-200" aria-label="Scroll down to view more content" style={{ animationDelay: '0.8s', opacity: 0, animationFillMode: 'forwards' }}>
       <div className="w-5 h-8 sm:w-6 sm:h-9 rounded-full border-2 border-white/30 group-hover:border-purple-400/90 transition-colors flex justify-center pt-1.5 bg-[var(--bg-secondary)]/60 backdrop-blur-sm shadow-[0_2px_12px_rgba(0,0,0,0.3)]">
-        <motion.div
-          animate={{ y: [0, 8, 0], opacity: [1, 0.3, 1] }}
-          transition={{ duration: 1.6, repeat: Infinity, ease: 'easeInOut' }}
-          className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc]"
-        />
+        <div className="w-1 sm:w-1.5 h-1 sm:h-1.5 rounded-full bg-purple-400 shadow-[0_0_8px_#c084fc] animate-bounce-slow" />
       </div>
-
-      {/* Label + Animated Chevron */}
       <div className="flex items-center gap-0.5 text-[9px] sm:text-[10px] font-semibold tracking-[0.22em] uppercase text-[var(--text-secondary)] group-hover:text-purple-300 transition-colors">
         <span>SCROLL</span>
-        <motion.div
-          animate={{ y: [0, 3, 0] }}
-          transition={{ duration: 1.4, repeat: Infinity, ease: 'easeInOut' }}
-        >
+        <div className="animate-bounce-slow">
           <ChevronDown className="w-3 h-3 text-purple-400 group-hover:text-purple-300" />
-        </motion.div>
+        </div>
       </div>
-    </motion.button>
+    </button>
   );
 }
 
 function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUrl?: string }) {
-  const { scrollY } = useScroll();
-  
-  // Parallax + fade as user scrolls out of the hero section
-  const pY = useTransform(scrollY, [0, 800], [0, 100]);
-  const pScale = useTransform(scrollY, [0, 800], [1, 0.94]);
-  const pOp = useTransform(scrollY, [0, 800], [1, 0.7]);
+  const [tilt, setTilt] = React.useState({ rx: 0, ry: 0 });
+  const [parallax, setParallax] = React.useState({ y: 0, scale: 1, opacity: 1 });
 
-  const mX = useMotionValue(0);
-  const mY = useMotionValue(0);
-  
-  // Smooth spring physics for mouse tilt
-  const sX = useSpring(mX, { stiffness: 150, damping: 20 });
-  const sY = useSpring(mY, { stiffness: 150, damping: 20 });
-  
-  // Proportional 3D tilt based on cursor offset (±5deg max)
-  const rX = useTransform(sY, [-1, 1], [5, -5]); 
-  const rY = useTransform(sX, [-1, 1], [-5, 5]);
-  
-  useEffect(() => {
+  React.useEffect(() => {
+    let ticking = false;
+    const handleScroll = () => {
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const scrollY = window.scrollY;
+          const pY = Math.min(100, Math.max(0, scrollY * (100 / 800)));
+          const pScale = Math.max(0.94, Math.min(1, 1 - (scrollY / 800) * 0.06));
+          const pOp = Math.max(0.7, Math.min(1, 1 - (scrollY / 800) * 0.3));
+          setParallax({ y: pY, scale: pScale, opacity: pOp });
+          ticking = false;
+        });
+        ticking = true;
+      }
+    };
+    window.addEventListener('scroll', handleScroll, { passive: true });
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  React.useEffect(() => {
     const mq = window.matchMedia('(hover: hover) and (pointer: fine)');
-
+    let ticking = false;
     const handleMouseMove = (e: MouseEvent) => {
       if (!mq.matches) return;
-      mX.set((e.clientX / window.innerWidth) * 2 - 1);
-      mY.set((e.clientY / window.innerHeight) * 2 - 1);
+      if (!ticking) {
+        window.requestAnimationFrame(() => {
+          const mX = (e.clientX / window.innerWidth) * 2 - 1;
+          const mY = (e.clientY / window.innerHeight) * 2 - 1;
+          setTilt({ rx: mY * -5, ry: mX * 5 });
+          ticking = false;
+        });
+        ticking = true;
+      }
     };
-    
     window.addEventListener('mousemove', handleMouseMove, { passive: true });
-    return () => {
-      window.removeEventListener('mousemove', handleMouseMove);
-    };
-  }, [mX, mY]);
+    return () => window.removeEventListener('mousemove', handleMouseMove);
+  }, []);
 
   return (
-    <motion.div 
-      style={{ y: pY, scale: pScale, opacity: pOp, perspective: 1000 }} 
-      className="w-full pointer-events-none will-change-transform"
-    >
-      <motion.div 
-        style={{ rotateX: rX, rotateY: rY, transformStyle: 'preserve-3d' }} 
-        className="w-full will-change-transform"
+    <div className="relative z-20 w-full h-full flex justify-center items-center pointer-events-none perspective-[1000px]">
+      <div
+        style={{
+          transform: `translateY(${parallax.y}px) scale(${parallax.scale}) rotateX(${tilt.rx}deg) rotateY(${tilt.ry}deg)`,
+          opacity: parallax.opacity,
+          transition: 'transform 0.15s ease-out',
+          willChange: 'transform, opacity'
+        }}
+        className="w-full flex justify-center items-center pointer-events-auto will-change-transform"
       >
-        <motion.div
-          whileInView={{ y: [0, -8, 0], rotateY: [-3, 3, -3] }}
-          viewport={{ once: false, amount: 0.1 }}
-          transition={{
-            y: { duration: 4.5, repeat: Infinity, ease: "easeInOut" },
-            rotateY: { duration: 6, repeat: Infinity, ease: "easeInOut" }
-          }}
-          className="w-full will-change-transform"
-        >
-          <img
-            src={imageUrl}
-            alt="Joy - 3D Creator & Full-Stack Developer"
-            loading="eager"
+        <div className="absolute inset-0 bg-gradient-radial from-[var(--text-highlight)]/20 to-transparent blur-3xl rounded-full opacity-60 -z-10 mix-blend-screen transform scale-90 translate-y-10"></div>
+        <div className="pointer-events-auto">
+          <img src={imageUrl} alt="Pavel Ahmed Joy - 3D Creator" decoding="sync" loading="eager"
             fetchPriority="high"
             width="800"
             height="1000"
@@ -277,9 +192,9 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
               backfaceVisibility: 'hidden'
             }}
           />
-        </motion.div>
-      </motion.div>
-    </motion.div>
+        </div>
+      </div>
+    </div>
   );
 }
 

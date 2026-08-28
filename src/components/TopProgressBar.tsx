@@ -6,7 +6,7 @@ NProgress.configure({ showSpinner: false });
 
 export function TopProgressBar() {
   useEffect(() => {
-    NProgress.start();
+    // NProgress.start();
     return () => {
       NProgress.done();
     };
