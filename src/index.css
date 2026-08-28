@@ -24,6 +24,7 @@
 }
 
 html, body {
+  overscroll-behavior: none;
   background-color: var(--bg-primary);
   font-family: 'Kanit', sans-serif;
   box-sizing: border-box;

@@ -161,7 +161,7 @@ function LazySection({ children, fallbackHeight = "100vh" }: { children: React.R
         setInView(true);
         observer.disconnect();
       }
-    }, { rootMargin: '200px' });
+    }, { rootMargin: '600px' });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
