@@ -10,6 +10,7 @@ const MarqueeImage: React.FC<{ src: string; index: number }> = ({ src, index }) 
       alt="3D Creative Portfolio"
       width="420"
       height="270"
+      fetchPriority={index < 2 ? "high" : "auto"}
       loading={index < 4 ? "eager" : "lazy"}
       onLoad={() => setLoaded(true)}
       style={{ aspectRatio: '420/270' }}
@@ -33,7 +34,7 @@ export function MarqueeSection() {
   const { data, loading } = usePortfolioData('marquee_images');
   
   if (loading) {
-    return <div className="h-40 bg-[var(--bg-primary)]"></div>; // Placeholder while loading
+    return <div className="h-[372px] sm:h-[628px] md:h-[906px] w-full bg-[var(--bg-primary)]"></div>; // Placeholder while loading
   }
   
   if (!data || data.length === 0) {

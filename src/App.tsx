@@ -6,12 +6,20 @@ import { useSEO, useSectionViewportSEO, SectionMetaConfig } from './hooks/useSEO
 import { TopProgressBar } from './components/TopProgressBar';
 
 import { HeroSection } from './sections/HeroSection';
+import { MarqueeSection } from './sections/MarqueeSection';
+import { prefetchAllPortfolioData } from './hooks/usePortfolioData';
+
+// Fire off the network request for marquee images immediately during module parsing
+// so it's already fetching while Hero and App are rendering.
+if (typeof window !== 'undefined') {
+  prefetchAllPortfolioData(['marquee_images']);
+}
+
 const AboutSection = React.lazy(() => import('./sections/AboutSection').then(m => ({ default: m.AboutSection })));
 const ServicesSection = React.lazy(() => import('./sections/ServicesSection').then(m => ({ default: m.ServicesSection })));
 const FooterSection = React.lazy(() => import('./sections/FooterSection').then(m => ({ default: m.FooterSection })));
 
 // Lazy loaded sections
-const MarqueeSection = React.lazy(() => import('./sections/MarqueeSection').then(m => ({ default: m.MarqueeSection })));
 const AchievementsSection = React.lazy(() => import('./sections/AchievementsSection').then(m => ({ default: m.AchievementsSection })));
 const ImageCircleSection = React.lazy(() => import('./sections/ImageCircleSection').then(m => ({ default: m.ImageCircleSection })));
 const SkillsCertificationsSection = React.lazy(() => import('./sections/SkillsCertificationsSection').then(m => ({ default: m.SkillsCertificationsSection })));
@@ -156,9 +164,6 @@ function BelowTheFold() {
   return (
     <>
       {/* Individual Suspense boundaries prevent one section from unmounting the others */}
-      <Suspense fallback={<div className="h-[400px]" />}>
-        <MarqueeSection />
-      </Suspense>
       <Suspense fallback={<div className="h-[600px]" />}>
         <AchievementsSection />
       </Suspense>
@@ -304,6 +309,10 @@ function PublicSite() {
     <SmoothScroll>
       <main className="main-wrapper flex flex-col min-h-[100dvh] selection:bg-[var(--text-highlight)] selection:text-[var(--bg-primary)]">
         <HeroSection />
+        
+        {/* Render Marquee immediately after Hero since it's directly visible. */}
+        <MarqueeSection />
+
         <BelowTheFold />
       </main>
     </SmoothScroll>

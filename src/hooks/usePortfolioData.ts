@@ -40,6 +40,28 @@ export const invalidatePortfolioCache = (tableName?: string) => {
   }
 };
 
+export const prefetchAllPortfolioData = (tableNames: string[]) => {
+  tableNames.forEach(tableName => {
+    if (!dataCache[tableName] && !pendingRequests[tableName]) {
+      const fallback = (DEFAULT_PORTFOLIO_DATA as any)[tableName] || [];
+      pendingRequests[tableName] = fetchTableData(tableName).then(data => {
+        if (data && data.length > 0) {
+          dataCache[tableName] = { data, timestamp: Date.now() };
+          notifyListeners(tableName, data);
+        } else {
+          dataCache[tableName] = { data: fallback, timestamp: Date.now() };
+          notifyListeners(tableName, fallback);
+        }
+        return data;
+      }).catch(err => {
+        dataCache[tableName] = { data: fallback, timestamp: Date.now() };
+        notifyListeners(tableName, fallback);
+        return fallback;
+      });
+    }
+  });
+};
+
 // Safe Supabase fetcher with reasonable timeout and graceful fallback
 const fetchTableData = async (tableName: string): Promise<any[] | null> => {
   try {
