@@ -304,6 +304,25 @@ function PublicSite() {
     ]
   });
 
+  // Prefetch all data early so they are loaded in parallel immediately
+  // after the critical first paint, independent of scroll position.
+  React.useEffect(() => {
+    const timer = setTimeout(() => {
+      prefetchAllPortfolioData([
+        'achievements',
+        'circle_photos',
+        'about_content',
+        'skills',
+        'certifications',
+        'services',
+        'projects',
+        'testimonials',
+        'carousel_photos'
+      ]);
+    }, 150);
+    return () => clearTimeout(timer);
+  }, []);
+
   // Dynamically update SEO meta tags as user scrolls into different sections
   useSectionViewportSEO(HOME_SECTIONS_SEO, true);
 
