@@ -133,12 +133,14 @@ export function usePortfolioData(tableName: string) {
         // Fallback to default bundled data if Supabase was empty or failed
         setData(fallback);
       }
+      setLoading(false);
     } catch (err: any) {
       delete pendingRequests[tableName];
       setError(err);
       if (!dataCache[tableName]) {
         setData(fallback);
       }
+      setLoading(false);
     } finally {
       setLoading(false);
     }
@@ -150,9 +152,21 @@ export function usePortfolioData(tableName: string) {
       setData(newData);
     });
 
-    fetchData();
-
+    
+    let timeoutId: any;
+    if (typeof window !== 'undefined' && ('requestIdleCallback' in window)) {
+      timeoutId = (window as any).requestIdleCallback(() => fetchData(), { timeout: 2000 });
+    } else {
+      timeoutId = setTimeout(() => fetchData(), 500);
+    }
+    
     return () => {
+      if (typeof window !== 'undefined' && ('cancelIdleCallback' in window) && timeoutId) {
+        (window as any).cancelIdleCallback(timeoutId);
+      } else if (timeoutId) {
+        clearTimeout(timeoutId);
+      }
+
       unsubscribe();
     };
   }, [tableName, fetchData]);

@@ -11,7 +11,17 @@ import { prefetchAllPortfolioData } from './hooks/usePortfolioData';
 // Fire off the network request for marquee images immediately during module parsing
 // so it's already fetching while Hero and App are rendering.
 if (typeof window !== 'undefined') {
-  prefetchAllPortfolioData(['marquee_images']);
+  
+  if (typeof window !== 'undefined' && 'requestIdleCallback' in window) {
+    (window as any).requestIdleCallback(() => {
+      prefetchAllPortfolioData(['marquee_images']);
+    }, { timeout: 2000 });
+  } else {
+    setTimeout(() => {
+      prefetchAllPortfolioData(['marquee_images']);
+    }, 1000);
+  }
+
 }
 
 const AboutSection = React.lazy(() => import('./sections/AboutSection').then(m => ({ default: m.AboutSection })));
@@ -151,7 +161,7 @@ function LazySection({ children, fallbackHeight = "100vh" }: { children: React.R
         setInView(true);
         observer.disconnect();
       }
-    }, { rootMargin: '800px' });
+    }, { rootMargin: '200px' });
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
@@ -313,7 +323,7 @@ function PublicSite() {
         <HeroSection />
         
         {/* Render Marquee immediately after Hero since it's directly visible. */}
-        <MarqueeSection />
+        <LazySection fallbackHeight="400px"><MarqueeSection /></LazySection>
 
         <BelowTheFold />
       </main>

@@ -229,7 +229,7 @@ export function HeroSection() {
   const [renderBg, setRenderBg] = useState(false);
   useEffect(() => {
     // Defer the heavy canvas/webgl background rendering slightly
-    const timer = setTimeout(() => setRenderBg(true), 200);
+    const timer = setTimeout(() => setRenderBg(true), 50);
     return () => clearTimeout(timer);
   }, []);
 
