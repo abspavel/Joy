@@ -307,20 +307,37 @@ function PublicSite() {
   // Prefetch all data early so they are loaded in parallel immediately
   // after the critical first paint, independent of scroll position.
   React.useEffect(() => {
-    const timer = setTimeout(() => {
-      prefetchAllPortfolioData([
-        'achievements',
-        'circle_photos',
-        'about_content',
-        'skills',
-        'certifications',
-        'services',
-        'projects',
-        'testimonials',
-        'carousel_photos'
-      ]);
-    }, 150);
-    return () => clearTimeout(timer);
+    if (typeof window === 'undefined') return;
+
+    const prefetchData = () => {
+      const executePrefetch = () => {
+        // Group 1: High priority below-the-fold
+        prefetchAllPortfolioData(['achievements', 'circle_photos', 'about_content']);
+        
+        // Group 2: Staggered a bit later to avoid completely saturating network
+        setTimeout(() => {
+          prefetchAllPortfolioData(['skills', 'certifications', 'services']);
+        }, 300);
+
+        // Group 3: Staggered even later for lowest components
+        setTimeout(() => {
+          prefetchAllPortfolioData(['projects', 'testimonials', 'carousel_photos']);
+        }, 600);
+      };
+
+      if ('requestIdleCallback' in window) {
+        window.requestIdleCallback(executePrefetch, { timeout: 2000 });
+      } else {
+        setTimeout(executePrefetch, 200);
+      }
+    };
+
+    if (document.readyState === 'complete') {
+      prefetchData();
+    } else {
+      window.addEventListener('load', prefetchData);
+      return () => window.removeEventListener('load', prefetchData);
+    }
   }, []);
 
   // Dynamically update SEO meta tags as user scrolls into different sections
