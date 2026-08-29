@@ -71,7 +71,9 @@ const fetchTableData = async (tableName: string): Promise<any[] | null> => {
 
     const { supabase } = await import('../lib/supabase');
     let query = supabase.from(tableName).select('*');
-    if (tableName !== 'hero_content' && tableName !== 'about_content') {
+    if (tableName === 'blog_posts') {
+      query = query.order('published_at', { ascending: false });
+    } else if (tableName !== 'hero_content' && tableName !== 'about_content') {
       query = query.order('order_index', { ascending: true });
     }
 

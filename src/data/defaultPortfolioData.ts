@@ -834,5 +834,55 @@ export const DEFAULT_PORTFOLIO_DATA: Record<string, any[]> = {
       "order_index": 12,
       "created_at": "2026-08-19T12:11:29.721635+00:00"
     }
+  ],
+  "blog_posts": [
+    {
+      "id": "b1a2c3d4-e5f6-4a1b-8c2d-3e4f5a6b7c8d",
+      "title": "Optimizing 3D Web Experiences: WebGL, Three.js, and Modern Frontend Performance",
+      "slug": "optimizing-3d-web-experiences-webgl-threejs-performance",
+      "excerpt": "Discover key architectural techniques to deliver silky 60fps 3D graphics on the web without sacrificing initial page load speed or mobile responsiveness.",
+      "content": "Interactive 3D graphics have evolved from niche experimental demos into powerful visual anchors for modern web products. However, integrating Three.js or custom WebGL pipelines into production web applications introduces tangible performance tradeoffs if not engineered with discipline.\n\n### The Golden Rule: Budgeting Your GPU and CPU Cycles\n\nWhen a browser renders a 3D scene, it orchestrates a tight loop between JavaScript execution on the CPU and shader rasterization on the GPU. To maintain a locked 60 frames per second (or 120Hz on high-refresh displays), every frame must calculate and paint in under 16.6 milliseconds.\n\n1. **Batch Your Draw Calls**: Minimize unique material and geometry instances. Instanced meshes allow hundreds of distinct entities to render with a single GPU draw call.\n2. **Defer Canvas Initialization**: Never block the browser's First Contentful Paint (FCP) with heavy WebGL texture uploads or shader compilation. Initialize the canvas lazily using requestIdleCallback or intersection observers.\n3. **Dispose Geometry & Textures**: Single Page Applications do not automatically garbage collect WebGL buffers. Always call `.dispose()` on unused buffers when components unmount.\n\n### Mobile-First Scaling & Device Profiling\n\nNot every visitor carries a workstation GPU. Detecting device pixel ratios (`window.devicePixelRatio`) and clamping render resolutions between 1.0x and 1.5x on high-DPI screens preserves battery life while preventing thermal throttling.\n\nBy treating 3D as an enhancement layer rather than a blocker, your digital experiences remain blazing fast, accessible, and breathtaking.",
+      "keywords": ["webgl", "threejs", "web-performance", "frontend", "3d-graphics", "creative-tech"],
+      "published": true,
+      "published_at": "2026-08-20T10:00:00Z",
+      "read_time_minutes": 4,
+      "created_at": "2026-08-20T10:00:00Z"
+    },
+    {
+      "id": "b2c3d4e5-f6a1-4b2c-9d3e-4f5a6b7c8d9e",
+      "title": "Modern Web Animation Architecture: CSS vs Canvas vs Motion Physics",
+      "slug": "modern-web-animation-architecture-css-canvas-motion",
+      "excerpt": "A comprehensive breakdown of when to leverage hardware-accelerated CSS, GPU-bound Canvas loops, or component-level gesture physics in modern web applications.",
+      "content": "Fluid animations transform functional user interfaces into tactile, engaging digital artifacts. Yet choosing the wrong execution engine can introduce jank, stutter, and battery drain.\n\n### Comparing Animation Paradigms\n\n- **CSS Transitions and Transforms**: Ideal for micro-interactions, button hover states, and navigational reveals. CSS `transform` and `opacity` mutate elements on the compositor thread without triggering layout reflows.\n- **Spring & Physics Libraries (Motion)**: Essential for natural gesture-driven UI components like drawers, magnetic buttons, and card carousels. Physics-based springs prevent artificial robotic linear movement.\n- **Canvas & WebGL Renderers**: Built for procedural particle grids, rising lines, and organic fluid simulations where thousands of elements move simultaneously.\n\n### Best Practices for Stutter-Free Motion\n\n- Always mark animating layers with `will-change: transform` judiciously.\n- Favor `requestAnimationFrame` over `setInterval` for any manual calculation.\n- Throttle or debounce window scroll listeners with passive event options (`{ passive: true }`).\n\nThoughtful motion design communicates spatial hierarchy and delights visitors without ever getting in their way.",
+      "keywords": ["web-animation", "css-animations", "react", "framer-motion", "ui-ux-design"],
+      "published": true,
+      "published_at": "2026-08-22T14:30:00Z",
+      "read_time_minutes": 5,
+      "created_at": "2026-08-22T14:30:00Z"
+    },
+    {
+      "id": "b3c4d5e6-a1b2-4c3d-ae4f-5a6b7c8d9e0f",
+      "title": "Building Next-Generation Interactive Portfolios That Convert Clients",
+      "slug": "building-next-generation-interactive-portfolios-that-convert",
+      "excerpt": "How creative technologists and frontend developers can craft memorable digital portfolios that balance artistic expression with fast Core Web Vitals.",
+      "content": "Your developer portfolio is more than a list of resume bullets; it is a live demonstration of your taste, engineering standards, and ability to execute under real-world constraints.\n\n### 1. Show, Don't Just Tell\n\nHigh-value clients and design agencies want proof of capability. Instead of static mockups, present interactive prototypes, real case studies, and live demonstrations of complex technical challenges you solved.\n\n### 2. Fast First Impression (Sub-2s Load Time)\n\nA portfolio that takes 10 seconds to load communicates poor engineering, regardless of how fancy the 3D graphics look once it finally arrives. Focus intensely on Largest Contentful Paint (LCP) and Cumulative Layout Shift (CLS).\n\n### 3. Clear Call to Action\n\nEvery project showcase should naturally channel visitors towards collaboration. Ensure contact buttons, project inquiries, and social links are prominent, frictionless, and instantly accessible on both mobile and desktop.",
+      "keywords": ["portfolio-design", "core-web-vitals", "freelancing", "frontend-engineering", "creative-developer"],
+      "published": true,
+      "published_at": "2026-08-25T09:15:00Z",
+      "read_time_minutes": 5,
+      "created_at": "2026-08-25T09:15:00Z"
+    },
+    {
+      "id": "b4c5d6e7-b2c3-4d4e-bf5a-6b7c8d9e0f1a",
+      "title": "SEO Strategies for Single Page Applications (SPAs) in 2026",
+      "slug": "seo-strategies-single-page-applications-spa-2026",
+      "excerpt": "Essential guide to optimizing client-side rendered apps for search engines using semantic structured data, dynamic Open Graph meta tags, and smart sitemaps.",
+      "content": "Single Page Applications offer desktop-class responsiveness, but historically posed indexing hurdles for web crawlers. Fortunately, modern search engine bots execute JavaScript reliably—provided your application supplies clean metadata and crawl pathways.\n\n### Key Pillars for SPA SEO\n\n1. **Dynamic Meta Synchronization**: Ensure document title, meta descriptions, and canonical tags update immediately on client-side route changes.\n2. **Schema.org Structured Data**: Inject JSON-LD microdata for `Person`, `Article`, and `WebSite` entities so Google can display rich snippets in search results.\n3. **Comprehensive Sitemaps**: Maintain an up-to-date `sitemap.xml` with `<lastmod>` timestamps and priority scores to guide crawling frequency.\n4. **Semantic HTML Hierarchy**: Maintain a strict heading hierarchy (`h1` through `h3`) and meaningful descriptive anchor text rather than generic link labels.\n\nWith these fundamentals in place, your client-side React portfolio can rank alongside traditional static content sites effortlessly.",
+      "keywords": ["seo", "spa", "search-engine-optimization", "react", "schema-org", "web-development"],
+      "published": true,
+      "published_at": "2026-08-27T16:00:00Z",
+      "read_time_minutes": 5,
+      "created_at": "2026-08-27T16:00:00Z"
+    }
   ]
 };

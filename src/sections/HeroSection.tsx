@@ -186,7 +186,7 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
             height="1000"
             className="w-full max-h-[45vh] sm:max-h-[54vh] md:max-h-[60vh] h-auto object-contain pointer-events-none drop-shadow-[0_20px_40px_rgba(0,0,0,0.45)]"
             style={{
-              imageRendering: 'high-quality',
+              imageRendering: 'auto',
               WebkitFontSmoothing: 'antialiased',
               transform: 'translateZ(0)',
               backfaceVisibility: 'hidden'

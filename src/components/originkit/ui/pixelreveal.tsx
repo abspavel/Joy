@@ -59,6 +59,7 @@ export default function PixelReveal(props: Props) {
     // Latest prop values, mirrored to refs so the rAF loop and ResizeObserver
     // callbacks always see fresh values without resubscribing.
     const propsRef = useRef({
+        reverse: props.reverse,
         gridSize,
         edgeHeight,
         direction,
@@ -68,6 +69,7 @@ export default function PixelReveal(props: Props) {
     })
     useEffect(() => {
         propsRef.current = {
+            reverse: props.reverse,
             gridSize,
             edgeHeight,
             direction,
@@ -76,6 +78,7 @@ export default function PixelReveal(props: Props) {
             onRevealComplete,
         }
     }, [
+        props.reverse,
         gridSize,
         edgeHeight,
         direction,

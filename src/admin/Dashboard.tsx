@@ -14,6 +14,7 @@ const SkillsAdmin = React.lazy(() => import('./components/SkillsAdmin').then(m =
 const CertificationsAdmin = React.lazy(() => import('./components/CertificationsAdmin').then(m => ({ default: m.CertificationsAdmin })));
 const OptimizeImagesAdmin = React.lazy(() => import('./components/OptimizeImagesAdmin').then(m => ({ default: m.OptimizeImagesAdmin })));
 const MarqueeAdmin = React.lazy(() => import('./components/MarqueeAdmin').then(m => ({ default: m.MarqueeAdmin })));
+const BlogAdmin = React.lazy(() => import('./components/BlogAdmin').then(m => ({ default: m.BlogAdmin })));
 
 function AdminTabSkeleton() {
   return (
@@ -41,6 +42,7 @@ export function Dashboard() {
     'Carousel', 
     'Projects', 
     'Services', 
+    'Blog',
     'Testimonials', 
     'Messages', 
     'Optimize Images'
@@ -82,6 +84,7 @@ export function Dashboard() {
             {activeTab === 'Certifications' && <CertificationsAdmin />}
             {activeTab === 'Projects' && <ProjectsAdmin />}
             {activeTab === 'Services' && <ServicesAdmin />}
+            {activeTab === 'Blog' && <BlogAdmin />}
             {activeTab === 'Circle Photos' && <CirclePhotosAdmin />}
             {activeTab === 'Carousel' && <CarouselPhotosAdmin />}
             {activeTab === 'Testimonials' && <TestimonialsAdmin />}

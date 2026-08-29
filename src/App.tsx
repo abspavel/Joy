@@ -34,11 +34,14 @@ const ImageCircleSection = React.lazy(() => import('./sections/ImageCircleSectio
 const SkillsCertificationsSection = React.lazy(() => import('./sections/SkillsCertificationsSection').then(m => ({ default: m.SkillsCertificationsSection })));
 const ProjectsSection = React.lazy(() => import('./sections/ProjectsSection').then(m => ({ default: m.ProjectsSection })));
 const TestimonialsSection = React.lazy(() => import('./sections/TestimonialsSection').then(m => ({ default: m.TestimonialsSection })));
+const BlogSection = React.lazy(() => import('./sections/BlogSection').then(m => ({ default: m.BlogSection })));
 
 // Lazy loaded pages/routes
 const AdminRouter = React.lazy(() => import('./admin/AdminRouter').then(m => ({ default: m.AdminRouter })));
 const ContactPage = React.lazy(() => import('./pages/ContactPage').then(m => ({ default: m.ContactPage })));
 const ServiceDetailPage = React.lazy(() => import('./pages/ServiceDetailPage').then(m => ({ default: m.ServiceDetailPage })));
+const BlogListingPage = React.lazy(() => import('./pages/BlogListingPage').then(m => ({ default: m.BlogListingPage })));
+const BlogPostPage = React.lazy(() => import('./pages/BlogPostPage').then(m => ({ default: m.BlogPostPage })));
 
 
 function PageSkeleton() {
@@ -197,6 +200,9 @@ function BelowTheFold() {
       <LazySection fallbackHeight="100vh">
         <TestimonialsSection />
       </LazySection>
+      <LazySection fallbackHeight="600px">
+        <BlogSection />
+      </LazySection>
       <LazySection fallbackHeight="500px">
         <FooterSection />
       </LazySection>
@@ -246,6 +252,12 @@ const HOME_SECTIONS_SEO: SectionMetaConfig[] = [
     title: 'Client Reviews & Testimonials | Joy -- 3D Creator',
     description: 'Client testimonials, reviews, and feedback from founders, teams, and collaborators worldwide partnering with Joy.',
     keywords: ['Client Reviews', 'Joy Testimonials', 'Collaborations', 'Customer Satisfaction', 'Recommendations'],
+  },
+  {
+    id: 'blog',
+    title: 'Latest Articles & Technical Insights | Joy -- 3D Creator',
+    description: 'Articles and case studies covering 3D WebGL development, Three.js, React architecture, performance optimization, and UI engineering by Pavel Ahmed Joy.',
+    keywords: ['Tech Articles', 'WebGL Performance', 'Three.js Blog', 'Frontend Insights', 'Creative Coding'],
   },
   {
     id: 'contact',
@@ -339,6 +351,8 @@ function AnimatedRoutes() {
       <Route path="/admin/*" element={<AdminRouter />} />
       <Route path="/contact" element={<ContactPage />} />
       <Route path="/services/:slug" element={<ServiceDetailPage />} />
+      <Route path="/blog" element={<BlogListingPage />} />
+      <Route path="/blog/:slug" element={<BlogPostPage />} />
       <Route path="*" element={<PublicSite />} />
     </Routes>
   );

@@ -64,6 +64,20 @@ export function Navbar() {
         />
 
         <MagneticButton
+          label="Blog"
+          link="/blog"
+          onClick={(e) => handleNavClick(e, '/blog')}
+          fill={location.pathname.startsWith('/blog') ? 'var(--text-primary)' : 'transparent'}
+          textColor={location.pathname.startsWith('/blog') ? 'var(--bg-primary)' : 'var(--text-primary)'}
+          sweepColor={location.pathname.startsWith('/blog') ? 'var(--text-highlight)' : 'var(--text-primary)'}
+          sweepTextColor="var(--bg-primary)"
+          border={true}
+          borderOptions={{ color: location.pathname.startsWith('/blog') ? 'var(--text-primary)' : 'rgba(215, 226, 234, 0.2)', width: 1 }}
+          magnet={6}
+          className="px-2.5 py-1 sm:px-3.5 sm:py-1.5 md:px-4 md:py-2 text-[11px] sm:text-xs md:text-sm font-semibold tracking-wider border border-[var(--text-primary)]/20 hover:border-[var(--text-primary)]/50 transition-colors"
+        />
+
+        <MagneticButton
           label="Contact"
           link="/contact"
           onClick={(e) => handleNavClick(e, '/contact')}
