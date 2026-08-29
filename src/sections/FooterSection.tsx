@@ -3,6 +3,7 @@ import { motion } from 'motion/react';
 import { FadeIn } from '../components/FadeIn';
 import { Magnet } from '../components/Magnet';
 import { ContactButton } from '../components/ContactButton';
+import { ThemeToggle } from '../components/ThemeToggle';
 import { Github, Linkedin, Instagram, Twitter, ArrowUp, CheckCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
@@ -181,16 +182,19 @@ export function FooterSection() {
           </span>
         </div>
 
-        <Magnet padding={30} strength={3}>
-          <motion.button 
-            onClick={scrollToTop}
-            whileHover={{ scale: 1.1 }}
-            className="w-12 h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors cursor-pointer"
-            aria-label="Back to top"
-          >
-            <ArrowUp size={20} />
-          </motion.button>
-        </Magnet>
+        <div className="flex items-center gap-3">
+          <ThemeToggle id="footer-theme-toggle" className="w-10 h-10 sm:w-12 sm:h-12" />
+          <Magnet padding={30} strength={3}>
+            <motion.button 
+              onClick={scrollToTop}
+              whileHover={{ scale: 1.1 }}
+              className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center text-[var(--text-primary)] hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors cursor-pointer"
+              aria-label="Back to top"
+            >
+              <ArrowUp size={20} />
+            </motion.button>
+          </Magnet>
+        </div>
       </div>
     </footer>
   );

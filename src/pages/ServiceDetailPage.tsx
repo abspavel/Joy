@@ -1,6 +1,6 @@
 import { useState, useEffect, useMemo, Suspense } from 'react';
 import React from 'react';
-import { useParams, Link } from 'react-router-dom';
+import { useParams, Link, useNavigate } from 'react-router-dom';
 import { supabase } from '../lib/supabase';
 import { DEFAULT_PORTFOLIO_DATA } from '../data/defaultPortfolioData';
 import { usePortfolioData } from '../hooks/usePortfolioData';
@@ -25,7 +25,17 @@ function findServiceInList(slug: string | undefined, list: any[]) {
 
 export function ServiceDetailPage() {
   const { slug } = useParams<{ slug: string }>();
+  const navigate = useNavigate();
   const { data: allServices } = usePortfolioData('services');
+
+  const handleBackToAllServices = (e: React.MouseEvent) => {
+    e.preventDefault();
+    if (typeof window !== 'undefined' && window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate('/');
+    }
+  };
 
   // Immediately resolve service from in-memory cache or default bundled dataset
   const fallbackList = DEFAULT_PORTFOLIO_DATA.services || [];
@@ -133,7 +143,7 @@ export function ServiceDetailPage() {
       <div className="min-h-screen bg-[var(--bg-primary)] flex flex-col items-center justify-center text-[var(--text-primary)] font-sans selection:bg-[var(--text-highlight)] selection:text-[var(--bg-primary)] px-4 text-center">
         <h1 className="hero-heading font-black text-4xl sm:text-6xl mb-4 uppercase tracking-tighter">Service Not Found</h1>
         <p className="text-[var(--text-primary)]/60 font-light mb-8 max-w-md">The service you are looking for does not exist or has been moved.</p>
-        <Link to="/#services" className="border border-[var(--text-primary)]/20 px-6 py-2.5 rounded-full hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors uppercase tracking-widest text-xs sm:text-sm font-semibold">
+        <Link to="/" onClick={handleBackToAllServices} className="border border-[var(--text-primary)]/20 px-6 py-2.5 rounded-full hover:bg-[var(--text-primary)] hover:text-[var(--bg-primary)] transition-colors uppercase tracking-widest text-xs sm:text-sm font-semibold">
           Back to All Services
         </Link>
       </div>
@@ -161,7 +171,7 @@ export function ServiceDetailPage() {
 
       <div className="flex-1 w-full max-w-7xl mx-auto px-5 sm:px-8 md:px-10 pt-16 md:pt-24 pb-20">
         <FadeIn delay={0.05} y={15} className="mb-10">
-          <Link to="/#services" className="inline-flex items-center gap-2 text-[var(--text-primary)]/60 hover:text-[var(--text-primary)] transition-colors text-xs sm:text-sm uppercase tracking-widest font-semibold">
+          <Link to="/" onClick={handleBackToAllServices} className="inline-flex items-center gap-2 text-[var(--text-primary)]/60 hover:text-[var(--text-primary)] transition-colors text-xs sm:text-sm uppercase tracking-widest font-semibold">
             <ArrowLeft className="w-4 h-4" /> All Services
           </Link>
         </FadeIn>

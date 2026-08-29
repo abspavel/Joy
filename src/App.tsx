@@ -1,8 +1,18 @@
 import { BrowserRouter, Routes, Route, useLocation } from 'react-router-dom';
-import React, { useEffect, Suspense } from 'react';
+import React, { useEffect, useLayoutEffect, Suspense } from 'react';
 import Lenis from 'lenis';
 import { useSEO, useSectionViewportSEO, SectionMetaConfig } from './hooks/useSEO';
 import { TopProgressBar } from './components/TopProgressBar';
+import { 
+  getSavedHomepageScrollPosition, 
+  restoreInstantScroll, 
+  clearHomepageScrollPosition 
+} from './utils/scrollRestoration';
+
+// Disable default browser scroll restoration to prevent flicker and race conditions in SPA
+if (typeof window !== 'undefined' && 'scrollRestoration' in window.history) {
+  window.history.scrollRestoration = 'manual';
+}
 
 import { HeroSection } from './sections/HeroSection';
 import { MarqueeSection } from './sections/MarqueeSection';
@@ -56,6 +66,13 @@ function PageSkeleton() {
 function ScrollToTop() {
   const { pathname, hash, key } = useLocation();
 
+  // Clear homepage scroll position when navigating to unrelated full pages (e.g. contact, blog, admin)
+  useEffect(() => {
+    if (pathname !== '/' && !pathname.startsWith('/services/')) {
+      clearHomepageScrollPosition();
+    }
+  }, [pathname]);
+
   // Save scroll position for current location key
   useEffect(() => {
     const handleScroll = () => {
@@ -79,9 +96,46 @@ function ScrollToTop() {
       if (timeoutId) clearTimeout(timeoutId);
     };
   }, [key]);
+
+  // Pre-paint synchronous restoration when returning to the homepage from a service page
+  useLayoutEffect(() => {
+    if (pathname === '/') {
+      const savedHomepageY = getSavedHomepageScrollPosition();
+      if (savedHomepageY !== null) {
+        restoreInstantScroll(savedHomepageY);
+      }
+    }
+  }, [pathname]);
+
+  // Handle native browser back button (popstate)
+  useEffect(() => {
+    const handlePopState = () => {
+      if (window.location.pathname === '/') {
+        const savedHomepageY = getSavedHomepageScrollPosition();
+        if (savedHomepageY !== null) {
+          restoreInstantScroll(savedHomepageY);
+        }
+      }
+    };
+
+    window.addEventListener('popstate', handlePopState);
+    return () => window.removeEventListener('popstate', handlePopState);
+  }, []);
   
   useEffect(() => {
-    // Instant scroll restoration for seamless navigation
+    // If returning to homepage with a saved position from service, restore instantly and skip hash delay
+    if (pathname === '/' && !hash) {
+      const savedHomepageY = getSavedHomepageScrollPosition();
+      if (savedHomepageY !== null) {
+        restoreInstantScroll(savedHomepageY);
+        requestAnimationFrame(() => {
+          restoreInstantScroll(savedHomepageY);
+        });
+        return;
+      }
+    }
+
+    // Standard navigation handling
     const delay = hash ? 150 : 0;
     const timeout = setTimeout(() => {
       if (hash) {
@@ -133,6 +187,14 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
       touchMultiplier: 2,
     });
 
+    (window as any).__lenis = lenis;
+
+    // Immediately sync with saved homepage scroll position if available
+    const savedY = getSavedHomepageScrollPosition();
+    if (savedY !== null) {
+      lenis.scrollTo(savedY, { immediate: true, force: true });
+    }
+
     let rafId: number;
 
     function raf(time: number) {
@@ -144,6 +206,7 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
 
     return () => {
       cancelAnimationFrame(rafId);
+      (window as any).__lenis = null;
       lenis.destroy();
     };
   }, []);
@@ -151,12 +214,23 @@ function SmoothScroll({ children }: { children: React.ReactNode }) {
   return <>{children}</>;
 }
 
-
-function LazySection({ children, fallbackHeight = "100vh" }: { children: React.ReactNode, fallbackHeight?: string }) {
-  const [inView, setInView] = React.useState(false);
+function LazySection({ 
+  children, 
+  fallbackHeight = "100vh",
+  forceMount = false 
+}: { 
+  children: React.ReactNode; 
+  fallbackHeight?: string;
+  forceMount?: boolean;
+}) {
+  const [inView, setInView] = React.useState(forceMount);
   const ref = React.useRef<HTMLDivElement>(null);
 
   React.useEffect(() => {
+    if (forceMount) {
+      setInView(true);
+      return;
+    }
     const el = ref.current;
     if (!el) return;
     const observer = new IntersectionObserver(([entry]) => {
@@ -167,43 +241,47 @@ function LazySection({ children, fallbackHeight = "100vh" }: { children: React.R
     }, { rootMargin: '600px' });
     observer.observe(el);
     return () => observer.disconnect();
-  }, []);
+  }, [forceMount]);
 
   return (
-    <div ref={ref} style={{ minHeight: inView ? 'auto' : fallbackHeight }}>
-      {inView && <Suspense fallback={<div style={{ height: fallbackHeight }} />}>{children}</Suspense>}
+    <div ref={ref} style={{ minHeight: inView || forceMount ? 'auto' : fallbackHeight }}>
+      {(inView || forceMount) && <Suspense fallback={<div style={{ height: fallbackHeight }} />}>{children}</Suspense>}
     </div>
   );
 }
 
 function BelowTheFold() {
+  const hasSavedScroll = typeof window !== 'undefined' && getSavedHomepageScrollPosition() !== null;
+  const hasHash = typeof window !== 'undefined' && window.location.hash !== '';
+  const shouldForceMount = hasSavedScroll || hasHash;
+
   return (
     <>
-      <LazySection fallbackHeight="600px">
+      <LazySection fallbackHeight="600px" forceMount={shouldForceMount}>
         <AchievementsSection />
       </LazySection>
-      <LazySection fallbackHeight="800px">
+      <LazySection fallbackHeight="800px" forceMount={shouldForceMount}>
         <ImageCircleSection />
       </LazySection>
-      <LazySection fallbackHeight="100vh">
+      <LazySection fallbackHeight="100vh" forceMount={shouldForceMount}>
         <AboutSection />
       </LazySection>
-      <LazySection fallbackHeight="100vh">
+      <LazySection fallbackHeight="100vh" forceMount={shouldForceMount}>
         <SkillsCertificationsSection />
       </LazySection>
-      <LazySection fallbackHeight="100vh">
+      <LazySection fallbackHeight="100vh" forceMount={shouldForceMount}>
         <ServicesSection />
       </LazySection>
-      <LazySection fallbackHeight="100vh">
+      <LazySection fallbackHeight="100vh" forceMount={shouldForceMount}>
         <ProjectsSection />
       </LazySection>
-      <LazySection fallbackHeight="100vh">
+      <LazySection fallbackHeight="100vh" forceMount={shouldForceMount}>
         <TestimonialsSection />
       </LazySection>
-      <LazySection fallbackHeight="600px">
+      <LazySection fallbackHeight="600px" forceMount={shouldForceMount}>
         <BlogSection />
       </LazySection>
-      <LazySection fallbackHeight="500px">
+      <LazySection fallbackHeight="500px" forceMount={shouldForceMount}>
         <FooterSection />
       </LazySection>
     </>
@@ -328,6 +406,14 @@ function PublicSite() {
 
   // Dynamically update SEO meta tags as user scrolls into different sections
   useSectionViewportSEO(HOME_SECTIONS_SEO, true);
+
+  // Synchronously restore scroll position before initial paint
+  useLayoutEffect(() => {
+    const savedY = getSavedHomepageScrollPosition();
+    if (savedY !== null) {
+      restoreInstantScroll(savedY);
+    }
+  }, []);
 
   return (
     <SmoothScroll>

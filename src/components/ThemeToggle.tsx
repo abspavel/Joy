@@ -1,47 +1,48 @@
 import React, { useEffect, useState } from 'react';
 import { Sun, Moon } from 'lucide-react';
 
-export function ThemeToggle() {
-  const [isLight, setIsLight] = useState(false);
+interface ThemeToggleProps {
+  className?: string;
+  id?: string;
+}
+
+export function ThemeToggle({ className = '', id }: ThemeToggleProps) {
+  const [isLight, setIsLight] = useState<boolean>(false);
 
   useEffect(() => {
-    // Check local storage or system preference on mount
-    const savedTheme = localStorage.getItem('theme');
-    const prefersLight = window.matchMedia('(prefers-color-scheme: light)').matches;
-    
-    if (savedTheme === 'light' || (!savedTheme && prefersLight)) {
-      // By default it's dark, so we only need to activate light mode if explicitly set
-      // Actually, user wants it to DEFAULT TO DARK, so we can ignore prefers-color-scheme
-      // and only check savedTheme. Let's just default to dark unless savedTheme is 'light'.
-    }
-    
-    if (savedTheme === 'light') {
-      setIsLight(true);
-      document.documentElement.classList.add('light');
-    } else {
-      setIsLight(false);
-      document.documentElement.classList.remove('light');
-    }
+    // Initial sync
+    const saved = localStorage.getItem('theme');
+    const shouldBeLight = saved === 'light' || document.documentElement.classList.contains('light');
+    setIsLight(shouldBeLight);
   }, []);
 
   const toggleTheme = () => {
-    setIsLight(!isLight);
-    if (!isLight) {
-      document.documentElement.classList.add('light');
-      localStorage.setItem('theme', 'light');
-    } else {
-      document.documentElement.classList.remove('light');
-      localStorage.setItem('theme', 'dark');
-    }
+    setIsLight((prev) => {
+      const next = !prev;
+      if (next) {
+        document.documentElement.classList.add('light');
+        localStorage.setItem('theme', 'light');
+      } else {
+        document.documentElement.classList.remove('light');
+        localStorage.setItem('theme', 'dark');
+      }
+      return next;
+    });
   };
 
   return (
-    <button 
+    <button
+      id={id}
       onClick={toggleTheme}
-      className="text-[var(--text-primary)] hover:opacity-80 transition-all duration-200 ml-1 sm:ml-2 flex items-center justify-center p-1.5 sm:p-2 rounded-full border border-[var(--text-primary)]/20 hover:border-[var(--text-primary)]/50 bg-[var(--text-primary)]/5 hover:bg-[var(--text-primary)]/15 shrink-0"
-      aria-label="Toggle theme"
+      className={`flex items-center justify-center w-8 h-8 sm:w-10 sm:h-10 ml-2 rounded-full border border-[var(--text-primary)]/30 hover:border-[var(--text-primary)]/70 bg-[var(--bg-secondary)] hover:bg-[var(--bg-tertiary)] transition-all duration-300 shadow-sm text-[var(--text-primary)] ${className}`}
+      aria-label="Toggle Theme"
+      title={isLight ? 'Switch to Dark Mode' : 'Switch to Light Mode'}
     >
-      {isLight ? <Moon className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" /> : <Sun className="w-3.5 h-3.5 sm:w-4 sm:h-4 md:w-5 md:h-5" />}
+      {isLight ? (
+        <Moon className="w-4 h-4 sm:w-5 sm:h-5 text-indigo-600" />
+      ) : (
+        <Sun className="w-4 h-4 sm:w-5 sm:h-5 text-amber-400" />
+      )}
     </button>
   );
 }

@@ -2,6 +2,7 @@ import { Link } from 'react-router-dom';
 import { FadeIn } from '../components/FadeIn';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { ArrowUpRight } from 'lucide-react';
+import { saveHomepageScrollPosition } from '../utils/scrollRestoration';
 
 const fallbackServices = [
   {
@@ -56,6 +57,9 @@ export function ServicesSection() {
           >
             <Link 
               to={`/services/${service.slug || service.name.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`}
+              state={{ scrollY: typeof window !== 'undefined' ? window.scrollY : 0, fromServices: true }}
+              onClick={saveHomepageScrollPosition}
+              onMouseDown={saveHomepageScrollPosition}
               className="group flex flex-col md:flex-row items-start md:items-center py-8 sm:py-10 md:py-12 border-b border-[rgba(12,12,12,0.15)] last:border-b-0 gap-6 md:gap-12 lg:gap-20 transition-all duration-300 hover:pl-4 sm:hover:pl-8 cursor-pointer relative"
             >
               <div className="text-[var(--bg-primary)] font-black text-[clamp(3rem,10vw,140px)] leading-none md:w-1/4 shrink-0 transition-colors group-hover:text-[#B600A8]">
