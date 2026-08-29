@@ -6,6 +6,7 @@ import { BlogCard } from '../components/BlogCard';
 import { FadeIn } from '../components/FadeIn';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { useSEO } from '../hooks/useSEO';
+import { generateMetadata } from '../utils/metadata';
 import { Search, Tag, X, BookOpen, ArrowLeft } from 'lucide-react';
 import { BlogPost } from '../types';
 
@@ -83,34 +84,14 @@ export function BlogListingPage() {
     setSearchQuery('');
   };
 
-  // SEO configuration
-  const pageTitle = activeTag 
-    ? `Articles tagged #${activeTag} | Joy -- 3D Creator & Frontend Developer`
-    : 'Blog & Technical Articles | Joy -- 3D Creator & Frontend Developer';
+  // Centralized metadata generation for blog listing
+  const listingMetadata = useMemo(() => {
+    return generateMetadata.listing(activeTag, {
+      url: typeof window !== 'undefined' ? window.location.href : 'https://joy.dev/blog',
+    });
+  }, [activeTag]);
 
-  const pageDescription = activeTag
-    ? `Browse all articles, insights, and engineering tutorials tagged with #${activeTag} by Pavel Ahmed Joy.`
-    : 'Technical articles, performance case studies, and engineering insights on 3D WebGL development, Three.js, React architecture, and modern frontend design by Pavel Ahmed Joy.';
-
-  useSEO({
-    title: pageTitle,
-    description: pageDescription,
-    keywords: ['Tech Blog', 'WebGL Articles', 'Three.js Tutorials', 'Frontend Engineering', 'Web Performance', ...(allTags.slice(0, 10))],
-    type: 'website',
-    url: typeof window !== 'undefined' ? window.location.href : 'https://joy.dev/blog',
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'Blog',
-      'name': 'Pavel Ahmed Joy Engineering Blog',
-      'description': pageDescription,
-      'url': typeof window !== 'undefined' ? `${window.location.origin}/blog` : 'https://joy.dev/blog',
-      'author': {
-        '@type': 'Person',
-        'name': 'Pavel Ahmed Joy',
-        'jobTitle': '3D Creator & Frontend Developer'
-      }
-    }
-  });
+  useSEO(listingMetadata);
 
   return (
     <div className="min-h-screen bg-[var(--bg-primary)] text-[var(--text-primary)] flex flex-col selection:bg-[var(--text-highlight)] selection:text-[var(--bg-primary)]">

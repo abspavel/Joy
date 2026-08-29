@@ -6,6 +6,7 @@ import { FooterSection } from '../sections/FooterSection';
 import { FadeIn } from '../components/FadeIn';
 import { usePortfolioData } from '../hooks/usePortfolioData';
 import { useSEO } from '../hooks/useSEO';
+import { generateMetadata } from '../utils/metadata';
 import { 
   ArrowLeft, 
   Calendar, 
@@ -61,43 +62,14 @@ export function BlogPostPage() {
 
   const postUrl = typeof window !== 'undefined' ? window.location.href : `https://joy.dev/blog/${slug}`;
 
-  // SEO configuration with Article / BlogPosting JSON-LD
-  useSEO({
-    title: post ? `${post.title} | Joy -- 3D Creator & Frontend Developer` : 'Article Not Found | Joy',
-    description: post?.excerpt || 'Read technical articles and insights by Pavel Ahmed Joy.',
-    keywords: post?.keywords || ['3D Web Development', 'Frontend', 'Creative Tech'],
-    type: 'article',
-    twitterCard: 'summary',
-    author: 'Pavel Ahmed Joy',
-    publishedTime: post?.published_at || post?.created_at,
-    modifiedTime: post?.created_at,
-    section: 'Technology & Web Development',
-    url: postUrl,
-    structuredData: post ? {
-      '@context': 'https://schema.org',
-      '@type': 'BlogPosting',
-      'headline': post.title,
-      'description': post.excerpt || post.title,
-      'datePublished': post.published_at || post.created_at,
-      'dateModified': post.created_at || post.published_at,
-      'mainEntityOfPage': {
-        '@type': 'WebPage',
-        '@id': postUrl
-      },
-      'author': {
-        '@type': 'Person',
-        'name': 'Pavel Ahmed Joy',
-        'jobTitle': '3D Creator & Frontend Developer',
-        'url': typeof window !== 'undefined' ? window.location.origin : 'https://joy.dev'
-      },
-      'publisher': {
-        '@type': 'Person',
-        'name': 'Pavel Ahmed Joy'
-      },
-      'keywords': post.keywords ? post.keywords.join(', ') : '',
-      'wordCount': wordCount
-    } : undefined
-  });
+  // Centralized metadata generation: ensures unique Open Graph tags, titles, and images for social previews
+  const blogMetadata = useMemo(() => {
+    return generateMetadata.blog(post, {
+      url: postUrl,
+    });
+  }, [post, postUrl]);
+
+  useSEO(blogMetadata);
 
   const handleCopyLink = async () => {
     try {

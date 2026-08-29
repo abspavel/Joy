@@ -6,39 +6,14 @@ import { Magnet } from '../components/Magnet';
 import { Mail, Phone, MapPin, Github, Linkedin, Instagram, Twitter, Loader2 } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { useSEO } from '../hooks/useSEO';
+import { generateMetadata } from '../utils/metadata';
 
 const FooterSection = React.lazy(() => import('../sections/FooterSection').then(m => ({ default: m.FooterSection })));
 
 export function ContactPage() {
-  useSEO({
-    title: 'Contact & Collaboration | Joy -- 3D Creator & Developer',
-    description: 'Get in touch with Pavel Ahmed Joy for freelance 3D design, interactive web development, Three.js animations, or design collaborations.',
-    image: '/joy-photo-transparent.png',
-    imageAlt: 'Contact Pavel Ahmed Joy',
-    type: 'website',
-    twitterCard: 'summary_large_image',
-    keywords: [
-      'Contact Joy',
-      'Hire 3D Designer',
-      'Freelance Three.js Developer',
-      'Web Development Inquiries',
-      'Pavel Ahmed Joy Contact',
-      '3D Modeling Collaboration'
-    ],
-    structuredData: {
-      '@context': 'https://schema.org',
-      '@type': 'ContactPage',
-      'name': 'Contact Pavel Ahmed Joy',
-      'description': 'Contact page for hiring or collaborating with Pavel Ahmed Joy on 3D design and web engineering projects.',
-      'mainEntity': {
-        '@type': 'Person',
-        'name': 'Pavel Ahmed Joy',
-        'email': 'abspavel126@gmail.com',
-        'jobTitle': '3D Creator & Frontend Developer',
-        'knowsAbout': ['3D Modeling', 'WebGL', 'Three.js', 'React', 'Frontend Engineering', 'Creative UI/UX']
-      }
-    }
-  });
+  useSEO(generateMetadata.contact({
+    url: typeof window !== 'undefined' ? window.location.href : 'https://joy.dev/contact',
+  }));
 
   const [formData, setFormData] = useState({ name: '', email: '', message: '' });
   const [status, setStatus] = useState({ type: '', text: '' });

@@ -73,20 +73,20 @@ export function ProjectDetailModal({
     : (typeof project?.tech_stack === 'string' ? project.tech_stack.split(',').map((s) => s.trim()) : []);
 
   useSEO({
-    title: isOpen && project ? `${projectTitle} | 3D Case Study` : 'Joy -- 3D Creator',
+    title: isOpen && project ? `${projectTitle} | Web Development Case Study` : 'Pavel Ahmed Joy — Web Developer',
     description: isOpen && project ? projectDescription : undefined,
     image: isOpen && project ? projectImage : undefined,
     imageAlt: isOpen && project ? `${projectTitle} Preview Showcase` : undefined,
     url: isOpen && project ? projectUrl : undefined,
     type: 'article',
     twitterCard: 'summary_large_image',
-    section: project?.category || 'Creative 3D Projects',
+    section: project?.category || 'Web Development Projects',
     keywords: [
       projectTitle,
-      project?.category || '3D Development',
-      '3D Interactive Demo',
+      project?.category || 'Web Development',
+      'Web Application',
       'Creative Frontend',
-      'WebGL Case Study',
+      'Development Case Study',
       ...techStackKeywords,
     ],
     structuredData: isOpen && project ? {
@@ -100,9 +100,9 @@ export function ProjectDetailModal({
       'author': {
         '@type': 'Person',
         'name': 'Pavel Ahmed Joy',
-        'jobTitle': '3D Creator & Frontend Developer'
+        'jobTitle': 'Web Developer'
       },
-      'genre': project?.category || 'Interactive 3D Art & Development',
+      'genre': project?.category || 'Web Development',
       'keywords': techStackKeywords.join(', ')
     } : undefined
   });

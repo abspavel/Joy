@@ -9,6 +9,7 @@ import { Navbar } from '../components/Navbar';
 import { ContactButton } from '../components/ContactButton';
 import { Check, ArrowLeft } from 'lucide-react';
 import { useSEO } from '../hooks/useSEO';
+import { generateMetadata } from '../utils/metadata';
 
 const FooterSection = React.lazy(() => import('../sections/FooterSection').then(m => ({ default: m.FooterSection })));
 
@@ -48,51 +49,16 @@ export function ServiceDetailPage() {
 
   const serviceName = service ? (service.name || service.title || 'Creative Service') : 'Creative Service';
   const serviceDescription = service?.description || 'Custom 3D modeling, interactive web animations, WebGL experiences, and frontend engineering solutions.';
-  const serviceImage = service?.image_url || '/joy-photo-transparent.png';
   const serviceFeatures = Array.isArray(service?.features) ? service.features : [];
 
-  useSEO({
-    title: service ? `${serviceName} | Creative 3D & Web Services` : 'Creative 3D & Web Services | Joy',
-    description: serviceDescription,
-    image: serviceImage,
-    imageAlt: `${serviceName} Showcase`,
-    type: 'website',
-    twitterCard: 'summary_large_image',
-    keywords: [
-      serviceName,
-      '3D Design Services',
-      'WebGL Development',
-      'Interactive Web Experiences',
-      'Creative Frontend Services',
-      'Blender Modeling',
-      'Three.js Consulting',
-      ...serviceFeatures
-    ],
-    structuredData: service ? {
-      '@context': 'https://schema.org',
-      '@type': 'Service',
-      'name': serviceName,
-      'description': serviceDescription,
-      'provider': {
-        '@type': 'Person',
-        'name': 'Pavel Ahmed Joy',
-        'jobTitle': '3D Creator & Frontend Engineer'
-      },
-      'areaServed': 'Worldwide',
-      'hasOfferCatalog': {
-        '@type': 'OfferCatalog',
-        'name': `${serviceName} Deliverables`,
-        'itemListElement': serviceFeatures.map((f: string, idx: number) => ({
-          '@type': 'Offer',
-          'itemOffered': {
-            '@type': 'Service',
-            'name': f
-          },
-          'position': idx + 1
-        }))
-      }
-    } : undefined
-  });
+  // Centralized metadata generation: ensures unique Open Graph tags, titles, and images for social previews
+  const serviceMetadata = useMemo(() => {
+    return generateMetadata.service(service, {
+      url: typeof window !== 'undefined' ? window.location.href : `https://joy.dev/services/${slug}`,
+    });
+  }, [service, slug]);
+
+  useSEO(serviceMetadata);
 
   // Keep state in sync if data arrives from hook
   useEffect(() => {

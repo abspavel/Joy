@@ -180,7 +180,7 @@ function EnhancedPortrait({ imageUrl = "/joy-photo-transparent.png" }: { imageUr
       >
         <div className="absolute inset-0 bg-gradient-radial from-[var(--text-highlight)]/20 to-transparent blur-3xl rounded-full opacity-60 -z-10 mix-blend-screen transform scale-90 translate-y-10"></div>
         <div className="pointer-events-auto">
-          <img src={imageUrl} alt="Pavel Ahmed Joy - 3D Creator" decoding="sync" loading="eager"
+          <img src={imageUrl} alt="Pavel Ahmed Joy - Web Developer" decoding="sync" loading="eager"
             fetchPriority="high"
             width="800"
             height="1000"

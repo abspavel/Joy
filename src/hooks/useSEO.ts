@@ -1,11 +1,14 @@
 import { useEffect } from 'react';
+import { GeneratedMetadata, MetadataInput, generateMetadata } from '../utils/metadata';
 
 export interface SEOProps {
-  title: string;
+  title?: string;
   description?: string;
   keywords?: string | string[];
   image?: string;
   imageAlt?: string;
+  imageWidth?: number;
+  imageHeight?: number;
   url?: string;
   type?: 'website' | 'article' | 'profile';
   twitterCard?: 'summary_large_image' | 'summary';
@@ -13,8 +16,13 @@ export interface SEOProps {
   publishedTime?: string;
   modifiedTime?: string;
   section?: string;
+  tags?: string[];
   structuredData?: Record<string, any> | Array<Record<string, any>>;
   noIndex?: boolean;
+  // Support passing GeneratedMetadata directly
+  openGraph?: GeneratedMetadata['openGraph'];
+  twitter?: GeneratedMetadata['twitter'];
+  canonicalUrl?: string;
 }
 
 function updateMetaTag(
@@ -33,29 +41,47 @@ function updateMetaTag(
   element.setAttribute(contentKey, contentValue);
 }
 
-export function useSEO({
-  title,
-  description,
-  keywords,
-  image,
-  imageAlt,
-  url,
-  type = 'website',
-  twitterCard = 'summary_large_image',
-  author = 'Pavel Ahmed Joy',
-  publishedTime,
-  modifiedTime,
-  section,
-  structuredData,
-  noIndex = false,
-}: SEOProps) {
+export function useSEO(props: SEOProps | GeneratedMetadata) {
+  // Normalize properties whether passed as SEOProps or GeneratedMetadata
+  const og = 'openGraph' in props ? props.openGraph : undefined;
+  const tw = 'twitter' in props ? props.twitter : undefined;
+
+  const title = og?.title || props.title || 'Pavel Ahmed Joy — Web Developer | Clean, Modern, High-Performing Websites';
+  const description = og?.description || props.description;
+  const keywords = props.keywords;
+  const image = og?.image || props.image;
+  const imageAlt = og?.imageAlt || props.imageAlt;
+  const imageWidth = og?.imageWidth || props.imageWidth || 1200;
+  const imageHeight = og?.imageHeight || props.imageHeight || 630;
+  const url = ('canonicalUrl' in props ? props.canonicalUrl : undefined) || og?.url || props.url;
+  const type = og?.type || props.type || 'website';
+  const twitterCard = tw?.card || props.twitterCard || 'summary_large_image';
+  const author = props.author || 'Pavel Ahmed Joy';
+  const publishedTime = og?.publishedTime || props.publishedTime;
+  const modifiedTime = og?.modifiedTime || props.modifiedTime;
+  const section = og?.section || props.section;
+  const tags = og?.tags || props.tags;
+  const structuredData = props.structuredData;
+  const noIndex = props.noIndex || false;
+
   useEffect(() => {
     // 1. Document Title
-    const formattedTitle = title.includes('Joy') ? title : `${title} | Joy -- 3D Creator`;
+    const formattedTitle = title.includes('Joy') ? title : `${title} | Pavel Ahmed Joy — Web Developer`;
     document.title = formattedTitle;
+    updateMetaTag('meta[name="title"]', 'name', 'title', 'content', formattedTitle);
 
-    const currentUrl = url || window.location.href;
-    const resolvedImage = image ? (image.startsWith('http') ? image : `${window.location.origin}${image.startsWith('/') ? '' : '/'}${image}`) : `${window.location.origin}/joy-photo-transparent.png`;
+    const currentUrl = url || (typeof window !== 'undefined' ? window.location.href : '');
+    const origin = typeof window !== 'undefined' ? window.location.origin : '';
+    
+    let resolvedImage = `${origin}/joy-photo-transparent.png`;
+    if (image) {
+      if (image.startsWith('http://') || image.startsWith('https://') || image.startsWith('data:')) {
+        resolvedImage = image;
+      } else {
+        resolvedImage = `${origin}${image.startsWith('/') ? '' : '/'}${image}`;
+      }
+    }
+
     const resolvedKeywords = Array.isArray(keywords) ? keywords.join(', ') : keywords;
 
     // 2. Standard Meta Tags
@@ -79,7 +105,9 @@ export function useSEO({
     );
 
     // Canonical Link
-    updateMetaTag('link[rel="canonical"]', 'rel', 'canonical', 'href', currentUrl);
+    if (currentUrl) {
+      updateMetaTag('link[rel="canonical"]', 'rel', 'canonical', 'href', currentUrl);
+    }
 
     // 3. Open Graph Tags
     updateMetaTag('meta[property="og:title"]', 'property', 'og:title', 'content', formattedTitle);
@@ -87,10 +115,14 @@ export function useSEO({
       updateMetaTag('meta[property="og:description"]', 'property', 'og:description', 'content', description);
     }
     updateMetaTag('meta[property="og:type"]', 'property', 'og:type', 'content', type);
-    updateMetaTag('meta[property="og:url"]', 'property', 'og:url', 'content', currentUrl);
+    if (currentUrl) {
+      updateMetaTag('meta[property="og:url"]', 'property', 'og:url', 'content', currentUrl);
+    }
     updateMetaTag('meta[property="og:image"]', 'property', 'og:image', 'content', resolvedImage);
     updateMetaTag('meta[property="og:image:alt"]', 'property', 'og:image:alt', 'content', imageAlt || formattedTitle);
-    updateMetaTag('meta[property="og:site_name"]', 'property', 'og:site_name', 'content', 'Joy -- 3D Creator & Frontend Developer');
+    updateMetaTag('meta[property="og:image:width"]', 'property', 'og:image:width', 'content', String(imageWidth));
+    updateMetaTag('meta[property="og:image:height"]', 'property', 'og:image:height', 'content', String(imageHeight));
+    updateMetaTag('meta[property="og:site_name"]', 'property', 'og:site_name', 'content', 'Pavel Ahmed Joy — Web Developer');
     updateMetaTag('meta[property="og:locale"]', 'property', 'og:locale', 'content', 'en_US');
 
     if (publishedTime) {
@@ -101,6 +133,9 @@ export function useSEO({
     }
     if (section) {
       updateMetaTag('meta[property="article:section"]', 'property', 'article:section', 'content', section);
+    }
+    if (tags && Array.isArray(tags) && tags.length > 0) {
+      updateMetaTag('meta[property="article:tag"]', 'property', 'article:tag', 'content', tags.join(', '));
     }
 
     // 4. Twitter Card Tags
@@ -134,6 +169,8 @@ export function useSEO({
     keywords,
     image,
     imageAlt,
+    imageWidth,
+    imageHeight,
     url,
     type,
     twitterCard,
@@ -141,9 +178,19 @@ export function useSEO({
     publishedTime,
     modifiedTime,
     section,
+    tags,
     structuredData,
     noIndex,
   ]);
+}
+
+/**
+ * Hook to directly pass MetadataInput or GeneratedMetadata
+ */
+export function usePageMetadata(input: MetadataInput | GeneratedMetadata) {
+  const metadata = 'openGraph' in input ? input : generateMetadata(input);
+  useSEO(metadata);
+  return metadata;
 }
 
 export interface SectionMetaConfig {
