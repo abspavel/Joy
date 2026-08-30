@@ -9,11 +9,17 @@ import { useSEO } from '../hooks/useSEO';
 import { generateMetadata } from '../utils/metadata';
 import { Search, Tag, X, BookOpen, ArrowLeft } from 'lucide-react';
 import { BlogPost } from '../types';
+import { BlogLanguage, getTranslatedPost } from '../data/blogTranslations';
 
 export function BlogListingPage() {
   const [searchParams, setSearchParams] = useSearchParams();
   const activeTag = searchParams.get('tag') || '';
   const [searchQuery, setSearchQuery] = useState('');
+
+  const urlLang = searchParams.get('lang');
+  const currentLang: BlogLanguage = (urlLang === 'bn' || urlLang === 'en')
+    ? urlLang
+    : ((typeof window !== 'undefined' && localStorage.getItem('blog_language') === 'bn') ? 'bn' : 'en');
 
   const { data: rawPosts, loading } = usePortfolioData('blog_posts');
 
@@ -213,6 +219,7 @@ export function BlogListingPage() {
               <FadeIn key={post.id || post.slug} delay={0.05 * (index % 6)} y={25}>
                 <BlogCard
                   post={post}
+                  language={currentLang}
                   onTagClick={(tag) => handleSelectTag(tag)}
                 />
               </FadeIn>

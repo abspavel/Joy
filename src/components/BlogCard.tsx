@@ -2,31 +2,33 @@ import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Clock, Calendar, ArrowUpRight } from 'lucide-react';
 import { BlogPost } from '../types';
+import { BlogLanguage, formatPostDate, formatReadTime, getTranslatedPost } from '../data/blogTranslations';
 
 interface BlogCardProps {
   post: BlogPost;
   onTagClick?: (tag: string) => void;
   className?: string;
+  language?: BlogLanguage;
 }
 
-export function BlogCard({ post, onTagClick, className = '' }: BlogCardProps) {
+export function BlogCard({ post, onTagClick, className = '', language = 'en' }: BlogCardProps) {
   const navigate = useNavigate();
 
-  const formattedDate = new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
-    month: 'short',
-    day: 'numeric',
-    year: 'numeric'
-  });
+  // Get translated post data if language is 'bn'
+  const displayPost = getTranslatedPost(post, language);
+
+  const formattedDate = formatPostDate(post.published_at || post.created_at, language);
 
   // Calculate read time if not provided
-  const readTime = post.read_time_minutes || Math.max(1, Math.ceil((post.content || '').split(/\s+/).filter(Boolean).length / 200));
+  const rawReadTime = displayPost.read_time_minutes || Math.max(1, Math.ceil((displayPost.content || '').split(/\s+/).filter(Boolean).length / 200));
+  const formattedReadTime = formatReadTime(rawReadTime, language);
 
   const handleCardClick = (e: React.MouseEvent) => {
     // If the click was on a tag button, don't navigate to the post
     if ((e.target as HTMLElement).closest('[data-tag-pill="true"]')) {
       return;
     }
-    navigate(`/blog/${post.slug}`);
+    navigate(`/blog/${displayPost.slug}${language === 'bn' ? '?lang=bn' : ''}`);
   };
 
   return (
@@ -44,7 +46,7 @@ export function BlogCard({ post, onTagClick, className = '' }: BlogCardProps) {
           <span className="w-1 h-1 rounded-full bg-[var(--text-primary)]/30" />
           <span className="flex items-center gap-1.5">
             <Clock className="w-3.5 h-3.5 opacity-70" />
-            {readTime} min read
+            {formattedReadTime}
           </span>
         </div>
 
@@ -52,11 +54,11 @@ export function BlogCard({ post, onTagClick, className = '' }: BlogCardProps) {
         <div className="flex items-start justify-between gap-3">
           <h3 className="text-lg sm:text-xl md:text-2xl font-medium text-[#D7E2EA] group-hover:text-[var(--text-highlight)] transition-colors duration-200 leading-snug">
             <Link 
-              to={`/blog/${post.slug}`} 
+              to={`/blog/${displayPost.slug}${language === 'bn' ? '?lang=bn' : ''}`} 
               onClick={(e) => e.stopPropagation()} 
               className="hover:underline focus:outline-none"
             >
-              {post.title}
+              {displayPost.title}
             </Link>
           </h3>
           <div className="shrink-0 w-8 h-8 rounded-full border border-[#D7E2EA]/20 flex items-center justify-center text-[#D7E2EA]/60 group-hover:text-[var(--text-primary)] group-hover:border-[var(--text-primary)]/60 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-all duration-200 mt-0.5">
@@ -65,17 +67,17 @@ export function BlogCard({ post, onTagClick, className = '' }: BlogCardProps) {
         </div>
 
         {/* Excerpt (2-3 lines, opacity 70%) */}
-        {post.excerpt && (
+        {displayPost.excerpt && (
           <p className="text-sm sm:text-base text-[var(--text-primary)]/70 font-light leading-relaxed line-clamp-3">
-            {post.excerpt}
+            {displayPost.excerpt}
           </p>
         )}
       </div>
 
       {/* Keywords / Hashtags */}
-      {post.keywords && post.keywords.length > 0 && (
+      {displayPost.keywords && displayPost.keywords.length > 0 && (
         <div className="flex flex-wrap gap-1.5 sm:gap-2 mt-6 pt-5 border-t border-[var(--text-primary)]/10">
-          {post.keywords.map((kw) => {
+          {displayPost.keywords.map((kw) => {
             const cleanTag = kw.replace(/^#/, '').trim();
             if (!cleanTag) return null;
             return (
@@ -88,7 +90,7 @@ export function BlogCard({ post, onTagClick, className = '' }: BlogCardProps) {
                   if (onTagClick) {
                     onTagClick(cleanTag);
                   } else {
-                    navigate(`/blog?tag=${encodeURIComponent(cleanTag)}`);
+                    navigate(`/blog?tag=${encodeURIComponent(cleanTag)}${language === 'bn' ? '&lang=bn' : ''}`);
                   }
                 }}
                 className="px-2.5 py-0.5 sm:px-3 sm:py-1 rounded-full border border-[#D7E2EA]/20 bg-[var(--bg-primary)]/50 text-[11px] sm:text-xs text-[var(--text-primary)]/70 hover:text-[var(--text-primary)] hover:border-[var(--text-primary)]/60 hover:bg-[var(--text-primary)]/10 transition-colors duration-150 cursor-pointer"

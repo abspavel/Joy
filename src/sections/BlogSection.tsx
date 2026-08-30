@@ -31,13 +31,21 @@ export function BlogSection() {
         {/* Section Header */}
         <div className="flex flex-col items-center text-center mb-12 sm:mb-16 md:mb-20">
           <FadeIn delay={0} y={25}>
+            <div className="flex items-center justify-center gap-2 mb-4">
+              <span className="h-px w-8 bg-[var(--text-highlight)]/40" />
+              <span className="text-[var(--text-highlight)] text-xs sm:text-sm font-semibold tracking-widest uppercase">
+                ARTICLES & INSIGHTS
+              </span>
+              <span className="h-px w-8 bg-[var(--text-highlight)]/40" />
+            </div>
             <h2 className="hero-heading font-black uppercase tracking-tight text-[clamp(2.5rem,10vw,100px)] leading-none mb-4">
               LATEST ARTICLES
             </h2>
           </FadeIn>
+
           <FadeIn delay={0.1} y={20}>
             <p className="text-[var(--text-primary)]/70 font-light text-sm sm:text-base md:text-lg max-w-2xl">
-              Architectural notes, performance insights, and technical musings on 3D web experiences and modern frontend engineering.
+              Architectural notes, performance insights, and technical musings on modern web development and frontend engineering.
             </p>
           </FadeIn>
         </div>
@@ -56,6 +64,7 @@ export function BlogSection() {
           <FadeIn delay={0.3} y={20} className="flex justify-center items-center">
             <Link
               to="/blog"
+              id="blog-view-all-btn"
               className="group inline-flex items-center gap-3 px-6 py-3 sm:px-8 sm:py-3.5 rounded-full border border-[var(--text-primary)]/20 bg-[var(--bg-secondary)] hover:bg-[var(--text-primary)] text-[var(--text-primary)] hover:text-[var(--bg-primary)] font-semibold text-xs sm:text-sm tracking-wider uppercase transition-all duration-300 shadow-[0_4px_20px_rgba(0,0,0,0.15)]"
             >
               <span>View All Articles ({publishedPosts.length})</span>

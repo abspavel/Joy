@@ -3,14 +3,18 @@
 -- Run this in your Supabase SQL Editor (https://supabase.com/dashboard/project/ywkcfpdoduaipyzruhnz/sql)
 -- =====================================================================================
 
--- 1. Contact Messages Table (To receive messages from the ContactButton)
+-- 1. Contact Messages Table (To receive messages from Contact page & footer)
 CREATE TABLE IF NOT EXISTS public.contact_messages (
     id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
     name TEXT NOT NULL,
     email TEXT NOT NULL,
+    phone TEXT,
     message TEXT NOT NULL,
     created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- If table already exists, ensure phone column is present:
+ALTER TABLE public.contact_messages ADD COLUMN IF NOT EXISTS phone TEXT;
 
 -- Allow anyone to insert (so website visitors can send messages)
 ALTER TABLE public.contact_messages ENABLE ROW LEVEL SECURITY;
@@ -91,6 +95,23 @@ CREATE POLICY "Anyone can view published blog posts" ON public.blog_posts
 
 -- Full read/write access for admin
 CREATE POLICY "Admins have full access to blog posts" ON public.blog_posts 
+    FOR ALL USING (auth.role() = 'authenticated');
+
+
+-- 6. Newsletter Subscribers Table (For website newsletter form)
+CREATE TABLE IF NOT EXISTS public.newsletter_subscribers (
+    id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+    email TEXT UNIQUE NOT NULL,
+    created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+-- Allow anyone to subscribe (insert only)
+ALTER TABLE public.newsletter_subscribers ENABLE ROW LEVEL SECURITY;
+CREATE POLICY "Anyone can subscribe to newsletter" ON public.newsletter_subscribers 
+    FOR INSERT WITH CHECK (true);
+
+-- Only authenticated admins can view and manage subscribers
+CREATE POLICY "Admins have full access to newsletter subscribers" ON public.newsletter_subscribers 
     FOR ALL USING (auth.role() = 'authenticated');
 
 

@@ -15,33 +15,60 @@ export function ContactPage() {
     url: typeof window !== 'undefined' ? window.location.href : 'https://joy.dev/contact',
   }));
 
-  const [formData, setFormData] = useState({ name: '', email: '', message: '' });
+  const [formData, setFormData] = useState({ name: '', email: '', phone: '', message: '' });
   const [status, setStatus] = useState({ type: '', text: '' });
   const [loading, setLoading] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!formData.name || !formData.email || !formData.message) {
-      setStatus({ type: 'error', text: 'Please fill in all fields.' });
+    if (!formData.name.trim() || !formData.email.trim() || !formData.message.trim()) {
+      setStatus({ type: 'error', text: 'Please fill in Name, Email, and Message.' });
       return;
     }
     
     setLoading(true);
     setStatus({ type: '', text: '' });
     
-    const { error } = await supabase.from('contact_messages').insert([{
-      name: formData.name,
-      email: formData.email,
-      message: formData.message
-    }]);
+    const phoneValue = formData.phone.trim();
+    let insertError = null;
+
+    if (phoneValue) {
+      // 1. First attempt: Insert with phone column
+      const res = await supabase.from('contact_messages').insert([{
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        phone: phoneValue,
+        message: formData.message.trim()
+      }]);
+
+      if (res.error && res.error.code === 'PGRST204') {
+        // 'phone' column does not exist yet in table schema, fallback gracefully so message is never lost
+        const fallbackMsg = `Phone: ${phoneValue}\n\n${formData.message.trim()}`;
+        const fallbackRes = await supabase.from('contact_messages').insert([{
+          name: formData.name.trim(),
+          email: formData.email.trim(),
+          message: fallbackMsg
+        }]);
+        insertError = fallbackRes.error;
+      } else {
+        insertError = res.error;
+      }
+    } else {
+      const res = await supabase.from('contact_messages').insert([{
+        name: formData.name.trim(),
+        email: formData.email.trim(),
+        message: formData.message.trim()
+      }]);
+      insertError = res.error;
+    }
 
     setLoading(false);
     
-    if (error) {
+    if (insertError) {
       setStatus({ type: 'error', text: 'Failed to send message. Please try again later.' });
     } else {
       setStatus({ type: 'success', text: 'Message sent successfully! I will get back to you soon.' });
-      setFormData({ name: '', email: '', message: '' });
+      setFormData({ name: '', email: '', phone: '', message: '' });
     }
     
     setTimeout(() => setStatus({ type: '', text: '' }), 5000);
@@ -127,7 +154,8 @@ export function ContactPage() {
                 <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Name</label>
                 <input 
                   type="text" 
-                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] focus:outline-none focus:border-[#B600A8] transition-colors"
+                  placeholder="Your Name"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] placeholder:text-[var(--text-primary)]/30 focus:outline-none focus:border-[#B600A8] transition-colors"
                   value={formData.name}
                   onChange={e => setFormData({...formData, name: e.target.value})}
                   required
@@ -137,17 +165,32 @@ export function ContactPage() {
                 <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Email</label>
                 <input 
                   type="email" 
-                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] focus:outline-none focus:border-[#B600A8] transition-colors"
+                  placeholder="your.email@example.com"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] placeholder:text-[var(--text-primary)]/30 focus:outline-none focus:border-[#B600A8] transition-colors"
                   value={formData.email}
                   onChange={e => setFormData({...formData, email: e.target.value})}
                   required
                 />
               </div>
               <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Phone Number</label>
+                  <span className="text-[var(--text-primary)]/40 text-xs tracking-wider font-mono">Optional</span>
+                </div>
+                <input 
+                  type="tel" 
+                  placeholder="+880 18XX-XXXXXX"
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] placeholder:text-[var(--text-primary)]/30 focus:outline-none focus:border-[#B600A8] transition-colors"
+                  value={formData.phone}
+                  onChange={e => setFormData({...formData, phone: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
                 <label className="text-[var(--text-primary)]/60 text-sm uppercase tracking-wider">Message</label>
                 <textarea 
                   rows={4}
-                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] focus:outline-none focus:border-[#B600A8] transition-colors resize-none"
+                  placeholder="Tell me about your project, ideas, or timeline..."
+                  className="w-full bg-[var(--bg-primary)] border border-[var(--text-primary)]/20 rounded-lg p-4 text-[var(--text-primary)] placeholder:text-[var(--text-primary)]/30 focus:outline-none focus:border-[#B600A8] transition-colors resize-none"
                   value={formData.message}
                   onChange={e => setFormData({...formData, message: e.target.value})}
                   required

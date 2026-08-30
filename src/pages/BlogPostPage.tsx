@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
-import { useParams, Link, useNavigate } from 'react-router-dom';
+import { useParams, Link, useNavigate, useSearchParams } from 'react-router-dom';
 import Markdown from 'react-markdown';
+import { motion } from 'motion/react';
 import { Navbar } from '../components/Navbar';
 import { FooterSection } from '../sections/FooterSection';
 import { FadeIn } from '../components/FadeIn';
@@ -18,14 +19,44 @@ import {
   Linkedin, 
   ArrowRight,
   BookOpen,
-  User
+  User,
+  Languages
 } from 'lucide-react';
 import { BlogPost } from '../types';
+import { BlogLanguage, getTranslatedPost, formatPostDate, toBengaliNumber } from '../data/blogTranslations';
 
 export function BlogPostPage() {
   const { slug } = useParams<{ slug: string }>();
+  const [searchParams, setSearchParams] = useSearchParams();
   const navigate = useNavigate();
   const [copied, setCopied] = useState(false);
+
+  // Read initial language from URL or localStorage or default to 'en'
+  const [language, setLanguage] = useState<BlogLanguage>(() => {
+    const urlLang = searchParams.get('lang');
+    if (urlLang === 'bn' || urlLang === 'en') return urlLang;
+    if (typeof window !== 'undefined') {
+      const saved = localStorage.getItem('blog_language');
+      if (saved === 'bn' || saved === 'en') return saved;
+    }
+    return 'en';
+  });
+
+  const handleLanguageChange = (newLang: BlogLanguage) => {
+    setLanguage(newLang);
+    if (typeof window !== 'undefined') {
+      localStorage.setItem('blog_language', newLang);
+    }
+    const newParams = new URLSearchParams(searchParams);
+    if (newLang === 'bn') {
+      newParams.set('lang', 'bn');
+    } else {
+      newParams.delete('lang');
+    }
+    setSearchParams(newParams, { replace: true });
+  };
+
+  const isBangla = language === 'bn';
 
   const { data: rawPosts, loading } = usePortfolioData('blog_posts');
 
@@ -41,24 +72,29 @@ export function BlogPostPage() {
 
   // Find the post matching the current slug
   const postIndex = publishedPosts.findIndex(p => p.slug === slug);
-  const post = postIndex !== -1 ? publishedPosts[postIndex] : null;
+  const rawPost = postIndex !== -1 ? publishedPosts[postIndex] : null;
+
+  // Apply language translation if available
+  const post = useMemo(() => {
+    if (!rawPost) return null;
+    return getTranslatedPost(rawPost, language);
+  }, [rawPost, language]);
 
   // Previous and next posts for bottom navigation
-  const prevPost = postIndex > 0 ? publishedPosts[postIndex - 1] : null;
-  const nextPost = postIndex !== -1 && postIndex < publishedPosts.length - 1 ? publishedPosts[postIndex + 1] : null;
+  const prevPostRaw = postIndex > 0 ? publishedPosts[postIndex - 1] : null;
+  const nextPostRaw = postIndex !== -1 && postIndex < publishedPosts.length - 1 ? publishedPosts[postIndex + 1] : null;
 
-  const formattedDate = post ? new Date(post.published_at || post.created_at).toLocaleDateString('en-US', {
-    month: 'long',
-    day: 'numeric',
-    year: 'numeric'
-  }) : '';
+  const prevPost = prevPostRaw ? getTranslatedPost(prevPostRaw, language) : null;
+  const nextPost = nextPostRaw ? getTranslatedPost(nextPostRaw, language) : null;
+
+  const formattedDate = post ? formatPostDate(post.published_at || post.created_at, language) : '';
 
   const wordCount = useMemo(() => {
     if (!post?.content) return 0;
     return post.content.split(/\s+/).filter(Boolean).length;
   }, [post?.content]);
 
-  const readTime = post?.read_time_minutes || Math.max(1, Math.ceil(wordCount / 200));
+  const rawReadTime = post?.read_time_minutes || Math.max(1, Math.ceil(wordCount / 200));
 
   const postUrl = typeof window !== 'undefined' ? window.location.href : `https://joy.dev/blog/${slug}`;
 
@@ -100,7 +136,9 @@ export function BlogPostPage() {
         <main className="flex-1 max-w-4xl mx-auto w-full px-5 py-24 flex items-center justify-center">
           <div className="flex flex-col items-center gap-4 text-[var(--text-primary)]/50">
             <div className="w-8 h-8 rounded-full border-2 border-[var(--text-primary)] border-t-transparent animate-spin" />
-            <p className="text-sm font-mono">Loading article...</p>
+            <p className="text-sm font-mono">
+              {isBangla ? 'আর্টিকেল লোড হচ্ছে...' : 'Loading article...'}
+            </p>
           </div>
         </main>
         <FooterSection />
@@ -115,16 +153,20 @@ export function BlogPostPage() {
         <Navbar />
         <main className="flex-1 max-w-3xl mx-auto w-full px-5 py-24 text-center flex flex-col items-center justify-center">
           <BookOpen className="w-12 h-12 text-[var(--text-primary)]/30 mb-4" />
-          <h1 className="text-2xl sm:text-3xl font-bold mb-3">Article Not Found</h1>
+          <h1 className="text-2xl sm:text-3xl font-bold mb-3">
+            {isBangla ? 'আর্টিকেল পাওয়া যায়নি' : 'Article Not Found'}
+          </h1>
           <p className="text-[var(--text-primary)]/60 text-sm sm:text-base mb-8 max-w-md">
-            The article you are looking for might have been unpublished, renamed, or does not exist.
+            {isBangla 
+              ? 'আপনি যে আর্টিকেলটি খুঁজছেন সেটি অপ্রকাশিত, নাম পরিবর্তন বা সরানো হতে পারে।'
+              : 'The article you are looking for might have been unpublished, renamed, or does not exist.'}
           </p>
           <Link
             to="/blog"
             className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-[var(--text-primary)] text-[var(--bg-primary)] text-xs uppercase tracking-wider font-semibold hover:opacity-90 transition-opacity"
           >
             <ArrowLeft className="w-4 h-4" />
-            <span>Return to All Articles</span>
+            <span>{isBangla ? 'সব আর্টিকেলে ফিরে যান' : 'Return to All Articles'}</span>
           </Link>
         </main>
         <FooterSection />
@@ -137,15 +179,78 @@ export function BlogPostPage() {
       <Navbar />
 
       <main className="flex-1 w-full max-w-4xl mx-auto px-5 sm:px-8 md:px-10 pt-12 sm:pt-16 md:pt-20 pb-20 sm:pb-28">
-        {/* Navigation Breadcrumb */}
+        {/* Navigation Breadcrumb and Language Toggle */}
         <FadeIn delay={0} y={15} className="mb-8 sm:mb-12">
-          <Link
-            to="/blog"
-            className="inline-flex items-center gap-2 text-xs sm:text-sm text-[var(--text-primary)]/60 hover:text-[var(--text-primary)] transition-colors group"
-          >
-            <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
-            <span>Back to All Articles</span>
-          </Link>
+          <div className="flex flex-wrap items-center justify-between gap-4">
+            <Link
+              to={isBangla ? '/blog?lang=bn' : '/blog'}
+              className="inline-flex items-center gap-2 text-xs sm:text-sm text-[var(--text-primary)]/60 hover:text-[var(--text-primary)] transition-colors group"
+            >
+              <ArrowLeft className="w-4 h-4 group-hover:-translate-x-1 transition-transform" />
+              <span>{isBangla ? 'সব আর্টিকেলে ফিরে যান' : 'Back to All Articles'}</span>
+            </Link>
+
+            {/* Language Toggle Switch (English | বাংলা) on specific blog post page */}
+            <div 
+              id="article-language-toggle"
+              className="inline-flex items-center gap-2 p-1.5 rounded-full bg-[var(--bg-secondary)] border border-[var(--text-primary)]/15 shadow-[0_4px_20px_rgba(0,0,0,0.25)] backdrop-blur-md transition-all duration-300 hover:border-[var(--text-primary)]/30"
+              role="group"
+              aria-label="Blog post language toggle"
+            >
+              <div className="pl-2.5 pr-1 text-[var(--text-primary)]/60 flex items-center gap-1.5 text-xs font-medium select-none">
+                <Languages className="w-3.5 h-3.5 text-[var(--text-highlight)]" />
+                <span className="hidden sm:inline text-[11px] uppercase tracking-wider text-[var(--text-primary)]/60 font-mono">
+                  {isBangla ? 'ভাষা' : 'Language'}
+                </span>
+              </div>
+
+              <div className="relative flex items-center bg-[var(--bg-primary)] p-0.5 rounded-full border border-[var(--text-primary)]/10">
+                {/* English Button */}
+                <button
+                  type="button"
+                  id="article-lang-en-btn"
+                  onClick={() => handleLanguageChange('en')}
+                  aria-pressed={language === 'en'}
+                  className={`relative px-3.5 py-1 rounded-full text-xs font-medium tracking-wide transition-colors duration-200 flex items-center gap-1 cursor-pointer select-none ${
+                    language === 'en'
+                      ? 'text-[var(--bg-primary)] font-bold'
+                      : 'text-[var(--text-primary)]/70 hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  {language === 'en' && (
+                    <motion.div
+                      layoutId="article-lang-indicator"
+                      className="absolute inset-0 bg-[var(--text-highlight)] rounded-full -z-10 shadow-sm"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <span>English</span>
+                </button>
+
+                {/* Bangla Button */}
+                <button
+                  type="button"
+                  id="article-lang-bn-btn"
+                  onClick={() => handleLanguageChange('bn')}
+                  aria-pressed={language === 'bn'}
+                  className={`relative px-3.5 py-1 rounded-full text-xs font-medium tracking-wide transition-colors duration-200 flex items-center gap-1 cursor-pointer select-none ${
+                    language === 'bn'
+                      ? 'text-[var(--bg-primary)] font-bold'
+                      : 'text-[var(--text-primary)]/70 hover:text-[var(--text-primary)]'
+                  }`}
+                >
+                  {language === 'bn' && (
+                    <motion.div
+                      layoutId="article-lang-indicator"
+                      className="absolute inset-0 bg-[var(--text-highlight)] rounded-full -z-10 shadow-sm"
+                      transition={{ type: 'spring', stiffness: 450, damping: 35 }}
+                    />
+                  )}
+                  <span>বাংলা</span>
+                </button>
+              </div>
+            </div>
+          </div>
         </FadeIn>
 
         {/* Article Header */}
@@ -159,12 +264,14 @@ export function BlogPostPage() {
             <span className="w-1 h-1 rounded-full bg-[var(--text-primary)]/30" />
             <span className="flex items-center gap-1.5">
               <Clock className="w-3.5 h-3.5 opacity-70" />
-              {readTime} min read ({wordCount} words)
+              {isBangla
+                ? `${toBengaliNumber(rawReadTime)} মিনিট পাঠ (${toBengaliNumber(wordCount)} শব্দ)`
+                : `${rawReadTime} min read (${wordCount} words)`}
             </span>
             <span className="w-1 h-1 rounded-full bg-[var(--text-primary)]/30" />
             <span className="flex items-center gap-1.5">
               <User className="w-3.5 h-3.5 opacity-70" />
-              Pavel Ahmed Joy
+              {isBangla ? 'পাভেল আহমেদ জয়' : 'Pavel Ahmed Joy'}
             </span>
           </FadeIn>
 
@@ -232,7 +339,7 @@ export function BlogPostPage() {
                     {children}
                   </blockquote>
                 ),
-                code: ({ className, children }) => {
+                code: ({ children }) => {
                   return (
                     <code className="bg-[var(--bg-secondary)] border border-[var(--text-primary)]/15 px-1.5 py-0.5 rounded text-sm font-mono text-[var(--text-highlight)]">
                       {children}
@@ -278,7 +385,7 @@ export function BlogPostPage() {
         {post.keywords && post.keywords.length > 0 && (
           <FadeIn delay={0.25} y={20} className="mb-10 pt-8 border-t border-[var(--text-primary)]/15">
             <h4 className="text-xs uppercase tracking-widest text-[var(--text-primary)]/50 font-mono mb-3">
-              Tags &amp; Topics
+              {isBangla ? 'ট্যাগ ও বিষয়সমূহ' : 'Tags & Topics'}
             </h4>
             <div className="flex flex-wrap gap-2">
               {post.keywords.map((kw) => {
@@ -287,7 +394,7 @@ export function BlogPostPage() {
                 return (
                   <Link
                     key={clean}
-                    to={`/blog?tag=${encodeURIComponent(clean)}`}
+                    to={`/blog?tag=${encodeURIComponent(clean)}${isBangla ? '&lang=bn' : ''}`}
                     className="px-3 py-1 rounded-full border border-[#D7E2EA]/20 bg-[var(--bg-secondary)] text-xs text-[var(--text-primary)]/80 hover:text-[var(--text-primary)] hover:border-[var(--text-primary)]/60 hover:bg-[var(--text-primary)]/10 transition-colors"
                   >
                     #{clean}
@@ -302,7 +409,7 @@ export function BlogPostPage() {
         <FadeIn delay={0.3} y={20} className="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-4 p-5 rounded-xl border border-[var(--text-primary)]/15 bg-[var(--bg-secondary)] mb-14">
           <div className="flex items-center gap-2 text-sm font-medium text-[var(--text-primary)]">
             <Share2 className="w-4 h-4 text-[var(--text-primary)]/60" />
-            <span>Share this article</span>
+            <span>{isBangla ? 'আর্টিকেলটি শেয়ার করুন' : 'Share this article'}</span>
           </div>
           <div className="flex items-center gap-2">
             <button
@@ -310,8 +417,17 @@ export function BlogPostPage() {
               onClick={handleCopyLink}
               className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-[var(--text-primary)]/20 hover:border-[var(--text-primary)]/50 bg-[var(--bg-primary)] text-xs text-[var(--text-primary)] transition-colors cursor-pointer"
             >
-              {copied ? <Check className="w-3.5 h-3.5 text-emerald-400" /> : <Copy className="w-3.5 h-3.5" />}
-              <span>{copied ? 'Copied URL!' : 'Copy Link'}</span>
+              {copied ? (
+                <>
+                  <Check className="w-3.5 h-3.5 text-emerald-400" />
+                  <span>{isBangla ? 'কপি করা হয়েছে!' : 'Copied URL!'}</span>
+                </>
+              ) : (
+                <>
+                  <Copy className="w-3.5 h-3.5" />
+                  <span>{isBangla ? 'লিঙ্ক কপি করুন' : 'Copy Link'}</span>
+                </>
+              )}
             </button>
             <button
               type="button"
@@ -336,11 +452,12 @@ export function BlogPostPage() {
         <nav className="grid grid-cols-1 sm:grid-cols-2 gap-4 pt-6 border-t border-[var(--text-primary)]/15">
           {prevPost ? (
             <Link
-              to={`/blog/${prevPost.slug}`}
+              to={`/blog/${prevPost.slug}${isBangla ? '?lang=bn' : ''}`}
               className="group flex flex-col p-4 rounded-xl border border-[var(--text-primary)]/15 bg-[var(--bg-secondary)]/50 hover:border-[var(--text-primary)]/40 hover:bg-[var(--bg-secondary)] transition-all text-left"
             >
               <span className="inline-flex items-center gap-1 text-[11px] uppercase tracking-wider text-[var(--text-primary)]/50 font-mono mb-1">
-                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" /> Previous
+                <ArrowLeft className="w-3 h-3 group-hover:-translate-x-0.5 transition-transform" /> 
+                {isBangla ? 'পূর্ববর্তী আর্টিকেল' : 'Previous'}
               </span>
               <span className="text-sm font-medium text-[#D7E2EA] group-hover:text-[var(--text-highlight)] transition-colors line-clamp-1">
                 {prevPost.title}
@@ -352,11 +469,12 @@ export function BlogPostPage() {
 
           {nextPost ? (
             <Link
-              to={`/blog/${nextPost.slug}`}
+              to={`/blog/${nextPost.slug}${isBangla ? '?lang=bn' : ''}`}
               className="group flex flex-col p-4 rounded-xl border border-[var(--text-primary)]/15 bg-[var(--bg-secondary)]/50 hover:border-[var(--text-primary)]/40 hover:bg-[var(--bg-secondary)] transition-all text-right sm:text-right"
             >
               <span className="inline-flex items-center justify-end gap-1 text-[11px] uppercase tracking-wider text-[var(--text-primary)]/50 font-mono mb-1">
-                Next <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
+                {isBangla ? 'পরবর্তী আর্টিকেল' : 'Next'} 
+                <ArrowRight className="w-3 h-3 group-hover:translate-x-0.5 transition-transform" />
               </span>
               <span className="text-sm font-medium text-[#D7E2EA] group-hover:text-[var(--text-highlight)] transition-colors line-clamp-1">
                 {nextPost.title}

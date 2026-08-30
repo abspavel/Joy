@@ -9,6 +9,7 @@ const CirclePhotosAdmin = React.lazy(() => import('./components/CirclePhotosAdmi
 const CarouselPhotosAdmin = React.lazy(() => import('./components/CarouselPhotosAdmin').then(m => ({ default: m.CarouselPhotosAdmin })));
 const TestimonialsAdmin = React.lazy(() => import('./components/TestimonialsAdmin').then(m => ({ default: m.TestimonialsAdmin })));
 const MessagesAdmin = React.lazy(() => import('./components/MessagesAdmin').then(m => ({ default: m.MessagesAdmin })));
+const NewsletterAdmin = React.lazy(() => import('./components/NewsletterAdmin').then(m => ({ default: m.NewsletterAdmin })));
 const AchievementsAdmin = React.lazy(() => import('./components/AchievementsAdmin').then(m => ({ default: m.AchievementsAdmin })));
 const SkillsAdmin = React.lazy(() => import('./components/SkillsAdmin').then(m => ({ default: m.SkillsAdmin })));
 const CertificationsAdmin = React.lazy(() => import('./components/CertificationsAdmin').then(m => ({ default: m.CertificationsAdmin })));
@@ -45,6 +46,7 @@ export function Dashboard() {
     'Blog',
     'Testimonials', 
     'Messages', 
+    'Newsletter',
     'Optimize Images'
   ];
 
@@ -89,6 +91,7 @@ export function Dashboard() {
             {activeTab === 'Carousel' && <CarouselPhotosAdmin />}
             {activeTab === 'Testimonials' && <TestimonialsAdmin />}
             {activeTab === 'Messages' && <MessagesAdmin />}
+            {activeTab === 'Newsletter' && <NewsletterAdmin />}
             {activeTab === 'Optimize Images' && <OptimizeImagesAdmin />}
           </Suspense>
         </main>
