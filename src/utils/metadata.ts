@@ -694,7 +694,7 @@ export function generateMetadata(input: MetadataInput = {}): GeneratedMetadata {
           '@type': 'Person',
           name: author,
           jobTitle: 'Web Developer',
-          email: 'abspavel126@gmail.com',
+          email: 'hello@paveljoy.com',
         },
       },
     };

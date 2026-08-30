@@ -182,8 +182,8 @@ export function FooterSection() {
         {/* Column 4 - Contact & Social */}
         <FadeIn delay={0.3} className="flex flex-col gap-4">
           <h4 className="text-[var(--text-primary)] font-bold uppercase tracking-widest text-xs sm:text-sm mb-1">Contact</h4>
-          <a href="mailto:hello@joy.dev" className="text-[var(--text-primary)] opacity-70 hover:opacity-100 transition-opacity text-xs sm:text-sm w-fit py-1">
-            hello@joy.dev
+          <a href="mailto:hello@paveljoy.com" className="text-[var(--text-primary)] opacity-70 hover:opacity-100 transition-opacity text-xs sm:text-sm w-fit py-1">
+            hello@paveljoy.com
           </a>
           <a href="tel:+8801835985730" className="text-[var(--text-primary)] opacity-70 hover:opacity-100 transition-opacity text-xs sm:text-sm w-fit py-1">
             +880 183 598 5730
@@ -227,7 +227,7 @@ export function FooterSection() {
             <form onSubmit={handleSubscribe} className="flex flex-col sm:flex-row w-full md:w-auto gap-3">
               <input 
                 type="email" 
-                placeholder="hello@joy.dev" 
+                placeholder="hello@paveljoy.com" 
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}

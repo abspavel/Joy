@@ -95,11 +95,11 @@ export function ContactPage() {
           {/* Contact Info */}
           <div className="space-y-10">
             <FadeIn delay={0.3} y={20} className="space-y-6">
-              <a href="mailto:abspavel126@gmail.com" className="flex items-center gap-4 text-[var(--text-primary)] hover:opacity-70 transition-opacity group">
+              <a href="mailto:hello@paveljoy.com" className="flex items-center gap-4 text-[var(--text-primary)] hover:opacity-70 transition-opacity group">
                 <div className="w-12 h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center group-hover:border-[var(--text-primary)]/50 transition-colors">
                   <Mail className="w-5 h-5" />
                 </div>
-                <div className="text-lg md:text-xl font-light tracking-wide">abspavel126@gmail.com</div>
+                <div className="text-lg md:text-xl font-light tracking-wide">hello@paveljoy.com</div>
               </a>
               <a href="tel:+8801835985730" className="flex items-center gap-4 text-[var(--text-primary)] hover:opacity-70 transition-opacity group">
                 <div className="w-12 h-12 rounded-full border border-[var(--text-primary)]/20 flex items-center justify-center group-hover:border-[var(--text-primary)]/50 transition-colors">

@@ -3,7 +3,7 @@ import { supabase } from '../lib/supabase';
 import { Lock, Mail, ShieldAlert, ArrowRight, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 
-const AUTHORIZED_ADMIN_EMAIL = 'abspavel126@gmail.com';
+const AUTHORIZED_ADMIN_EMAILS = ['abspavel126@gmail.com', 'hello@paveljoy.com'];
 
 export function Login() {
   const [email, setEmail] = useState('');
@@ -18,8 +18,8 @@ export function Login() {
     
     const sanitizedEmail = email.trim().toLowerCase();
 
-    // Strict whitelist check: Only abspavel126@gmail.com is authorized
-    if (sanitizedEmail !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+    // Whitelist check: abspavel126@gmail.com and hello@paveljoy.com are authorized
+    if (!AUTHORIZED_ADMIN_EMAILS.map(e => e.toLowerCase()).includes(sanitizedEmail)) {
       setError('Access Denied: You are not authorized to access this admin portal.');
       setLoading(false);
       return;
@@ -39,7 +39,7 @@ export function Login() {
 
       if (error) {
         setError(error.message);
-      } else if (data?.user && data.user.email?.toLowerCase() !== AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+      } else if (data?.user && !AUTHORIZED_ADMIN_EMAILS.map(e => e.toLowerCase()).includes(data.user.email?.toLowerCase() || '')) {
         // If somehow another user logs in, force immediate logout
         await supabase.auth.signOut();
         setError('Unauthorized account. Access restricted strictly to the primary administrator.');

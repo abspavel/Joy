@@ -4,7 +4,7 @@ import { supabase } from '../lib/supabase';
 import { Login } from './Login';
 import { Dashboard } from './Dashboard';
 
-const AUTHORIZED_ADMIN_EMAIL = 'abspavel126@gmail.com';
+const AUTHORIZED_ADMIN_EMAILS = ['abspavel126@gmail.com', 'hello@paveljoy.com'];
 
 export function AdminRouter() {
   const [session, setSession] = useState<any>(null);
@@ -25,7 +25,8 @@ export function AdminRouter() {
         const { data: { session } } = await Promise.race([sessionPromise, timeoutPromise]) as any;
         
         if (isMounted) {
-          if (session?.user?.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+          const userEmail = session?.user?.email?.toLowerCase();
+          if (userEmail && AUTHORIZED_ADMIN_EMAILS.map(e => e.toLowerCase()).includes(userEmail)) {
             setSession(session);
           } else if (session) {
             // Force sign-out if a non-authorized user is logged in
@@ -48,7 +49,8 @@ export function AdminRouter() {
 
     const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, newSession) => {
       if (isMounted) {
-        if (newSession?.user?.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase()) {
+        const email = newSession?.user?.email?.toLowerCase();
+        if (email && AUTHORIZED_ADMIN_EMAILS.map(e => e.toLowerCase()).includes(email)) {
           setSession(newSession);
         } else {
           setSession(null);
@@ -73,7 +75,8 @@ export function AdminRouter() {
     );
   }
 
-  const isAuthorized = session?.user?.email?.toLowerCase() === AUTHORIZED_ADMIN_EMAIL.toLowerCase();
+  const userEmail = session?.user?.email?.toLowerCase();
+  const isAuthorized = !!userEmail && AUTHORIZED_ADMIN_EMAILS.map(e => e.toLowerCase()).includes(userEmail);
 
   return (
     <Routes>
