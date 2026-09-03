@@ -2,6 +2,7 @@ import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2 } from 'lucide-react';
+import { EditableField } from './EditableField';
 import { compressImage } from '../../utils/imageCompression';
 
 export function TestimonialsAdmin() {
@@ -105,13 +106,13 @@ export function TestimonialsAdmin() {
             <div className="flex gap-4 items-start">
               <div className="flex-1 space-y-2">
                 <div className="flex gap-2">
-                  <input className="border p-1 flex-1 text-sm rounded" value={t.client_name} onChange={e => updateTestimonial(t.id, 'client_name', e.target.value)} placeholder="Client Name" />
-                  <input className="border p-1 flex-1 text-sm rounded" value={t.client_role || ''} onChange={e => updateTestimonial(t.id, 'client_role', e.target.value)} placeholder="Client Role" />
+                  <EditableField className="border p-1 flex-1 text-sm rounded" value={t.client_name} onSave={val => updateTestimonial(t.id, 'client_name', val)} placeholder="Client Name" />
+                  <EditableField className="border p-1 flex-1 text-sm rounded" value={t.client_role || ''} onSave={val => updateTestimonial(t.id, 'client_role', val)} placeholder="Client Role" />
                   <select className="border p-1 text-sm rounded" value={t.rating} onChange={e => updateTestimonial(t.id, 'rating', parseInt(e.target.value))}>
                     {[1, 2, 3, 4, 5].map(n => <option key={n} value={n}>{n} Stars</option>)}
                   </select>
                 </div>
-                <textarea className="w-full border p-2 text-sm rounded" rows={3} value={t.review_text} onChange={e => updateTestimonial(t.id, 'review_text', e.target.value)} placeholder="Review Text" />
+                <EditableField type="textarea" className="w-full border p-2 text-sm rounded" rows={3} value={t.review_text} onSave={val => updateTestimonial(t.id, 'review_text', val)} placeholder="Review Text" />
               </div>
               <div className="flex flex-col gap-2 items-center w-24 shrink-0">
                  {t.client_photo_url ? (
@@ -128,7 +129,7 @@ export function TestimonialsAdmin() {
               <button onClick={() => deleteTestimonial(t.id)} className="text-red-600 px-2 py-1 hover:bg-red-50 rounded">Delete</button>
             </div>
             <div className="flex gap-2 text-sm text-gray-500 items-center">
-               Order: <input type="number" className="border p-1 w-16 rounded" value={t.order_index} onChange={e => updateTestimonial(t.id, 'order_index', parseInt(e.target.value))} />
+               Order: <EditableField type="number" className="border p-1 w-16 rounded" value={t.order_index} onSave={val => updateTestimonial(t.id, 'order_index', parseInt(val))} />
             </div>
           </div>
         ))}

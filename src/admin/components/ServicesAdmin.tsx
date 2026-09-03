@@ -2,6 +2,7 @@ import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Plus, X } from 'lucide-react';
+import { EditableField } from './EditableField';
 
 export function ServicesAdmin() {
   const [services, setServices] = useState<any[]>([]);
@@ -86,12 +87,12 @@ export function ServicesAdmin() {
           <div key={s.id} className="border p-5 rounded-md space-y-4 bg-gray-50">
             <div className="flex justify-between items-start border-b pb-4">
               <div className="flex gap-4 flex-1 mr-4">
-                <input className="border p-2 w-16 text-center font-bold" value={s.number} onChange={e => updateService(s.id, 'number', e.target.value)} placeholder="01" />
+                <EditableField className="border p-2 w-16 text-center font-bold" value={s.number} onSave={val => updateService(s.id, 'number', val)} placeholder="01" />
                 <div className="flex-1 space-y-2">
-                  <input className="border p-2 w-full font-semibold" value={s.name} onChange={e => updateService(s.id, 'name', e.target.value)} placeholder="Service Name" />
+                  <EditableField className="border p-2 w-full font-semibold" value={s.name} onSave={val => updateService(s.id, 'name', val)} placeholder="Service Name" />
                   <div className="flex items-center gap-2 text-sm text-gray-500">
                     <span>Slug:</span>
-                    <input className="border p-1 flex-1 text-xs" value={s.slug || ''} onChange={e => updateService(s.id, 'slug', e.target.value)} placeholder="service-slug" />
+                    <EditableField className="border p-1 flex-1 text-xs" value={s.slug || ''} onSave={val => updateService(s.id, 'slug', val)} placeholder="service-slug" />
                   </div>
                 </div>
               </div>
@@ -101,12 +102,12 @@ export function ServicesAdmin() {
             <div className="space-y-4">
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Short Description (Homepage)</label>
-                <textarea className="border p-2 w-full text-sm" rows={2} value={s.description} onChange={e => updateService(s.id, 'description', e.target.value)} />
+                <EditableField type="textarea" className="border p-2 w-full text-sm" rows={2} value={s.description} onSave={val => updateService(s.id, 'description', val)} />
               </div>
 
               <div>
                 <label className="block text-xs font-semibold text-gray-600 uppercase mb-1">Detailed Content (Service Page Overview)</label>
-                <textarea className="border p-2 w-full text-sm" rows={4} value={s.detailed_content || ''} onChange={e => updateService(s.id, 'detailed_content', e.target.value)} placeholder="Full detailed description of the service..." />
+                <EditableField type="textarea" className="border p-2 w-full text-sm" rows={4} value={s.detailed_content || ''} onSave={val => updateService(s.id, 'detailed_content', val)} placeholder="Full detailed description of the service..." />
               </div>
 
               {/* Features List */}
@@ -120,10 +121,10 @@ export function ServicesAdmin() {
                 <div className="space-y-2">
                   {(s.features || []).map((feature: string, idx: number) => (
                     <div key={idx} className="flex gap-2 items-center">
-                      <input 
+                      <EditableField 
                         className="border p-1.5 flex-1 text-sm rounded" 
                         value={feature} 
-                        onChange={e => updateFeature(s.id, s.features, idx, e.target.value)} 
+                        onSave={val => updateFeature(s.id, s.features, idx, val)} 
                       />
                       <button onClick={() => removeFeature(s.id, s.features, idx)} className="text-red-400 hover:text-red-600"><X className="w-4 h-4" /></button>
                     </div>
@@ -145,18 +146,19 @@ export function ServicesAdmin() {
                     <div key={idx} className="flex gap-3 items-start border-l-2 border-indigo-200 pl-3">
                       <div className="text-xs font-bold text-gray-400 mt-2">{idx + 1}.</div>
                       <div className="flex-1 space-y-2">
-                        <input 
+                        <EditableField 
                           className="border p-1.5 w-full text-sm font-medium rounded" 
                           value={step.title} 
                           placeholder="Step Title"
-                          onChange={e => updateProcessStep(s.id, s.process_steps, idx, 'title', e.target.value)} 
+                          onSave={val => updateProcessStep(s.id, s.process_steps, idx, 'title', val)} 
                         />
-                        <textarea 
+                        <EditableField 
+                          type="textarea"
                           className="border p-1.5 w-full text-xs rounded" 
                           rows={2} 
                           value={step.description} 
                           placeholder="Step Description"
-                          onChange={e => updateProcessStep(s.id, s.process_steps, idx, 'description', e.target.value)} 
+                          onSave={val => updateProcessStep(s.id, s.process_steps, idx, 'description', val)} 
                         />
                       </div>
                       <button onClick={() => removeProcessStep(s.id, s.process_steps, idx)} className="text-red-400 hover:text-red-600 mt-2"><X className="w-4 h-4" /></button>
@@ -168,7 +170,7 @@ export function ServicesAdmin() {
             </div>
             
             <div className="flex gap-2 text-sm text-gray-500 items-center justify-end pt-2">
-               Order: <input type="number" className="border p-1 w-16 text-center" value={s.order_index} onChange={e => updateService(s.id, 'order_index', parseInt(e.target.value))} />
+               Order: <EditableField type="number" className="border p-1 w-16 text-center" value={s.order_index} onSave={val => updateService(s.id, 'order_index', parseInt(val))} />
             </div>
           </div>
         ))}

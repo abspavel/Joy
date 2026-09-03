@@ -2,6 +2,7 @@ import { invalidatePortfolioCache } from '../../hooks/usePortfolioData';
 import { useState, useEffect } from 'react';
 import { supabase } from '../../lib/supabase';
 import { Loader2, Plus, Trash2, Globe, FileText, Code2, Sparkles, Image as ImageIcon } from 'lucide-react';
+import { EditableField } from './EditableField';
 import { compressImage } from '../../utils/imageCompression';
 
 export function ProjectsAdmin() {
@@ -128,30 +129,30 @@ export function ProjectsAdmin() {
             <div className="flex flex-wrap items-center gap-4 border-b border-gray-100 pb-4">
               <div className="w-20">
                 <label className="block text-[11px] font-semibold text-gray-500 uppercase">Number</label>
-                <input 
+                <EditableField 
                   className="border border-gray-300 rounded-lg p-2 w-full font-mono text-sm font-bold text-gray-800" 
                   value={p.project_number || ''} 
-                  onChange={e => updateProject(p.id, 'project_number', e.target.value)} 
+                  onSave={val => updateProject(p.id, 'project_number', val)} 
                   placeholder="01" 
                 />
               </div>
 
               <div className="flex-1 min-w-[200px]">
                 <label className="block text-[11px] font-semibold text-gray-500 uppercase">Project Name / Title</label>
-                <input 
+                <EditableField 
                   className="border border-gray-300 rounded-lg p-2 w-full text-sm font-semibold text-gray-900" 
                   value={p.name || p.title || ''} 
-                  onChange={e => updateProject(p.id, 'name', e.target.value)} 
+                  onSave={val => updateProject(p.id, 'name', val)} 
                   placeholder="Project Name" 
                 />
               </div>
 
               <div className="w-40">
                 <label className="block text-[11px] font-semibold text-gray-500 uppercase">Category</label>
-                <input 
+                <EditableField 
                   className="border border-gray-300 rounded-lg p-2 w-full text-sm text-gray-700" 
                   value={p.category || ''} 
-                  onChange={e => updateProject(p.id, 'category', e.target.value)} 
+                  onSave={val => updateProject(p.id, 'category', val)} 
                   placeholder="e.g. Client, Web App, 3D" 
                 />
               </div>
@@ -172,11 +173,11 @@ export function ProjectsAdmin() {
                 <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1">
                   <FileText className="w-3.5 h-3.5 text-indigo-600" /> Project Story & Description (Shown in Detail View)
                 </label>
-                <textarea 
+                <EditableField type="textarea" 
                   rows={3}
                   className="border border-gray-300 rounded-lg p-2.5 w-full text-sm text-gray-800 placeholder-gray-400 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                   value={p.description || p.overview || ''}
-                  onChange={e => updateProject(p.id, 'description', e.target.value)}
+                  onSave={val => updateProject(p.id, 'description', val)}
                   placeholder="Describe the project goals, architecture, design decisions, and solutions..."
                 />
               </div>
@@ -186,10 +187,10 @@ export function ProjectsAdmin() {
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1">
                     <Code2 className="w-3.5 h-3.5 text-indigo-600" /> Tech Stack & Tools (Comma-separated)
                   </label>
-                  <input 
+                  <EditableField 
                     className="border border-gray-300 rounded-lg p-2 w-full text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     value={p.tech_stack || ''}
-                    onChange={e => updateProject(p.id, 'tech_stack', e.target.value)}
+                    onSave={val => updateProject(p.id, 'tech_stack', val)}
                     placeholder="e.g. React 19, Three.js, Tailwind CSS, Vite, Supabase"
                   />
                 </div>
@@ -198,10 +199,10 @@ export function ProjectsAdmin() {
                   <label className="flex items-center gap-1.5 text-xs font-semibold text-gray-700 mb-1">
                     <Sparkles className="w-3.5 h-3.5 text-indigo-600" /> Key Features & Highlights (Comma-separated)
                   </label>
-                  <input 
+                  <EditableField 
                     className="border border-gray-300 rounded-lg p-2 w-full text-sm text-gray-800 focus:ring-2 focus:ring-indigo-500 focus:outline-none"
                     value={p.features || ''}
-                    onChange={e => updateProject(p.id, 'features', e.target.value)}
+                    onSave={val => updateProject(p.id, 'features', val)}
                     placeholder="e.g. Ultra-smooth 60fps animations, Dark/Light mode, Mobile first"
                   />
                 </div>
@@ -213,10 +214,10 @@ export function ProjectsAdmin() {
                   <Globe className="w-4 h-4 text-indigo-600" /> Live Interactive Preview URL (Embeds inside website + Direct link)
                 </label>
                 <div className="flex gap-2">
-                  <input 
+                  <EditableField 
                     className="border border-indigo-200 bg-white rounded-lg p-2 flex-1 text-sm font-mono text-gray-900 focus:ring-2 focus:ring-indigo-500 focus:outline-none" 
                     value={p.live_project_url || p.live_link || ''} 
-                    onChange={e => updateProject(p.id, 'live_project_url', e.target.value)} 
+                    onSave={val => updateProject(p.id, 'live_project_url', val)} 
                     placeholder="https://example-project.vercel.app or https://github.com/..." 
                   />
                 </div>
@@ -238,11 +239,11 @@ export function ProjectsAdmin() {
                     {uploadingField === `${p.id}-col1_image1_url` ? <span className="flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Uploading</span> : 'Upload Image'}
                     <input type="file" accept="image/*" onChange={e => e.target.files && handleImageUpload(p.id, 'col1_image1_url', e.target.files[0])} className="hidden" />
                   </label>
-                  <input 
+                  <EditableField 
                     className="border border-gray-200 bg-white p-1 text-[11px] w-full rounded font-mono"
                     placeholder="Or paste URL"
                     value={p.col1_image1_url || ''}
-                    onChange={e => updateProject(p.id, 'col1_image1_url', e.target.value)}
+                    onSave={val => updateProject(p.id, 'col1_image1_url', val)}
                   />
                 </div>
 
@@ -253,11 +254,11 @@ export function ProjectsAdmin() {
                     {uploadingField === `${p.id}-col1_image2_url` ? <span className="flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Uploading</span> : 'Upload Image'}
                     <input type="file" accept="image/*" onChange={e => e.target.files && handleImageUpload(p.id, 'col1_image2_url', e.target.files[0])} className="hidden" />
                   </label>
-                  <input 
+                  <EditableField 
                     className="border border-gray-200 bg-white p-1 text-[11px] w-full rounded font-mono"
                     placeholder="Or paste URL"
                     value={p.col1_image2_url || ''}
-                    onChange={e => updateProject(p.id, 'col1_image2_url', e.target.value)}
+                    onSave={val => updateProject(p.id, 'col1_image2_url', val)}
                   />
                 </div>
 
@@ -268,11 +269,11 @@ export function ProjectsAdmin() {
                     {uploadingField === `${p.id}-col2_image_url` ? <span className="flex items-center justify-center gap-1"><Loader2 className="w-3 h-3 animate-spin"/> Uploading</span> : 'Upload Image'}
                     <input type="file" accept="image/*" onChange={e => e.target.files && handleImageUpload(p.id, 'col2_image_url', e.target.files[0])} className="hidden" />
                   </label>
-                  <input 
+                  <EditableField 
                     className="border border-gray-200 bg-white p-1 text-[11px] w-full rounded font-mono"
                     placeholder="Or paste URL"
                     value={p.col2_image_url || ''}
-                    onChange={e => updateProject(p.id, 'col2_image_url', e.target.value)}
+                    onSave={val => updateProject(p.id, 'col2_image_url', val)}
                   />
                 </div>
               </div>
