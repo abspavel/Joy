@@ -93,8 +93,8 @@ export function ProjectsSection() {
         {loading ? (
           <>
             {[1, 2, 3].map(i => (
-              <div key={i} className="sticky flex items-center justify-center w-full min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] mb-8" style={{ top: `calc(10vh + ${i * 40}px)` }}>
-                 <div className="w-full h-full min-h-[500px] sm:min-h-[600px] md:min-h-[700px] lg:min-h-[800px] bg-[var(--text-primary)]/5 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] animate-pulse border border-[var(--text-primary)]/10" />
+              <div key={i} className="sticky flex items-center justify-center w-full min-h-[500px] md:min-h-[600px] mb-8" style={{ top: `calc(10vh + ${i * 40}px)` }}>
+                 <div className="w-full h-full min-h-[500px] md:min-h-[600px] bg-[var(--text-primary)]/5 rounded-[30px] sm:rounded-[40px] md:rounded-[50px] animate-pulse border border-[var(--text-primary)]/10" />
               </div>
             ))}
           </>
@@ -206,12 +206,12 @@ const ProjectCard: React.FC<{
   const liveUrl = project.live_project_url || project.live_link;
 
   return (
-    <div ref={containerRef} className="h-[92vh] sm:h-[88vh] flex items-start justify-center perspective-[1500px]" style={{ marginTop: index === 0 ? 0 : '8vh' }}>
+    <div ref={containerRef} className="h-auto pb-[15vh] md:pb-[20vh] flex items-start justify-center perspective-[1500px]" style={{ marginTop: index === 0 ? 0 : '2vh' }}>
       <motion.div 
         style={{ 
           scale, 
           rotateX: rotateXStack,
-          top: `calc(5rem + ${index * 26}px)`,
+          top: `calc(clamp(4rem, 8vh, 5rem) + calc(${index} * clamp(14px, 2vh, 26px)))`,
           transformOrigin: 'top center'
         }} 
         className="sticky w-full"
@@ -296,13 +296,13 @@ const ProjectCard: React.FC<{
           </div>
 
           {/* Interactive Project Images Grid with Hover Enlargement & Description Reveal */}
-          <div className="flex flex-col md:flex-row gap-4 sm:gap-6 flex-1 min-h-0 relative z-10">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 md:gap-6 flex-1 min-h-0 relative z-10">
             
             {/* Left Column: 2 Stacked Tiles with Zoom & Micro-Badge */}
-            <div className="w-full md:w-[38%] flex flex-col gap-4 sm:gap-6">
+            <div className="w-full md:w-[38%] flex flex-row md:flex-col gap-3 sm:gap-4 md:gap-6">
               
               {/* Tile 1 */}
-              <div className="group/img1 w-full rounded-[28px] sm:rounded-[36px] md:rounded-[42px] overflow-hidden relative border border-white/10 hover:border-purple-400/50 transition-colors duration-300 shadow-md" style={{ height: 'clamp(140px, 16vw, 220px)' }}>
+              <div className="group/img1 flex-1 md:w-full rounded-[24px] sm:rounded-[36px] md:rounded-[42px] overflow-hidden relative border border-white/10 hover:border-purple-400/50 transition-colors duration-300 shadow-md h-[130px] sm:h-[160px] md:h-[clamp(140px,16vw,220px)]">
                 <motion.div
                   initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                   whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
@@ -336,7 +336,7 @@ const ProjectCard: React.FC<{
               </div>
 
               {/* Tile 2 */}
-              <div className="group/img2 w-full rounded-[28px] sm:rounded-[36px] md:rounded-[42px] overflow-hidden flex-1 relative border border-white/10 hover:border-cyan-400/50 transition-colors duration-300 shadow-md" style={{ minHeight: 'clamp(170px, 20vw, 300px)' }}>
+              <div className="group/img2 flex-1 md:w-full rounded-[24px] sm:rounded-[36px] md:rounded-[42px] overflow-hidden relative border border-white/10 hover:border-cyan-400/50 transition-colors duration-300 shadow-md h-[130px] sm:h-[160px] md:h-auto md:min-h-[clamp(170px,20vw,300px)]">
                 <motion.div
                   initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                   whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
@@ -372,7 +372,7 @@ const ProjectCard: React.FC<{
             </div>
 
             {/* Right Column: Main Big Showcase with Zoom & Floating Interactive Drawer */}
-            <div className="group/main w-full md:w-[62%] rounded-[28px] sm:rounded-[36px] md:rounded-[42px] overflow-hidden h-[340px] md:h-auto relative border border-white/10 hover:border-purple-400/40 transition-colors duration-300 shadow-xl">
+            <div className="group/main w-full md:w-[62%] rounded-[24px] sm:rounded-[36px] md:rounded-[42px] overflow-hidden h-[260px] sm:h-[300px] md:h-auto relative border border-white/10 hover:border-purple-400/40 transition-colors duration-300 shadow-xl">
               <motion.div
                 initial={{ clipPath: "inset(100% 0% 0% 0%)" }}
                 whileInView={{ clipPath: "inset(0% 0% 0% 0%)" }}
